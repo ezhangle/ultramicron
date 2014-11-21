@@ -468,7 +468,7 @@ begin
       Exit;
 
 {$WARNINGS OFF}
-  fhPort := CreateFile(PChar('COM'+IntToStr(fCOMProp.PortNum)),
+  fhPort := CreateFile(PChar('\\.\COM'+IntToStr(fCOMProp.PortNum)),
     GENERIC_READ or GENERIC_WRITE,
     0,
     nil,
@@ -536,18 +536,18 @@ Var
   E: EiaRS232_Error;
   vRaiseException: Boolean;
 begin
-  vRaiseException := True;
-  FLastRSError.msg := aMSG;
-  FLastRSError.uin := aUIN;
-  If aDoErrorEvent then
-    DoOnError(aData, aCount, aMsg, aUIN, vRaiseException);
-  If vRaiseException or not aManageErrorEvent then
-    Begin
-      E := EiaRS232_Error.Create(aMsg);
-      E.ErrorCodeRS232 := aUIN;
-      Raise E;
-    end
-  Else
+//  vRaiseException := True;
+//  FLastRSError.msg := aMSG;
+//  FLastRSError.uin := aUIN;
+//  If aDoErrorEvent then
+//    DoOnError(aData, aCount, aMsg, aUIN, vRaiseException);
+//  If vRaiseException or not aManageErrorEvent then
+//    Begin
+//      E := EiaRS232_Error.Create(aMsg);
+//      E.ErrorCodeRS232 := aUIN;
+//      Raise E;
+//    end
+//  Else
     Result := False;
 end;
 

@@ -4,7 +4,7 @@ object About: TAbout
   Anchors = []
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 180
+  ClientHeight = 205
   ClientWidth = 261
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -212,9 +212,35 @@ object About: TAbout
     Font.Style = [fsBold]
     ParentFont = False
   end
+  object Label4: TLabel
+    Left = 72
+    Top = 115
+    Width = 145
+    Height = 16
+    Caption = #1042#1077#1088#1089#1080#1103' 2.0 ('#1089') Shodan'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Label5: TLabel
+    Left = 104
+    Top = 129
+    Width = 132
+    Height = 16
+    Caption = 'shodan@'#1084#1080#1082#1088#1086#1085'.net'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
   object Button1: TButton
     Left = 96
-    Top = 141
+    Top = 165
     Width = 75
     Height = 25
     Caption = 'OK'

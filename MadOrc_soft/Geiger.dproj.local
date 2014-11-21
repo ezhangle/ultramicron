@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.586,=D:\Проекты\Ультра-микрон\firmware\MadOrc_soft\iaRS232.PAS</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.871,=D:\Проекты\Ультра-микрон\firmware\MadOrc_soft\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.865,=D:\Проекты\Ультра-микрон\firmware\MadOrc_soft\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.dfm,C:\@AVR\@Project8 USB-Geiger\delphi USB Geiger\About_f.dfm=C:\@AVR\@Project8 USB-Geiger\delphi USB Geiger\Unit1.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.dproj,C:\@AVR\@Project8 USB-Geiger\delphi USB Geiger\Geiger.dproj=C:\@AVR\@Project8 USB-Geiger\delphi\USB_TERM.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.586,=D:\Проекты\Ультра-микрон\firmware\MadOrc_soft\iaRS232.PAS</Transaction>
     <Transaction>1899.12.30 00:00:00.000.575,=D:\Проекты\Ультра-микрон\firmware\MadOrc_soft\iaCOMProperties.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.pas,C:\@AVR\@Project8 USB-Geiger\delphi USB Geiger\About_f.pas=C:\@AVR\@Project8 USB-Geiger\delphi USB Geiger\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.dproj,C:\@AVR\@Project8 USB-Geiger\delphi USB Geiger\Geiger.dproj=C:\@AVR\@Project8 USB-Geiger\delphi\USB_TERM.dproj</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="main.pas"/>
@@ -14,5 +16,7 @@
     <File Path="About_f.dfm"/>
     <File Path="iaCOMProperties.pas"/>
     <File Path="iaRS232.PAS"/>
+    <File Path="Unit1.pas"/>
+    <File Path="Unit1.dfm"/>
   </ProjectSortOrder>
 </BorlandProject>

@@ -79,9 +79,6 @@ Coordinates=495,166,79,36
 [Label5]
 Coordinates=80,214,53,58
 
-[HidController]
-Coordinates=495,221,90,36
-
 [Button1]
 Coordinates=10,10,59,58
 
@@ -124,25 +121,47 @@ Coordinates=410,146,53,58
 [BlackBtn]
 Coordinates=288,461,65,36
 
-[Button3]
-Coordinates=350,10,59,58
-
-[Button5]
-Coordinates=489,10,59,58
+[]
+Coordinates=219,427,59,58
 Visible=True
 
-[Button2]
-Coordinates=218,10,59,58
+[Timer1]
+Coordinates=88,78,55,36
 
-[Memo2]
-Coordinates=73,78,64,58
+[Label3]
+Coordinates=88,1,53,58
 
-[Memo1]
-Coordinates=212,78,64,58
+[COM41]
+Coordinates=477,269,58,36
 
-[Button4]
-Coordinates=79,10,59,58
+[Voltage]
+Coordinates=0,0,58,58
 
-[]
-Coordinates=640,56,91,36
+[PortSub]
+Coordinates=426,343,61,36
+
+[COM31]
+Coordinates=306,343,58,36
+
+[COM11]
+Coordinates=247,343,58,36
+
+[COM51]
+Coordinates=188,343,58,36
+
+[COM21]
+Coordinates=129,343,58,36
+
+[Load_stat_btn]
+Coordinates=30,310,96,58
+
+[Image2]
+Coordinates=306,269,57,58
+Visible=True
+LayerNames=NewLayer0
+
+[Module Settings]
+ModelLayerNames=NewLayer0
+ActiveLayerNames=NewLayer0
+EditingLayerName=NewLayer0
 
