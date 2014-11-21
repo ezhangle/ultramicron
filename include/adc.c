@@ -63,9 +63,6 @@ void adc_init(void)
 {
   ADC_InitTypeDef ADC_InitStructure;
 	uint32_t ccr = ADC->CCR;
-	
-	ADC_StructInit(&ADC_InitStructure);
-	
   ccr &= ~ADC_CCR_ADCPRE;
   ccr |= ADC_CCR_ADCPRE_0;
   ADC->CCR = ccr; // устанавливаем скорость перобразования АЦП 500ksps для режима пониженного питания

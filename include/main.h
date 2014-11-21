@@ -151,7 +151,7 @@ extern uint32_t last_count_pump_on_impulse;
 extern FunctionalState pump_on_impulse;
 
 
-//extern uint32_t fullstop;
+extern uint32_t fullstop;
 extern FunctionalState Sound_key_pressed;
 
 extern uint16_t current_pulse_count;

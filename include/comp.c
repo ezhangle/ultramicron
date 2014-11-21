@@ -24,8 +24,6 @@ void comp_on()
 	COMP_InitTypeDef COMP_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 	
-	
-	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_COMP, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);

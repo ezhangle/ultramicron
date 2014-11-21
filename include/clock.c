@@ -49,8 +49,6 @@ void set_msi(FunctionalState sleep)
 {
 	GPIO_InitTypeDef   GPIO_InitStructure;
 	 
-	GPIO_StructInit(&GPIO_InitStructure);
-	
 	TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
 	Power.Pump_active=DISABLE;
    RCC_MSICmd(ENABLE); // Включить MSI
@@ -126,20 +124,19 @@ PWR_VoltageScalingConfig(PWR_VoltageScaling_Range3); // Voltage Scaling Range 3 
 while(PWR_GetFlagStatus(PWR_FLAG_VOS) != RESET); // Wait Until the Voltage Regulator is ready
 
 SystemCoreClockUpdate();
-TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
-TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-
-TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
+tim10_sound_activate();
+TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Immediate);
+TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
 Power.Pump_active=DISABLE;
 
-GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;        
-GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+GPIO_InitStructure.GPIO_Speed = GPIO_Speed_400KHz;
+GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
-GPIO_Init(     GPIOH, &GPIO_InitStructure); 
-GPIO_SetBits(GPIOH,GPIO_InitStructure.GPIO_Pin);// Отключаем токосемник
+GPIO_Init(GPIOH, &GPIO_InitStructure);
 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOH, DISABLE);
+
 }
 //-------------------------------------------------------------------------------------------------------
 
@@ -203,10 +200,9 @@ FLASH_SetLatency(FLASH_Latency_1);
         while (RCC_GetSYSCLKSource() != 0x0C);
 
 SystemCoreClockUpdate();
-TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
-TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-
-TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
+tim10_sound_activate();
+TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Immediate);
+TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
 Power.Pump_active=DISABLE;
 }

@@ -4,8 +4,6 @@
 void dac_init()
 {
 	DAC_InitTypeDef  DAC_InitStructure;
-	
-	DAC_StructInit(&DAC_InitStructure);
   //--------------------------------------------------------------------
   //Конфигурируем систему детектирования выброса
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);

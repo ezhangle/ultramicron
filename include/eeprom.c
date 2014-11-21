@@ -91,11 +91,8 @@ uint32_t pump_period;
 	// -------------------------------------------------------------------
 	if(eeprom_read(Sound_freq_address)     !=Settings.Sound_freq)
 	{
-
-		TIM_SetAutoreload(TIM10, 2000000/(Settings.Sound_freq*1000));    // TIM_Period
-		TIM_SetCompare1(TIM10,  (2000000/(Settings.Sound_freq*1000))/2); // TIM_Pulse
-		TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-
+		tim10_sound_activate();
+		TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Update);
 	}
 	// -------------------------------------------------------------------
 	if(eeprom_read(LSI_freq_address)       !=Settings.LSI_freq)
@@ -123,7 +120,7 @@ void eeprom_read_settings(void)
 	Settings.Sound=                 eeprom_read(Sound_address);
   Settings.Led_Sleep_time=        eeprom_read(Led_Sleep_time_address);  
   Settings.LSI_freq=  			      eeprom_read(LSI_freq_address);  
-	Settings.Power_comp= 			      eeprom_read(Power_comp_address);  
+	Settings.Power_comp=  			      eeprom_read(Power_comp_address);  
 
 }
 

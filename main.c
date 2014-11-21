@@ -7,7 +7,7 @@
 #include "io_ports.h"
 #include "rtc.h"
 #include "timers.h"
-//#include "stm32l1xx_ulp_modes.h"
+#include "stm32l1xx_ulp_modes.h"
 #include "ext2760.h"
 #include "interrupt.h"
 #include "menu.h"

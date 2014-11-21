@@ -172,6 +172,10 @@ void check_wakeup_keys()
 // Прерывание по нажатию кнопки 0
 void EXTI3_IRQHandler(void)
 {
+  if (fullstop==1){EXTI_ClearITPendingBit(EXTI_Line3);return;}
+  
+	
+  
   if(EXTI_GetITStatus(EXTI_Line3) != RESET)
   {
     if(Alarm.Alarm_active && !Alarm.User_cancel)
@@ -195,6 +199,10 @@ void EXTI3_IRQHandler(void)
 // Прерывание по нажатию кнопки 1
 void EXTI4_IRQHandler(void)
 {
+  if (fullstop==1){EXTI_ClearITPendingBit(EXTI_Line4);return;}
+  
+	
+	
   if(EXTI_GetITStatus(EXTI_Line4) != RESET)
   {
     
@@ -213,12 +221,16 @@ void EXTI4_IRQHandler(void)
 // Прерывание по импульсу от датчикав 1 и кнопки 2
 void EXTI9_5_IRQHandler(void)
 {
+//	EXTI_InitTypeDef EXTI_InitStructure;
 	extern __IO uint8_t Receive_Buffer[64];
   extern __IO  uint32_t Receive_length ;
   extern __IO  uint32_t length ;
 #ifdef debug
 		Wakeup.sensor_wakeup++;
 #endif
+	if (fullstop==1){EXTI_ClearITPendingBit(EXTI_Line8);EXTI_ClearITPendingBit(EXTI_Line6);return;}
+  
+  
   if(EXTI_GetITStatus(EXTI_Line8) != RESET)
   {
 		EXTI_ClearITPendingBit(EXTI_Line8);
@@ -267,7 +279,8 @@ void TIM9_IRQHandler(void)
 #ifdef debug	
 	Wakeup.tim9_wakeup++;
 #endif
-	if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET)
+	if (fullstop==1){TIM_ClearITPendingBit(TIM9, TIM_IT_CC1);TIM_ClearITPendingBit(TIM9, TIM_IT_Update);return;}
+  if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET)
   {
     TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
      if(TIM9->CCER & (TIM_CCx_Enable << TIM_Channel_1))
@@ -300,6 +313,7 @@ void TIM10_IRQHandler(void)
 #ifdef debug
 	  Wakeup.tim10_wakeup++;
 #endif	
+	if (fullstop==1){TIM_ClearITPendingBit(TIM10, TIM_IT_CC1);TIM_ClearITPendingBit(TIM10, TIM_IT_Update);return;}
   if (TIM_GetITStatus(TIM10, TIM_IT_Update) != RESET)
   {
 		TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
@@ -308,8 +322,8 @@ void TIM10_IRQHandler(void)
       if(!Alarm.User_cancel)
       {        
         Alarm.Alarm_beep_count++;
-//        if(Alarm.Alarm_beep_count==500)  TIM_SetCompare1(TIM10, 2000000 /(Settings.Sound_freq*1000) );
-//        if(Alarm.Alarm_beep_count==1000){TIM_SetCompare1(TIM10, 1000000 /(Settings.Sound_freq*1000) );Alarm.Alarm_beep_count=0;}
+        if(Alarm.Alarm_beep_count==500)  TIM_SetCompare1(TIM10, 1 );
+        if(Alarm.Alarm_beep_count==1000){TIM_SetCompare1(TIM10, 2 );Alarm.Alarm_beep_count=0;}
       }
       else
       {
@@ -397,6 +411,9 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 #ifdef debug
 		Wakeup.rtc_wakeup++;
 #endif	
+		if (fullstop==1){RTC_ClearITPendingBit(RTC_IT_ALRA);EXTI_ClearITPendingBit(EXTI_Line17);return;}
+	
+		
     if(RTC_GetITStatus(RTC_IT_ALRA) != RESET) 
 		{
 			RTC_ClearITPendingBit(RTC_IT_ALRA);
@@ -535,10 +552,12 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void RTC_WKUP_IRQHandler (void)
 {
+//	EXTI_InitTypeDef EXTI_InitStructure;
 #ifdef debug	
 	Wakeup.pump_wakeup++;
 #endif	
 	EXTI_ClearITPendingBit(EXTI_Line20);
+	if (fullstop==1){RTC_ClearITPendingBit(RTC_IT_WUT);return;}
   if(RTC_GetITStatus(RTC_IT_WUT) != RESET)
   {
 		RTC_ClearITPendingBit(RTC_IT_WUT);
@@ -554,11 +573,16 @@ void RTC_WKUP_IRQHandler (void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void COMP_IRQHandler(void)
 {
+// EXTI_InitTypeDef EXTI_InitStructure;
  int i;	
 	extern uint16_t current_pulse_count;
 #ifdef debug	
 	Wakeup.comp_wakeup++;
 #endif	
+	if (fullstop==1){   EXTI_ClearITPendingBit(EXTI_Line22);return;}
+
+	
+	
   if(EXTI_GetITStatus(EXTI_Line22) != RESET)
   {
    EXTI_ClearITPendingBit(EXTI_Line22);

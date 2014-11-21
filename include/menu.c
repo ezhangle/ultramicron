@@ -48,7 +48,6 @@ void main_screen()
   RTC_TimeTypeDef RTC_TimeStructure;
   uint16_t battery_procent=0;
   
-	RTC_TimeStructInit(&RTC_TimeStructure);
   RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 
 //  sprintf (lcd_buf, "%0.2d:%0.2d:%0.2d", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds ); // Пишем в буфер значение счетчика
