@@ -1,0 +1,125 @@
+#ifndef __main_user_H
+#define __main_user_H
+
+
+#include "stm32l1xx.h"
+
+typedef struct
+{
+  FunctionalState Need_batt_voltage_update;    // Необходимо обновить данные по напряжению батарейки
+//  FunctionalState Need_geiger_voltage_update;  // Необходимо обновить данные по высокому напряжению 
+  FunctionalState Need_fon_update;             // Необходимо обновить данные по высокому напряжению 
+  FunctionalState Need_display_update;         // Необходимо обновить данные по высокому напряжению 
+  uint16_t Batt_update_time_counter;            // счетчик таймаута измерения напряжения АКБ
+//  uint8_t Calibration_update_time_counter;     // счетчик таймаута измерения напряжения АКБ
+  uint8_t pump_counter_update_time;
+	uint16_t  doze_sec_count;                    // Служебный счетчик для времени дозы
+//  uint8_t second_pump_counter;
+//  uint8_t pump_pulse_by_impulse_counter;
+  
+}DataUpdateDef;
+
+
+typedef struct
+{
+  uint32_t Batt_voltage_raw;        // Напряжение АКБ
+  uint32_t Batt_voltage;            // Напряжение АКБ
+  uint32_t Power_voltage;           // Напряжение питания МК
+//  uint32_t Geiger_voltage_raw;      // Напряжение счетчика
+//  uint32_t Geiger_voltage;          // Напряжение счетчика
+  uint32_t Calibration_bit_voltage; // Цена одного бита
+  uint32_t Procent_battery;         // Цена одного бита
+  uint32_t DAC_voltage_raw;         // Уровень накачки для DAC
+  
+}ADCDataDef;
+
+typedef struct
+{
+  uint32_t Alarm_level;                             // Уровень аларма
+  uint32_t Sleep_time;                              // время до ухода в сон
+  uint32_t Led_Sleep_time;                          // время до ухода в сон
+  uint32_t contrast;                                 // Контраст дисплея
+//  uint32_t second_pump;                              // кол-во импульсов подкачки каждую секунду
+//  uint32_t Geiger_angle_of_counter_characteristics; // угол наклона счетной хакактиристики в десятых долях процента на Вольт
+//  uint32_t Geiger_plato_begin;                      // начало плато
+//  uint32_t Geiger_plato;                            // ширина плато
+//  uint32_t HV_ADC_Corr;                             // Корректировка ВВ делителя
+//  uint32_t pump_pulse_by_impulse;                   // кол-во импульсов подкачки на каждый импульс датчика
+//  uint32_t pump_skvagennost;                        // скваженность накачки
+  uint32_t Sound_freq;				    // Частота звука в кГц
+  uint32_t Geiger_voltage;
+	uint32_t Pump_Energy;
+  uint32_t Display_reverse;                  // переворот дисплея
+  uint32_t Sound;                            // Звук вкл-выкл
+  uint32_t Second_count;
+  uint32_t LSI_freq;
+	
+}SettingsDef;
+
+
+typedef struct
+{
+  uint32_t Alarm_beep_count;
+  uint32_t Tick_beep_count;
+  FunctionalState Alarm_active; 
+  FunctionalState User_cancel; 
+  
+  
+}AlarmDef;
+
+typedef struct
+{
+  FunctionalState ADC_active;     // Сейчас работает АЦП
+  FunctionalState Pump_active;    // В данный момент идет накачка
+  FunctionalState Sound_active;   // В данный подается звук
+  FunctionalState Display_active; // Включен дисплей
+	FunctionalState USB_active;     // Включен USB
+  
+  uint32_t sleep_time;  //
+	uint32_t led_sleep_time;  //
+  
+}PowerDef;
+
+static __IO uint8_t  timer_is_reload = 0;	// counts 1ms timeTicks
+extern uint16_t key; // массив нажатых кнопок [012]
+extern uint32_t ix;
+extern uint32_t ix_update;
+
+//#define count_seconds 75 // 
+extern uint16_t Detector_massive[120+1];
+
+#define doze_length 144 // 
+extern uint32_t Doze_massive[doze_length+1]; // 1 ячейка = 10 минут, на протяжении суток
+extern uint32_t max_fon_massive[doze_length+1]; // 1 ячейка = 10 минут, на протяжении суток
+extern uint16_t Doze_sec_count;
+extern uint32_t Doze_count;
+extern uint32_t Doze_hour_count;
+extern uint32_t Max_fon;
+extern uint8_t  main_menu_stat;
+extern uint32_t menu_select;
+extern FunctionalState enter_menu_item;
+extern uint8_t screen;
+extern uint8_t stat_screen_number;
+extern uint16_t Detector_massive_pointer;
+extern uint16_t pump_counter_avg_impulse_by_1sec[2];
+extern uint32_t fon_level;
+extern uint8_t  auto_speedup_factor;
+
+extern uint32_t fullstop;
+extern FunctionalState Sound_key_pressed;
+
+extern uint8_t second_divide;
+
+extern uint16_t current_pulse_count;
+
+extern ADCDataDef    ADCData;
+extern DataUpdateDef DataUpdate;
+extern PowerDef      Power;
+extern SettingsDef Settings;
+extern AlarmDef Alarm;
+
+extern uint8_t pump_count;
+
+void sleep_mode(FunctionalState sleep);
+
+#endif
