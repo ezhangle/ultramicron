@@ -76,6 +76,10 @@ void sleep_mode(FunctionalState sleep)
     if(sleep)
     {
 			RTC_ITConfig(RTC_IT_WUT, DISABLE);
+
+			Power.led_sleep_time=0;
+			GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
+
       display_off(); // выключить дисплей
  			GPIO_ResetBits(GPIOA,GPIO_Pin_7);// Фиксируем режим 1.8 вольта, с низким потреблением ножки
 			delay_ms(1000); // подождать установки напряжения
@@ -134,6 +138,10 @@ int main(void)
   set_bor();
 	Power.sleep_now=DISABLE;
 	
+  Settings.Geiger_voltage=360; // Напряжение на датчике 360 вольт
+  Settings.Pump_Energy=350; // энергия накачки 350 мТл
+
+	
 	io_init(); // Инициализация потров МК
 
 	eeprom_write_default_settings(); // Проверка, заполнен ли EEPROM
@@ -143,8 +151,10 @@ int main(void)
 	Power.USB_active=DISABLE;
 	Power.sleep_time=Settings.Sleep_time;
   Power.Display_active=ENABLE;
-//--------------------------------------------------------------------
-	ADCData.DAC_voltage_raw=0x610;
+	
+	ADCData.DAC_voltage_raw=(((Settings.Geiger_voltage*1000)/30/11)*1000)/ADCData.Calibration_bit_voltage;
+
+		
   dac_init();
 	comp_on();
 	timer9_Config(); // Конфигурируем таймер накачки	
@@ -193,8 +203,7 @@ int main(void)
 				GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку 
 			} else {
 				GPIO_SetBits(GPIOC,GPIO_Pin_13);// Выключаем подсветку  				
-			}
-			
+			}			
 			if(DataUpdate.Need_display_update==ENABLE)
 			{
 				DataUpdate.Need_display_update=DISABLE;

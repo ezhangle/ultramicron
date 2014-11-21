@@ -3,7 +3,8 @@
 void io_off_unused(void)
 {
 	GPIO_InitTypeDef   GPIO_InitStructure;
-
+	
+	GPIO_StructInit(&GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
@@ -27,6 +28,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
 	
    ////////////////////////////////////////////////////  
     // Порт A
+	  GPIO_StructInit(&GPIO_InitStructure);
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;        // ????? ????? "????"
 		GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
 		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
@@ -35,6 +37,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
 		GPIO_ResetBits(GPIOA,GPIO_InitStructure.GPIO_Pin);// Отключаем токосемник
     
     // Порт B
+	  GPIO_StructInit(&GPIO_InitStructure);
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;        // ????? ????? "????"
 		GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
 		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
@@ -148,7 +151,6 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);  // Загружаем конфигурацию
-//  GPIO_ResetBits(GPIOB,GPIO_Pin_13);// Подключаем токосемник
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_TIM9);
 
 // ===============================================================================================  
@@ -157,7 +159,16 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12;           // Ножка
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);  // Загружаем конфигурацию
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_TIM10);
+	
+	// ===============================================================================================  
+  // Ножка DAC канал 2
+  GPIO_StructInit(&GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_5;           // Ножка
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);  // Загружаем конфигурацию
 }

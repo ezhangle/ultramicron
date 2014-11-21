@@ -172,10 +172,6 @@ void check_wakeup_keys()
 // Прерывание по нажатию кнопки 0
 void EXTI3_IRQHandler(void)
 {
-  if (fullstop==1){EXTI_ClearITPendingBit(EXTI_Line3);return;}
-  
-	
-  
   if(EXTI_GetITStatus(EXTI_Line3) != RESET)
   {
     if(Alarm.Alarm_active && !Alarm.User_cancel)
@@ -199,10 +195,6 @@ void EXTI3_IRQHandler(void)
 // Прерывание по нажатию кнопки 1
 void EXTI4_IRQHandler(void)
 {
-  if (fullstop==1){EXTI_ClearITPendingBit(EXTI_Line4);return;}
-  
-	
-	
   if(EXTI_GetITStatus(EXTI_Line4) != RESET)
   {
     
@@ -228,9 +220,6 @@ void EXTI9_5_IRQHandler(void)
 #ifdef debug
 		Wakeup.sensor_wakeup++;
 #endif
-	if (fullstop==1){EXTI_ClearITPendingBit(EXTI_Line8);EXTI_ClearITPendingBit(EXTI_Line6);return;}
-  
-  
   if(EXTI_GetITStatus(EXTI_Line8) != RESET)
   {
 		EXTI_ClearITPendingBit(EXTI_Line8);
@@ -279,7 +268,6 @@ void TIM9_IRQHandler(void)
 #ifdef debug	
 	Wakeup.tim9_wakeup++;
 #endif
-	if (fullstop==1){TIM_ClearITPendingBit(TIM9, TIM_IT_CC1);TIM_ClearITPendingBit(TIM9, TIM_IT_Update);return;}
   if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET)
   {
     TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
@@ -313,7 +301,6 @@ void TIM10_IRQHandler(void)
 #ifdef debug
 	  Wakeup.tim10_wakeup++;
 #endif	
-	if (fullstop==1){TIM_ClearITPendingBit(TIM10, TIM_IT_CC1);TIM_ClearITPendingBit(TIM10, TIM_IT_Update);return;}
   if (TIM_GetITStatus(TIM10, TIM_IT_Update) != RESET)
   {
 		TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
@@ -411,9 +398,6 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 #ifdef debug
 		Wakeup.rtc_wakeup++;
 #endif	
-		if (fullstop==1){RTC_ClearITPendingBit(RTC_IT_ALRA);EXTI_ClearITPendingBit(EXTI_Line17);return;}
-	
-		
     if(RTC_GetITStatus(RTC_IT_ALRA) != RESET) 
 		{
 			RTC_ClearITPendingBit(RTC_IT_ALRA);
@@ -557,7 +541,6 @@ void RTC_WKUP_IRQHandler (void)
 	Wakeup.pump_wakeup++;
 #endif	
 	EXTI_ClearITPendingBit(EXTI_Line20);
-	if (fullstop==1){RTC_ClearITPendingBit(RTC_IT_WUT);return;}
   if(RTC_GetITStatus(RTC_IT_WUT) != RESET)
   {
 		RTC_ClearITPendingBit(RTC_IT_WUT);
@@ -579,10 +562,6 @@ void COMP_IRQHandler(void)
 #ifdef debug	
 	Wakeup.comp_wakeup++;
 #endif	
-	if (fullstop==1){   EXTI_ClearITPendingBit(EXTI_Line22);return;}
-
-	
-	
   if(EXTI_GetITStatus(EXTI_Line22) != RESET)
   {
    EXTI_ClearITPendingBit(EXTI_Line22);

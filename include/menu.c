@@ -18,8 +18,8 @@ MenuItem Menu_list[max_struct_index] = {
   {  0x00, "Перезагрузка",  "*",   							"*",		        	"*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_reboot,             0x00},
   {  0x01, "Контраст",	    "",		  						"",			        	"%u",  	       &Settings.contrast,                                     0,       15,       0,       &plus_one,                &minus_one},
   {  0x01, "Реверс",	      "откл",							"",			        	"%u",	         &Settings.Display_reverse,                              0,       3,        0,       &plus_one,                &minus_one},
-	{  0x01, "Напряжение",	  "",		  						"",			        	"%uV",	       &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten},
-	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
+//	{  0x01, "Напряжение",	  "",		  						"",			        	"%uV",	       &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten},
+//	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
   {  0x01, "Счет",	        "",		  						"",			        	"%uсек",	     &Settings.Second_count,                                 200,     450,      200,     &plus_ten,                &minus_ten},
 	{  0x01, "LSI",		        "Кварц",						"",			        	"%u Гц",	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500},
   {  0x01, "Звук",	        "",		  						"",			        	"%uкГц",	     &Settings.Sound_freq,                                   1,       10,       8,       &plus_one,                &minus_one}
