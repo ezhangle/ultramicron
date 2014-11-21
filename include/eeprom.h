@@ -29,6 +29,8 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 #define Sound_freq_address																			0x3C
 #define Led_Sleep_time_address                                  0x40
 #define LSI_freq_address                                  			0x44
+#define Power_comp_address                                  			0x48
+#define EnergoEfficency_address                                  		0x4C
 
 extern uint32_t NbrOfPage, Address;
   

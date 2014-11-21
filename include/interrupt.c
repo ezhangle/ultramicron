@@ -10,6 +10,9 @@ void EXTI8_Config(void)
   GPIO_InitTypeDef   GPIO_InitStructure;
   EXTI_InitTypeDef   EXTI_InitStructure;
   
+	GPIO_StructInit(&GPIO_InitStructure);
+	EXTI_StructInit(&EXTI_InitStructure);
+	
   // Описываем ножку
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); // Подаем тактирование на порт
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;        // Режим ножки "вход"
@@ -42,6 +45,10 @@ void EXTI3_Config(void)
   NVIC_InitTypeDef NVIC_InitStructure;
   GPIO_InitTypeDef   GPIO_InitStructure;
   EXTI_InitTypeDef   EXTI_InitStructure;
+	
+	GPIO_StructInit(&GPIO_InitStructure);
+	EXTI_StructInit(&EXTI_InitStructure);
+
   
   // Описываем ножку
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); // Подаем тактирование на порт
@@ -75,6 +82,10 @@ void EXTI4_Config(void)
   NVIC_InitTypeDef NVIC_InitStructure;
   GPIO_InitTypeDef   GPIO_InitStructure;
   EXTI_InitTypeDef   EXTI_InitStructure;
+
+	GPIO_StructInit(&GPIO_InitStructure);
+	EXTI_StructInit(&EXTI_InitStructure);
+
   
   // Описываем ножку
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); // Подаем тактирование на порт
@@ -109,6 +120,10 @@ void EXTI6_Config(void)
   NVIC_InitTypeDef NVIC_InitStructure;
   GPIO_InitTypeDef   GPIO_InitStructure;
   EXTI_InitTypeDef   EXTI_InitStructure;
+
+	GPIO_StructInit(&GPIO_InitStructure);
+	EXTI_StructInit(&EXTI_InitStructure);
+
   
   // Описываем ножку
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); // Подаем тактирование на порт

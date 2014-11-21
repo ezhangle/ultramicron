@@ -28,9 +28,10 @@ void display_on() // Инициализация порта LCD дисплея
   GPIO_InitTypeDef   GPIO_InitStructure;
   
   Power.Display_active=ENABLE;
-   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);  
-   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
-   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);  
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
 
   // ===============================================================================================  
   // LCD дисплей

@@ -1,8 +1,15 @@
 #ifndef __main_user_H
 #define __main_user_H
 
-
 #include "stm32l1xx.h"
+
+// ------------- —≈–»…Ќ»  ! ------------- 
+#define U_ID_0 (*(uint32_t*) 0x1FF80050) // MCU Serial
+#define U_ID_1 (*(uint32_t*) 0x1FF80054)
+#define U_ID_2 (*(uint32_t*) 0x1FF80064)
+
+//#define debug
+
 
 typedef struct
 {
@@ -33,6 +40,19 @@ typedef struct
   
 }ADCDataDef;
 
+/*
+typedef struct
+{
+	uint32_t Hour;       
+  uint32_t Minute;
+  uint32_t Second;       
+  uint32_t Day;       
+  uint32_t Month;       
+  uint32_t Year;       
+} RTCDef;
+*/
+
+
 typedef struct
 {
   uint32_t Alarm_level;                             // ”ровень аларма
@@ -47,13 +67,14 @@ typedef struct
 //  uint32_t pump_pulse_by_impulse;                   // кол-во импульсов подкачки на каждый импульс датчика
 //  uint32_t pump_skvagennost;                        // скваженность накачки
   uint32_t Sound_freq;				    // „астота звука в к√ц
-  uint32_t Geiger_voltage;
+  uint32_t Power_comp;				    // ”ровень потреблени€
+  uint32_t Geiger_voltage;			    // Ќапр€жение датчика
 	uint32_t Pump_Energy;
   uint32_t Display_reverse;                  // переворот диспле€
   uint32_t Sound;                            // «вук вкл-выкл
   uint32_t Second_count;
   uint32_t LSI_freq;
-	
+  uint32_t USB;
 }SettingsDef;
 
 
@@ -63,9 +84,21 @@ typedef struct
   uint32_t Tick_beep_count;
   FunctionalState Alarm_active; 
   FunctionalState User_cancel; 
-  
-  
 }AlarmDef;
+
+#ifdef debug
+typedef struct
+{
+  uint32_t total_wakeup;
+  uint32_t total_cycle;
+  uint32_t tim9_wakeup;
+  uint32_t tim10_wakeup;
+  uint32_t sensor_wakeup;
+  uint32_t rtc_wakeup;
+  uint32_t pump_wakeup;
+  uint32_t comp_wakeup;
+}WakeupDef;
+#endif
 
 typedef struct
 {
@@ -73,10 +106,13 @@ typedef struct
   FunctionalState Pump_active;    // ¬ данный момент идет накачка
   FunctionalState Sound_active;   // ¬ данный подаетс€ звук
   FunctionalState Display_active; // ¬ключен дисплей
-	FunctionalState USB_active;     // ¬ключен USB
-  
+  FunctionalState USB_active;     // ¬ключен USB
+  FunctionalState sleep_now;     // јктивность сна
+
+  uint32_t APB1ENR;  //
+ 
   uint32_t sleep_time;  //
-	uint32_t led_sleep_time;  //
+  uint32_t led_sleep_time;  //
   
 }PowerDef;
 
@@ -88,12 +124,17 @@ extern uint32_t ix_update;
 //#define count_seconds 75 // 
 extern uint16_t Detector_massive[120+1];
 
-#define doze_length 144 // 
-extern uint32_t Doze_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
-extern uint32_t max_fon_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
+#define doze_length_day 144 // 1 день интервалами по 10 минут
+#define doze_length_week 1008 // 7 дней интервалами по 10 минут  (6*24*10)=1008 (7 дней)
+extern uint32_t Doze_massive[doze_length_week+1]; // 1 €чейка = 10 минут
+extern uint32_t max_fon_massive[doze_length_week+1]; // 1 €чейка = 10 минут
+extern uint16_t USB_maxfon_massive_pointer;
+extern uint16_t USB_doze_massive_pointer;
+
 extern uint16_t Doze_sec_count;
-extern uint32_t Doze_count;
+extern uint32_t Doze_day_count;
 extern uint32_t Doze_hour_count;
+extern uint32_t Doze_week_count;
 extern uint32_t Max_fon;
 extern uint8_t  main_menu_stat;
 extern uint32_t menu_select;
@@ -104,20 +145,26 @@ extern uint16_t Detector_massive_pointer;
 extern uint16_t pump_counter_avg_impulse_by_1sec[2];
 extern uint32_t fon_level;
 extern uint8_t  auto_speedup_factor;
+extern uint32_t madorc_impulse;
+extern uint32_t USB_not_active;
+extern uint32_t last_count_pump_on_impulse;
+extern FunctionalState pump_on_impulse;
 
-extern uint32_t fullstop;
+
+//extern uint32_t fullstop;
 extern FunctionalState Sound_key_pressed;
-
-extern uint8_t second_divide;
 
 extern uint16_t current_pulse_count;
 
 extern ADCDataDef    ADCData;
 extern DataUpdateDef DataUpdate;
 extern PowerDef      Power;
-extern SettingsDef Settings;
-extern AlarmDef Alarm;
-
+extern SettingsDef   Settings;
+extern AlarmDef      Alarm;
+#ifdef debug
+extern WakeupDef     Wakeup;
+extern uint32_t debug_wutr;
+#endif
 extern uint8_t pump_count;
 
 void sleep_mode(FunctionalState sleep);

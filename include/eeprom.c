@@ -4,6 +4,7 @@
 #include "ext2760.h"
 #include "delay.h"
 #include "timers.h"
+#include "clock.h"
 
 __IO FLASH_Status FLASHStatus = FLASH_COMPLETE;
 __IO TestStatus DataMemoryProgramStatus = PASSED;
@@ -21,10 +22,11 @@ uint32_t NbrOfPage = 0, j = 0, Address = 0;
 				Settings.Led_Sleep_time=10;
         Settings.Display_reverse=1;
 				Settings.Geiger_voltage=380;
-				Settings.Pump_Energy=350;
-				Settings.Second_count=200;
+				Settings.Pump_Energy=250;
+				Settings.Second_count=250;
 				Settings.Sound_freq=8;
 				Settings.LSI_freq=37000;
+				Settings.Power_comp=0;
         eeprom_write_settings(); // Запись
       }  
     }
@@ -43,13 +45,19 @@ void eeprom_write_settings(void)
 	if(eeprom_read(Second_count_address)   !=Settings.Second_count)   eeprom_write(Second_count_address,   Settings.Second_count);
 	if(eeprom_read(Sound_freq_address)     !=Settings.Sound_freq)     eeprom_write(Sound_freq_address,     Settings.Sound_freq);
 	if(eeprom_read(Sound_address)          !=Settings.Sound)          eeprom_write(Sound_address,          Settings.Sound);
+	if(eeprom_read(Power_comp_address)          !=Settings.Power_comp)          eeprom_write(Power_comp_address,          Settings.Power_comp);
 	if(eeprom_read(Led_Sleep_time_address) !=Settings.Led_Sleep_time) eeprom_write(Led_Sleep_time_address, Settings.Led_Sleep_time);
-	if(eeprom_read(LSI_freq_address)       !=Settings.LSI_freq)       eeprom_write(LSI_freq_address,       Settings.LSI_freq);
+
+	if(Settings.LSI_freq != 0x00) // если запустился кварц, попытки сохранения игнорировать
+	{
+		if(eeprom_read(LSI_freq_address)       !=Settings.LSI_freq)       eeprom_write(LSI_freq_address,       Settings.LSI_freq);
+	}
 }
 
 //**************************************************************************
 void eeprom_apply_settings(void)
 {
+uint32_t pump_period;
 
   if(eeprom_read(contrast_address)!=Settings.contrast)       
 	{
@@ -73,18 +81,29 @@ void eeprom_apply_settings(void)
   // -------------------------------------------------------------------
   if(eeprom_read(Pump_Energy_address)    !=Settings.Pump_Energy)
 	{
-		TIM_SetCompare1(TIM9,(176*Settings.Pump_Energy)/ADCData.Batt_voltage); // Перерасчет энергии накачки
+		pump_period=(176*Settings.Pump_Energy)/ADCData.Batt_voltage;
+		if((pump_period>16) && (Settings.LSI_freq==0)) // не привышать критический уровень для верии 3.*
+		{
+			TIM_SetCompare1(TIM9,16); // изменение энергии накачки
+		} else TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки
+		Power.Pump_active=DISABLE;
 	}
 	// -------------------------------------------------------------------
 	if(eeprom_read(Sound_freq_address)     !=Settings.Sound_freq)
 	{
-		tim10_sound_activate();
-		TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Update);
+
+		TIM_SetAutoreload(TIM10, 2000000/(Settings.Sound_freq*1000));    // TIM_Period
+		TIM_SetCompare1(TIM10,  (2000000/(Settings.Sound_freq*1000))/2); // TIM_Pulse
+		TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
+
 	}
-   // -------------------------------------------------------------------	
+	// -------------------------------------------------------------------
 	if(eeprom_read(LSI_freq_address)       !=Settings.LSI_freq)
   {
-	  eeprom_write(LSI_freq_address,Settings.LSI_freq);   NVIC_SystemReset();
+		if(Settings.LSI_freq != 0x00) // если запустился кварц, попытки сохранения игнорировать
+		{
+			eeprom_write(LSI_freq_address,Settings.LSI_freq);   NVIC_SystemReset();
+		}
 	}
 }
 
@@ -104,6 +123,7 @@ void eeprom_read_settings(void)
 	Settings.Sound=                 eeprom_read(Sound_address);
   Settings.Led_Sleep_time=        eeprom_read(Led_Sleep_time_address);  
   Settings.LSI_freq=  			      eeprom_read(LSI_freq_address);  
+	Settings.Power_comp= 			      eeprom_read(Power_comp_address);  
 
 }
 

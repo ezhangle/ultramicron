@@ -4,6 +4,8 @@
 void dac_init()
 {
 	DAC_InitTypeDef  DAC_InitStructure;
+	
+	DAC_StructInit(&DAC_InitStructure);
   //--------------------------------------------------------------------
   //Конфигурируем систему детектирования выброса
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
@@ -21,11 +23,13 @@ void dac_init()
 void dac_off()
 {
   DAC_Cmd(DAC_Channel_2, DISABLE);
- // RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, DISABLE);
+	//DAC_DeInit();
+  //RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, DISABLE);
 }
 
 void dac_on()
 {
-//  RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
+	//dac_init();
+  //RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
   DAC_Cmd(DAC_Channel_2, ENABLE);
 }

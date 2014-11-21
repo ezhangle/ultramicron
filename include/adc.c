@@ -10,6 +10,7 @@
 //************************************************************************************************************
 void adc_check_event(void)
 {
+	uint32_t pump_period;
   if(DataUpdate.Need_batt_voltage_update)
   {
     adc_init();
@@ -20,7 +21,11 @@ void adc_check_event(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, DISABLE);
     RCC_HSICmd(DISABLE); // Выключаем HSI
 		ADCData.Batt_voltage=(ADCData.Calibration_bit_voltage*ADCData.Batt_voltage_raw/1000)*2;
-		TIM_SetCompare1(TIM9,(176*Settings.Pump_Energy)/ADCData.Batt_voltage); // изменение энергии накачки
+		pump_period=(176*Settings.Pump_Energy)/ADCData.Batt_voltage;
+		if((pump_period>16) & (Settings.LSI_freq==0)) // не привышать критический уровень для верии 3.*
+		{
+			TIM_SetCompare1(TIM9,16); // изменение энергии накачки
+		} else TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки
     DataUpdate.Need_batt_voltage_update=DISABLE;
  }
 // -----------
@@ -58,6 +63,9 @@ void adc_init(void)
 {
   ADC_InitTypeDef ADC_InitStructure;
 	uint32_t ccr = ADC->CCR;
+	
+	ADC_StructInit(&ADC_InitStructure);
+	
   ccr &= ~ADC_CCR_ADCPRE;
   ccr |= ADC_CCR_ADCPRE_0;
   ADC->CCR = ccr; // устанавливаем скорость перобразования АЦП 500ksps для режима пониженного питания

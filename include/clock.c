@@ -45,9 +45,14 @@
   --------------------------------------------------------------------------------
 */
 //-------------------------------------------------------------------------------------------------------
-void set_msi_2mhz()
+void set_msi(FunctionalState sleep)
 {
-	 TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
+	GPIO_InitTypeDef   GPIO_InitStructure;
+	 
+	GPIO_StructInit(&GPIO_InitStructure);
+	
+	TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
+	Power.Pump_active=DISABLE;
    RCC_MSICmd(ENABLE); // Включить MSI
    while(RCC_GetFlagStatus(RCC_FLAG_MSIRDY)==RESET); // Ждем включения MSI
 
@@ -65,7 +70,12 @@ void set_msi_2mhz()
     
     /* PCLK1 = HCLK /4*/
     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV4;
-		RCC_MSIRangeConfig(RCC_MSIRange_5); // 2.097 MHZ
+    if(sleep)
+    {
+			RCC_MSIRangeConfig(RCC_MSIRange_5); // 2.097 MHZ
+    }else{
+			RCC_MSIRangeConfig(RCC_MSIRange_6); // 4.194 MHz
+    }
 
 	
 /*                - 0x00: MSI used as system clock
@@ -116,10 +126,20 @@ PWR_VoltageScalingConfig(PWR_VoltageScaling_Range3); // Voltage Scaling Range 3 
 while(PWR_GetFlagStatus(PWR_FLAG_VOS) != RESET); // Wait Until the Voltage Regulator is ready
 
 SystemCoreClockUpdate();
-tim10_sound_activate();
-TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Immediate);
-TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
+TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
+TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
+
+TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
+Power.Pump_active=DISABLE;
+
+GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;        
+GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
+GPIO_Init(     GPIOH, &GPIO_InitStructure); 
+GPIO_SetBits(GPIOH,GPIO_InitStructure.GPIO_Pin);// Отключаем токосемник
+RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOH, DISABLE);
 }
 //-------------------------------------------------------------------------------------------------------
 
@@ -130,6 +150,7 @@ void set_pll_for_usb()
 {
 
 TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку	
+Power.Pump_active=DISABLE;
 PWR_VoltageScalingConfig(PWR_VoltageScaling_Range1); // Voltage Scaling Range 1 (VCORE = 1.8V)
 while(PWR_GetFlagStatus(PWR_FLAG_VOS) != RESET); // Wait Until the Voltage Regulator is ready
 
@@ -182,9 +203,11 @@ FLASH_SetLatency(FLASH_Latency_1);
         while (RCC_GetSYSCLKSource() != 0x0C);
 
 SystemCoreClockUpdate();
-tim10_sound_activate();
-TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Immediate);
-TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
+TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
+TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
+
+TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1, TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
+Power.Pump_active=DISABLE;
 }
 //-------------------------------------------------------------------------------------------------------

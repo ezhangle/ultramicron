@@ -4,7 +4,7 @@
 #include "ext2760.h"
 #include "eeprom.h"
 #include "usb.h"
-#include "stm32l1xx_ulp_modes.h"
+//#include "stm32l1xx_ulp_modes.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -61,12 +61,16 @@ void minus_off(uint32_t *param) // откл
 void  plus_doze_reset(uint32_t *param) // Сброс дозы
 {
 	int i;
-	for(i=doze_length;i>0;i--)
+	for(i=doze_length_week;i>0;i--)
 	{
 		Doze_massive[i]=0;
-		Doze_count+=Doze_massive[i];
+		Doze_hour_count+=Doze_massive[i];
+		Doze_day_count+=Doze_massive[i];
+		Doze_week_count+=Doze_massive[i];
 	}
-	Doze_count=0;
+Doze_hour_count=0;
+Doze_day_count=0;
+Doze_week_count=0;
 DataUpdate.doze_sec_count=0;
 
 }
@@ -190,17 +194,19 @@ void plus_reboot(uint32_t *param) // перезагрузка
   IWDG_Enable();
   while(1);
 }
-
+/*
 void plus_poweroff(uint32_t *param) // выключение
 {
   Standbuy_Mode();
-}
+}*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // перезагрузка и выключение
 void usb_activate(uint32_t *param) // Включение USB
 {
+
+USB_not_active=0;
 if(!Power.USB_active)
 {
 	USB_on(); 		
@@ -210,18 +216,24 @@ if(!Power.USB_active)
   LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
   delay_ms(1000);
 }
+if(Settings.USB<2)Settings.USB++;
 }
 
 void usb_deactivate(uint32_t *param) // Выключение USB
 {
 if(Power.USB_active)
 {
-	USB_off(); 		
-	LcdClear_massive();
-	sprintf (lcd_buf, "USB  выключен"); // Пишем в буфер значение счетчика
-	LcdString(1,5); // // Выводим обычным текстом содержание буфера
-  LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
-  delay_ms(1000);
+	if(Settings.USB>0)Settings.USB--;
+	
+	if(Settings.USB == 0)
+	{
+		USB_off(); 		
+		LcdClear_massive();
+		sprintf (lcd_buf, "USB  выключен"); // Пишем в буфер значение счетчика
+		LcdString(1,5); // // Выводим обычным текстом содержание буфера
+		LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
+		delay_ms(1000);
+	}
 }
 
 }
@@ -240,16 +252,21 @@ void keys_proccessing(void)
     while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4));
     while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6));
     delay_ms(10);
+		DataUpdate.Need_display_update=ENABLE;
     if (screen==2 && enter_menu_item==DISABLE)menu_select--;
 		if (screen==1)main_menu_stat++;
 		if (screen==3)
 		{
+#ifdef debug
+			if(stat_screen_number==2)
+#else
 			if(stat_screen_number==1)
-				{
-					stat_screen_number=0;
-				} else {
-					stat_screen_number++;
-				}
+#endif
+			{
+				stat_screen_number=0;
+			} else {
+				stat_screen_number++;
+			}
 		}
     if(menu_select>max_struct_index)menu_select=max_struct_index;
     key=0;
@@ -274,15 +291,20 @@ void keys_proccessing(void)
     while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3));
     while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4));
     while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6));
-    
     delay_ms(10);
+		DataUpdate.Need_display_update=ENABLE;
     if (screen==2 && enter_menu_item==DISABLE)menu_select++;
 		if (screen==1)main_menu_stat--;
 		if (screen==3)
 		{
 			if(stat_screen_number==0)
 				{
+					
+#ifdef debug
+					stat_screen_number=2;
+#else
 					stat_screen_number=1;
+#endif
 				} else {
 					stat_screen_number--;
 				}
@@ -310,6 +332,7 @@ void keys_proccessing(void)
     while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4));
     while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6));
 
+		DataUpdate.Need_display_update=ENABLE;
     LcdClear(); // Очищаем фрейм буфер и дисплей
     
     delay_ms(10);
