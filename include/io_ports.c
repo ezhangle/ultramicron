@@ -164,7 +164,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_Init(GPIOB, &GPIO_InitStructure);  // Загружаем конфигурацию
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_TIM10);
 	
-	// ===============================================================================================  
+// ===============================================================================================  
   // Ножка DAC канал 2
   GPIO_StructInit(&GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_5;           // Ножка

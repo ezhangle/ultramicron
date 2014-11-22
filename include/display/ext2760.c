@@ -52,8 +52,8 @@ void display_on() // Инициализация порта LCD дисплея
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(     GPIOC,&GPIO_InitStructure);  // Загружаем конфигурацию
   
-GPIO_SetBits(GPIOB,GPIO_Pin_7);// Включаем питание дисплея
-GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку  
+	GPIO_SetBits(GPIOB,GPIO_Pin_7);// Включаем питание дисплея
+	GPIO_ResetBits(GPIOC,GPIO_Pin_13);// Включаем подсветку  
   delay_ms(10);
   
   LcdInit(); // Инициализируем дисплей
@@ -180,8 +180,6 @@ void LcdPixel (unsigned char x, unsigned char y, unsigned char mode)     //Displ
   if ( x > LCD_X_RES ) return;	//если передали в функцию муть - выходим
   if ( y > LCD_Y_RES ) return;
   
-  //index = (((int)(y)/8)*96)+x;    //считаем номер байта в массиве памяти дисплея
-	//offset  = y-((y/8)*8);          //считаем номер бита в этом байте
 	index = (((int)(y)>>3)*96)+x;    //считаем номер байта в массиве памяти дисплея
   offset  = y-((y>>3)<<3);          //считаем номер бита в этом байте
   
@@ -256,7 +254,6 @@ void LcdLine (int x1, int y1, int x2, int y2, unsigned char mode)  	//Draws a li
 
 void LcdGotoXYFont (unsigned char x, unsigned char y)   //Sets cursor location to xy location. Range: 1,1 .. 14,6
 {
-  //if (x <= 14 && y <= 6) 
   LcdCacheIdx = ( (int)(y) - 1 ) * 96 + ( (int)(x) - 1 ) * 6;
 }
 
@@ -502,11 +499,6 @@ void Draw_fon_digit(uint8_t line, uint8_t start_char, uint8_t seconds)
     LcdLine(((start_char+digit_num-1)*10)+(2*digit_num)   ,line*16,((start_char+digit_num-1)*10)+(2*digit_num)+10,line*16    ,1);
     LcdLine(((start_char+digit_num-1)*10)+(2*digit_num)   ,line*16,((start_char+digit_num-1)*10)+(2*digit_num)   ,(line*16)-3,1);
     LcdLine(((start_char+digit_num-1)*10)+(2*digit_num)+10,line*16,((start_char+digit_num-1)*10)+(2*digit_num)+10,(line*16)-3,1);
-    
-    /*  LcdLine(((start_char+digit_num-1)*10)+(2*digit_num)   ,(line*16)-19,((start_char+digit_num-1)*10)+(2*digit_num)+10,(line*16)-19    ,1);
-    LcdLine(((start_char+digit_num-1)*10)+(2*digit_num)   ,(line*16)-19,((start_char+digit_num-1)*10)+(2*digit_num)   ,((line*16)-19)+3,1);
-    LcdLine(((start_char+digit_num-1)*10)+(2*digit_num)+10,(line*16)-19,((start_char+digit_num-1)*10)+(2*digit_num)+10,((line*16)-19)+3,1);
-    */
   }
 }
 

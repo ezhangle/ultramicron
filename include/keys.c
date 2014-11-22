@@ -12,7 +12,6 @@
 // Изменение порога тревоги
 void  plus_alarm(uint32_t *param) // +
 {
-  //  Menu_list[*param>-1].Parameter_value
   if((*Menu_list[*param-1].Parameter_value  >= 1000)&(*Menu_list[*param-1].Parameter_value  < 9999)) *Menu_list[*param-1].Parameter_value+= 500;
   if((*Menu_list[*param-1].Parameter_value  >=  100)&(*Menu_list[*param-1].Parameter_value  < 1000)) *Menu_list[*param-1].Parameter_value+= 100;
   if(                                                 *Menu_list[*param-1].Parameter_value  <  100)  *Menu_list[*param-1].Parameter_value+=  25;
@@ -215,17 +214,14 @@ if(!Power.USB_active)
   LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
   delay_ms(1000);
 }
-if(Settings.USB<2)Settings.USB++;
+Settings.USB=1;
 }
 
 void usb_deactivate(uint32_t *param) // Выключение USB
 {
-if(Power.USB_active)
-{
-	if(Settings.USB>0)Settings.USB--;
-	
-	if(Settings.USB == 0)
+	if(Power.USB_active)
 	{
+		Settings.USB=0;
 		USB_off(); 		
 		LcdClear_massive();
 		sprintf (lcd_buf, "USB  выключен"); // Пишем в буфер значение счетчика
@@ -233,8 +229,6 @@ if(Power.USB_active)
 		LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
 		delay_ms(1000);
 	}
-}
-
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -310,9 +304,7 @@ void keys_proccessing(void)
 		}
     if(menu_select>max_struct_index)menu_select=0;
     key=0;
-    
-//		DataUpdate.Need_display_update=ENABLE;
-		
+
     ///////////
     if(enter_menu_item==ENABLE) // тревога
     {
@@ -336,9 +328,7 @@ void keys_proccessing(void)
     
     delay_ms(10);
     key=0;
-    
-//		DataUpdate.Need_display_update=ENABLE;
-		
+
     ///////////
     if(menu_select>0)
     {

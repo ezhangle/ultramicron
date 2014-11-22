@@ -72,20 +72,12 @@ void USB_work()
 					{
 						USB_maxfon_massive_pointer=0;
 						USB_doze_massive_pointer=0;
-						//USB_send_maxfon_data();
-						//CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);
 					}
 
 					Receive_length = 0;
 				
 				delay_ms(1);
 			}
-		}
-// -----------------------------------------------------------------------------------------------------------------------
-		if(Settings.USB == 2) // Гамма3
-		{
-			if (packet_sent == 1 && Receive_length > 0)CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);
-			Receive_length = 0;				
 		}
 // -----------------------------------------------------------------------------------------------------------------------
 	}
@@ -98,35 +90,6 @@ void USB_work()
 
 }
 
-void USB_send_gamma3_data()
-{
-//---------------------------------------------КомПорт от гаммы 3------------------------------------
-  unsigned char IndexHi;                //  старший байт индекса
-  unsigned char IndexLo;                // младший  байт индекса 
-  unsigned char voltIndexHi;                //  старший байт индекса
-  unsigned char voltIndexLo;                // младший  байт индекса 
-  unsigned char crc;                // контрольная сумма
-	unsigned int  Volt;
-
-	Volt=ADCData.Batt_voltage;
-	crc=((fon_level+Volt) & 0xff);			    //вычисление контрольной суммы
-
-	IndexLo =  fon_level & 0xff;                         // разбить индекс на младший байт
-	IndexHi = (fon_level >> 8) & 0xff;                   // разбить индекс на старший байт  
-	voltIndexLo =  Volt & 0xff;                         // разбить индекс на младший байт
-	voltIndexHi = (Volt >> 8) & 0xff;                   // разбить индекс на старший байт  
-	
-	Receive_Buffer[0]=0xE9;                                      // передать ключь Гаммы3
-	Receive_Buffer[1]=IndexHi;                                   // передать по УСАПП 
-	Receive_Buffer[2]=IndexLo;                                   // передать по УСАПП 
-	Receive_Buffer[3]=0xE5;                                      // передать ключь напряжения
-	Receive_Buffer[4]=voltIndexHi;                               // передать по УСАПП 
-	Receive_Buffer[5]=voltIndexLo;                               // передать по УСАПП 
-	Receive_Buffer[6]=crc;                                       // передать контрольную сумму
-	Receive_Buffer[7]=0xA4;                                      // передать ключь окончания передачи
-	
-	Receive_length=8;
-}
 
 void USB_send_madorc_data()
 {

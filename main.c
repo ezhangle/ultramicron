@@ -7,7 +7,6 @@
 #include "io_ports.h"
 #include "rtc.h"
 #include "timers.h"
-//#include "stm32l1xx_ulp_modes.h"
 #include "ext2760.h"
 #include "interrupt.h"
 #include "menu.h"
@@ -19,8 +18,6 @@
 #include "usb.h"
 #include "clock.h"
 #include "power.h"
-
-
 
 
 uint16_t key; // массив нажатых кнопок [012]
@@ -139,7 +136,8 @@ int main(void)
 	Power.sleep_now=DISABLE;
 	
   Settings.Geiger_voltage=360; // Ќапр€жение на датчике 360 вольт
-  Settings.Pump_Energy=350; // энерги€ накачки 350 м“л
+  Settings.Pump_Energy=350;    // энерги€ накачки 350 м“л
+	Settings.Sound_freq=8;       // –езонанс 8 к√ц
 
 	
 	io_init(); // »нициализаци€ потров ћ 
@@ -182,7 +180,6 @@ int main(void)
   EXTI4_Config();
   EXTI6_Config();
 		
-//	DataUpdate.Calibration_update_time_counter=100;
 	DataUpdate.Need_batt_voltage_update=ENABLE;
 	
 	delay_ms(500); // подождать установки напр€жени€

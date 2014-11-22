@@ -213,7 +213,6 @@ void EXTI4_IRQHandler(void)
 // Прерывание по импульсу от датчикав 1 и кнопки 2
 void EXTI9_5_IRQHandler(void)
 {
-//	EXTI_InitTypeDef EXTI_InitStructure;
 	extern __IO uint8_t Receive_Buffer[64];
   extern __IO  uint32_t Receive_length ;
   extern __IO  uint32_t length ;
@@ -434,7 +433,6 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 				Wakeup.sensor_wakeup=0;
 #endif
 
-				if(Power.USB_active && (Settings.USB == 2))USB_send_gamma3_data(); // заодно передать данные через USB если он активен
 				if(!Power.USB_active)madorc_impulse=0;
 				pump_counter_avg_impulse_by_1sec[1]=pump_counter_avg_impulse_by_1sec[0];
 				pump_counter_avg_impulse_by_1sec[0]=0;
@@ -536,7 +534,6 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void RTC_WKUP_IRQHandler (void)
 {
-//	EXTI_InitTypeDef EXTI_InitStructure;
 #ifdef debug	
 	Wakeup.pump_wakeup++;
 #endif	
@@ -556,7 +553,6 @@ void RTC_WKUP_IRQHandler (void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void COMP_IRQHandler(void)
 {
-// EXTI_InitTypeDef EXTI_InitStructure;
  int i;	
 	extern uint16_t current_pulse_count;
 #ifdef debug	

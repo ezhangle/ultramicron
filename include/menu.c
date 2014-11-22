@@ -13,16 +13,16 @@ MenuItem Menu_list[max_struct_index] = {
   {  0x00, "Сон",	    		  "откл",							"",			        	"%uсек",	     &Settings.Sleep_time,                                   0,       300,      30,      &plus_sleep,              &minus_sleep},
   {  0x00, "Подсветка",		  "откл",							"",			        	"%uсек",	     &Settings.Led_Sleep_time,                               0,       300,      30,      &plus_sleep,              &minus_sleep},
   {  0x00, "Звук",	        "откл",							"вкл",	        	"",	           &Settings.Sound,                                        0,       1,        0,       &plus_on,                 &minus_off},
-	{  0x00, "Режим USB",     "выкл",    		  		"MadOrc",        	"Гамма3",      &Settings.USB,                                          0x00,    0x00,     0x00,    &usb_activate,            &usb_deactivate},
+	{  0x00, "Режим USB",     "выкл",    		  		"вкл", 		       	"",            &Settings.USB,                                          0x00,    0x00,     0x00,    &usb_activate,            &usb_deactivate},
   {  0x00, "Сброс дозы",    "*",   							"*",		        	"*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_doze_reset,         0x00},
   {  0x00, "Перезагрузка",  "*",   							"*",		        	"*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_reboot,             0x00},
   {  0x01, "Контраст",	    "",		  						"",			        	"%u",  	       &Settings.contrast,                                     0,       15,       0,       &plus_one,                &minus_one},
   {  0x01, "Реверс",	      "откл",							"",			        	"%u",	         &Settings.Display_reverse,                              0,       3,        0,       &plus_one,                &minus_one},
+  {  0x01, "Счет",	        "",		  						"",			        	"%uсек",	     &Settings.Second_count,                                 200,     450,      200,     &plus_ten,                &minus_ten},
+	{  0x01, "LSI",		        "Кварц",						"",			        	"%u Гц",	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500}
+//  {  0x01, "Звук",	        "",		  						"",			        	"%uкГц",	     &Settings.Sound_freq,                                   1,       10,       8,       &plus_one,                &minus_one}
 //	{  0x01, "Напряжение",	  "",		  						"",			        	"%uV",	       &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten},
 //	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
-  {  0x01, "Счет",	        "",		  						"",			        	"%uсек",	     &Settings.Second_count,                                 200,     450,      200,     &plus_ten,                &minus_ten},
-	{  0x01, "LSI",		        "Кварц",						"",			        	"%u Гц",	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500},
-  {  0x01, "Звук",	        "",		  						"",			        	"%uкГц",	     &Settings.Sound_freq,                                   1,       10,       8,       &plus_one,                &minus_one}
 
 /*  {  0x01, "Потребление",	  "мин",  						"макс",		       	"",	           &Settings.Power_comp,                                   0,       1,        0,       &plus_one,                &minus_one}
   {  0x01, "Час",	    		  "%u",		  					"%u",			       	"%u",			     &RTC_Time.Hour,                        						     0,       23,       0,       &plus_one,                &minus_one},
@@ -45,16 +45,7 @@ MenuItem Menu_list[max_struct_index] = {
 void main_screen()
 {
   
-  RTC_TimeTypeDef RTC_TimeStructure;
   uint16_t battery_procent=0;
-  
-  RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
-
-//  sprintf (lcd_buf, "%0.2d:%0.2d:%0.2d", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds ); // Пишем в буфер значение счетчика
-//  LcdString(1,5); // // Выводим обычным текстом содержание буфера на строку 8
-  
-  //  sprintf (lcd_buf, "%5u", eeprom_read(0x00)); // Пишем в буфер значение счетчика
-  //  LcdString(1,4); // // Выводим обычным текстом содержание буфера на строку 8
    
   //Рачсет процента батарейки 3.2В = 0% 4.2В = 100%
   battery_procent=ADCData.Batt_voltage;
@@ -145,7 +136,6 @@ void main_screen()
 		LcdString(12,3); // // Выводим обычным текстом содержание буфера
 	}
     LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
-//    DataUpdate.Need_display_update=DISABLE;
   
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////

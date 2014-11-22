@@ -108,8 +108,6 @@ switch (RCC_GetSYSCLKSource())
    while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY)!=RESET); // ждем остановки PLL
    RCC_HSEConfig(RCC_HSE_OFF);  // Отключить HSE
    while(RCC_GetFlagStatus(RCC_FLAG_HSERDY)!=RESET); // ждем остановки HSE
-//   RCC_HSICmd(DISABLE);  // Отключить HSI
-//   while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY)!=RESET); // ждем остановки HSI
    break;
   default:
    while(1);
@@ -161,20 +159,6 @@ FLASH_SetLatency(FLASH_Latency_1);
 		 RCC_HSEConfig(RCC_HSE_ON);  // Включить HSE
 		 while(RCC_GetFlagStatus(RCC_FLAG_HSERDY)!=SET); // ждем старта HSE
 	 }
-	
-//	/*RCC system reset(for debug purpose) */
-//		RCC_DeInit();
-//	RCC_PLLCmd(DISABLE);
-//	RCC_HSEConfig(RCC_HSE_OFF);
-//	delay_ms(1);
-    /* Enable HSE */
-  //  RCC_HSEConfig(RCC_HSE_ON);
- 
-    /* Wait till HSE is ready */
-//    HSEStartUpStatus = RCC_WaitForHSEStartUp();
-    //HSEStartUpStatus = RCC_WaitForHSEStartUp();
- 
-//    if (HSEStartUpStatus == SUCCESS) {
 			  /* HCLK = SYSCLK */
         RCC_HCLKConfig(RCC_SYSCLK_Div1);
  

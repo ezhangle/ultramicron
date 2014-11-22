@@ -84,14 +84,12 @@ NVIC_InitTypeDef NVIC_InitStructure;
   TIM_OCConfig.TIM_Pulse = 2;
   TIM_OCConfig.TIM_OCPolarity = TIM_OCPolarity_High;
 
-  TIM_DeInit(TIM10); // Де-инициализируем таймер №9
-  TIM_TimeBaseInit(TIM10, &TIM_BaseConfig);
-  TIM_OC1Init(TIM10, &TIM_OCConfig);  // Инициализируем первый выход таймера №9 (у HD это PB13)
-
-
   // Как я понял - автоматическая перезарядка таймера, если неправ - поправте.
   TIM_OC1PreloadConfig(TIM10, TIM_OCPreload_Enable);
   TIM_ARRPreloadConfig(TIM10, ENABLE);
+
+  TIM_TimeBaseInit(TIM10, &TIM_BaseConfig);
+  TIM_OC1Init(TIM10, &TIM_OCConfig);  // Инициализируем первый выход таймера №9 (у HD это PB13)
 
   NVIC_InitStructure.NVIC_IRQChannel = TIM10_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;

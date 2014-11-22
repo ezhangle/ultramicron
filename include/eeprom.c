@@ -21,10 +21,7 @@ uint32_t NbrOfPage = 0, j = 0, Address = 0;
         Settings.Sleep_time=60;
 				Settings.Led_Sleep_time=10;
         Settings.Display_reverse=1;
-//				Settings.Geiger_voltage=360;
-//				Settings.Pump_Energy=350;
 				Settings.Second_count=250;
-				Settings.Sound_freq=8;
 				Settings.LSI_freq=37000;
 				Settings.Power_comp=0;
         eeprom_write_settings(); // «апись
@@ -40,10 +37,7 @@ void eeprom_write_settings(void)
   if(eeprom_read(Sleep_time_address)     !=Settings.Sleep_time )    eeprom_write(Sleep_time_address,     Settings.Sleep_time);
   if(eeprom_read(contrast_address)       !=Settings.contrast)       eeprom_write(contrast_address,       Settings.contrast);
   if(eeprom_read(Display_reverse_address)!=Settings.Display_reverse)eeprom_write(Display_reverse_address,Settings.Display_reverse);
-//  if(eeprom_read(Geiger_voltage_address) !=Settings.Geiger_voltage) eeprom_write(Geiger_voltage_address, Settings.Geiger_voltage);
-//  if(eeprom_read(Pump_Energy_address)    !=Settings.Pump_Energy)    eeprom_write(Pump_Energy_address,    Settings.Pump_Energy);
 	if(eeprom_read(Second_count_address)   !=Settings.Second_count)   eeprom_write(Second_count_address,   Settings.Second_count);
-	if(eeprom_read(Sound_freq_address)     !=Settings.Sound_freq)     eeprom_write(Sound_freq_address,     Settings.Sound_freq);
 	if(eeprom_read(Sound_address)          !=Settings.Sound)          eeprom_write(Sound_address,          Settings.Sound);
 	if(eeprom_read(Power_comp_address)          !=Settings.Power_comp)          eeprom_write(Power_comp_address,          Settings.Power_comp);
 	if(eeprom_read(Led_Sleep_time_address) !=Settings.Led_Sleep_time) eeprom_write(Led_Sleep_time_address, Settings.Led_Sleep_time);
@@ -57,8 +51,6 @@ void eeprom_write_settings(void)
 //**************************************************************************
 void eeprom_apply_settings(void)
 {
-//uint32_t pump_period;
-
   if(eeprom_read(contrast_address)!=Settings.contrast)       
 	{
 		display_off();
@@ -71,29 +63,6 @@ void eeprom_apply_settings(void)
 		display_off();
 		delay_ms(200);
 		display_on();
-	}
-	// -------------------------------------------------------------------
-/*  if(eeprom_read(Geiger_voltage_address) !=Settings.Geiger_voltage) 
-	{
-		ADCData.DAC_voltage_raw=(((Settings.Geiger_voltage*1000)/30/11)*1000)/ADCData.Calibration_bit_voltage;
-		DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   // Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V 
-	}
-  // -------------------------------------------------------------------
-  if(eeprom_read(Pump_Energy_address)    !=Settings.Pump_Energy)
-	{
-		pump_period=(176*Settings.Pump_Energy)/ADCData.Batt_voltage;
-		if((pump_period>16) && (Settings.LSI_freq==0)) // не привышать критический уровень дл€ верии 3.*
-		{
-			TIM_SetCompare1(TIM9,16); // изменение энергии накачки
-		} else TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки
-		Power.Pump_active=DISABLE;
-	}
-	*/
-	// -------------------------------------------------------------------
-	if(eeprom_read(Sound_freq_address)     !=Settings.Sound_freq)
-	{
-		tim10_sound_activate();
-		TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Update);
 	}
 	// -------------------------------------------------------------------
 	if(eeprom_read(LSI_freq_address)       !=Settings.LSI_freq)
@@ -114,10 +83,7 @@ void eeprom_read_settings(void)
   Settings.Sleep_time=            eeprom_read(Sleep_time_address);
   Settings.contrast=              eeprom_read(contrast_address);
   Settings.Display_reverse=				eeprom_read(Display_reverse_address);
-//  Settings.Geiger_voltage=				eeprom_read(Geiger_voltage_address);
-//  Settings.Pump_Energy=				    eeprom_read(Pump_Energy_address);
   Settings.Second_count=          eeprom_read(Second_count_address);
-	Settings.Sound_freq=            eeprom_read(Sound_freq_address);
 	Settings.Sound=                 eeprom_read(Sound_address);
   Settings.Led_Sleep_time=        eeprom_read(Led_Sleep_time_address);  
   Settings.LSI_freq=  			      eeprom_read(LSI_freq_address);  
