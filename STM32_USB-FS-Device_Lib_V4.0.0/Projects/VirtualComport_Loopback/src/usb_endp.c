@@ -71,8 +71,8 @@ void EP1_IN_Callback (void)
 void EP3_OUT_Callback(void)
 {
   packet_receive = 1;
-  //Receive_length = GetEPRxCount(ENDP3);
-  //PMAToUserBufferCopy((unsigned char*)Receive_Buffer, ENDP3_RXADDR, Receive_length);
+  Receive_length = GetEPRxCount(ENDP3);
+  PMAToUserBufferCopy((unsigned char*)Receive_Buffer, ENDP3_RXADDR, Receive_length);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
