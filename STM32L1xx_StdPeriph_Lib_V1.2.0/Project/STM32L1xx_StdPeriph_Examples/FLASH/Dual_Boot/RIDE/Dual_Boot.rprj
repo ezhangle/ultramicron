@@ -1,0 +1,4 @@
+
+<Project Header="Project 'Dual_Boot'" Path=".\Dual_Boot.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="Dual_Boot" >
+	<ApplicationBuild Header="Dual_Boot" Extern=".\Dual_Boot.rapp" Path=".\Dual_Boot.rapp" OutputFile=".\STM32L152D-EVAL_BANK2\Dual_Boot.elf" sate="98" Config="STM32L1XX_HD_BANK2" />
+</Project>
