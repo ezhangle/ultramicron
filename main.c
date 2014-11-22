@@ -150,8 +150,7 @@ int main(void)
 	Power.sleep_time=Settings.Sleep_time;
   Power.Display_active=ENABLE;
 	
-	ADCData.DAC_voltage_raw=(((Settings.Geiger_voltage*1000)/30/11)*1000)/ADCData.Calibration_bit_voltage;
-
+	ADCData.DAC_voltage_raw=0x610;
 		
   dac_init();
 	comp_on();
