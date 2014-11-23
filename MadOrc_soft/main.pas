@@ -604,11 +604,9 @@ end;
 
 procedure TmainFrm.ExitBtnClick(Sender: TObject);
 begin
-  //application.Terminate;
   if(DevPresent=true) then
    begin
       DevPresent:=false;
-      ShowMessage('НЕ ЗАБУДЬ ОТКЛЮЧИТЬ В ДОЗИМЕТРЕ РЕЖИМ USB!!!');
    end;
 
   needexit := true; // вежливо просим свалить из памяти
