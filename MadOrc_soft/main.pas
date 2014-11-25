@@ -344,7 +344,7 @@ begin
 //    end
 //    else
     begin
-      Fon_units := 'МкР/Ч';
+      Fon_units := 'мкР/ч';
     end;
     Label22.Caption := IntToStr(divgraph);
     Label23.Caption := fon_units;
@@ -380,7 +380,7 @@ begin
 //    end
 //    else
     begin
-      Fon_units := 'МкР/Ч';
+      Fon_units := 'мкР/ч';
     end;
     Label22.Caption := IntToStr(divgraphminute);
     Label23.Caption := fon_units;
@@ -416,7 +416,7 @@ begin
 //    end
 //    else
     begin
-      Fon_units := 'МкР/Ч';
+      Fon_units := 'мкР/ч';
     end;
     Label22.Caption := IntToStr(divgraphhour);
     Label23.Caption := fon_units;
@@ -437,7 +437,7 @@ end;
 //    end
 //    else
     begin
-    Label5.Caption := 'суммарная доза: '+IntToStr(dosefull+doseday+doseadd)+' Микрорентген';
+    Label5.Caption := 'суммарная доза: '+IntToStr(dosefull+doseday+doseadd)+' мкР';
     end;
 
 //    if (maxfon > 1500) then
@@ -447,7 +447,7 @@ end;
 //    end
 //    else
 //    begin
-      Label6.Caption := 'Максимальный фон за это время: '+IntToStr(maxfon)+' МкР/Ч';
+      Label6.Caption := 'Максимальный фон за это время: '+IntToStr(maxfon)+' мкР/ч';
 //    end;
 
     // Label3.Caption := 'T: '+IntToStr(temperature)+' C';
@@ -691,7 +691,7 @@ begin
     else
       MyTray.BalloonHint('Текущий фон:',IntToStr(Fon)+' '+fon_units,TBalloonType(2),5000,true);
 end;
-      AlarmEnableBtn.Caption := 'Тревога ['+IntToStr(alarmlevel)+'МкР/Ч]';
+      AlarmEnableBtn.Caption := 'Тревога ['+IntToStr(alarmlevel)+'мкР/ч]';
 end;
 
 procedure TmainFrm.N10001Click(Sender: TObject);
@@ -1236,7 +1236,7 @@ if ((fBuf[0] = $d1) and (fBuf[9] = $d2)) then begin
     // обработчик тревоги
     if (alarmenable and (fon > alarmlevel) and (d_minute mod 2 = 0) and (d_second mod 10 = 0)) then
     begin
-    MyTray.BalloonHint('ТРЕВОГА!','Фон более '+IntToStr(alarmlevel)+'МкР/Ч',TBalloonType(3),5000,true);
+    MyTray.BalloonHint('ТРЕВОГА!','Фон более '+IntToStr(alarmlevel)+'мкР/ч',TBalloonType(3),5000,true);
     PlaySound('alarm', hInstance, SND_RESOURCE);
     end;
 
@@ -1272,7 +1272,7 @@ if ((fBuf[0] = $d1) and (fBuf[9] = $d2)) then begin
 //    end
 //    else
     begin
-      Fon_units := 'МкР/Ч';
+      Fon_units := 'мкР/ч';
     end;
 
     Label15.Caption := IntToStr(fon);
