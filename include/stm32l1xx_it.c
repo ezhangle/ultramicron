@@ -163,7 +163,7 @@ void check_wakeup_keys()
 	{
 		tim10_sound_activate();
     Power.sleep_time=Settings.Sleep_time;
-		Power.led_sleep_time=Settings.Led_Sleep_time;	
+		Power.led_sleep_time=Settings.Sleep_time-3;
 	}
 	
 }

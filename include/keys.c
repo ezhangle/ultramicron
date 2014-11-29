@@ -112,6 +112,7 @@ void  plus_ten(uint32_t *param) // +10
   }
 }
 
+
 void minus_ten(uint32_t *param) // -10
 {
   //Если пытаемся привысить минимально допустимое значение, то переходим на максимум
@@ -183,9 +184,14 @@ void plus_reboot(uint32_t *param) // перезагрузка
 	LcdClear_massive();
 	sprintf (lcd_buf, "Перезагрузка...."); // Пишем в буфер значение счетчика
 	LcdString(1,5); // // Выводим обычным текстом содержание буфера
+	sprintf (lcd_buf, "   На клавиши   "); // Пишем в буфер значение счетчика
+	LcdString(1,7); // // Выводим обычным текстом содержание буфера
+	sprintf (lcd_buf, "   НЕ нажимать! "); // Пишем в буфер значение счетчика
+	LcdString(1,8); // // Выводим обычным текстом содержание буфера
+
   LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
 	
-  delay_ms(3000);
+  delay_ms(6000);
   IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
   IWDG_SetPrescaler(IWDG_Prescaler_4);
   IWDG_SetReload(2);
@@ -261,7 +267,12 @@ void keys_proccessing(void)
 				stat_screen_number++;
 			}
 		}
-    if(menu_select>max_struct_index)menu_select=max_struct_index;
+#ifdef hidden_menu
+			if(menu_select>max_struct_index)menu_select=max_struct_index;
+#else
+			if(menu_select>(max_string_count-start_offset))menu_select=(max_string_count-start_offset);
+#endif
+		
     key=0;
 		
 		///////////
@@ -302,7 +313,12 @@ void keys_proccessing(void)
 					stat_screen_number--;
 				}
 		}
-    if(menu_select>max_struct_index)menu_select=0;
+#ifdef hidden_menu
+			if(menu_select>max_struct_index)menu_select=0;
+#else
+		  if(menu_select>(max_string_count-start_offset))menu_select=0;
+#endif
+
     key=0;
 
     ///////////

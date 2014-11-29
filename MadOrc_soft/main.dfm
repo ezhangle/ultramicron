@@ -53,12 +53,12 @@ object mainFrm: TmainFrm
     ParentFont = False
   end
   object Label23: TLabel
-    Left = 12
+    Left = 16
     Top = 134
-    Width = 56
+    Width = 52
     Height = 19
     Alignment = taRightJustify
-    Caption = #1052#1082#1056'/'#1063
+    Caption = #1084#1082#1056'/'#1095
     Color = clWhite
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = cl3DDkShadow
@@ -37116,9 +37116,9 @@ object mainFrm: TmainFrm
     object Label18: TLabel
       Left = 263
       Top = 16
-      Width = 93
+      Width = 87
       Height = 33
-      Caption = #1052#1082#1056'/'#1063
+      Caption = #1084#1082#1056'/'#1095
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -27
@@ -37272,11 +37272,11 @@ object mainFrm: TmainFrm
     object Label5: TLabel
       Left = 13
       Top = 49
-      Width = 330
+      Width = 232
       Height = 19
       Alignment = taRightJustify
       BiDiMode = bdRightToLeft
-      Caption = #1087#1086#1083#1091#1095#1077#1085#1072' '#1076#1086#1079#1072': 0000000 '#1052#1080#1083#1083#1080#1088#1077#1085#1090#1075#1077#1085
+      Caption = #1087#1086#1083#1091#1095#1077#1085#1072' '#1076#1086#1079#1072': 0000000 '#1084#1056
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -16
@@ -37288,11 +37288,11 @@ object mainFrm: TmainFrm
     object Label6: TLabel
       Left = 13
       Top = 73
-      Width = 312
+      Width = 310
       Height = 16
       Alignment = taRightJustify
       BiDiMode = bdRightToLeft
-      Caption = #1052#1072#1082#1089#1080#1084#1072#1083#1100#1085#1099#1081' '#1092#1086#1085' '#1079#1072' '#1101#1090#1086' '#1074#1088#1077#1084#1103': 0000 '#1052#1082#1056'/'#1063
+      Caption = #1052#1072#1082#1089#1080#1084#1072#1083#1100#1085#1099#1081' '#1092#1086#1085' '#1079#1072' '#1101#1090#1086' '#1074#1088#1077#1084#1103': 0000 '#1084#1082#1056'/'#1095
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clHighlightText
       Font.Height = -13
@@ -38182,7 +38182,7 @@ object mainFrm: TmainFrm
     Left = 160
     Top = 8
     Bitmap = {
-      494C010105008C00040110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C000C0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
