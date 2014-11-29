@@ -876,6 +876,7 @@ begin
 png := TPNGObject.create;
 png.assign(bmp);
 
+
 SavePictureDialog1.DefaultExt := '.png';
 SavePictureDialog1.FileName := 'Ультра-Микрон '+Combobox1.Text+'.png';
 

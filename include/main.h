@@ -8,8 +8,8 @@
 #define U_ID_1 (*(uint32_t*) 0x1FF80054)
 #define U_ID_2 (*(uint32_t*) 0x1FF80064)
 
-//#define debug
-
+#define debug // отладка
+#define hidden_menu // Показ сервисных пунктов меню
 
 typedef struct
 {
@@ -57,7 +57,6 @@ typedef struct
 {
   uint32_t Alarm_level;                             // Уровень аларма
   uint32_t Sleep_time;                              // время до ухода в сон
-  uint32_t Led_Sleep_time;                          // время до ухода в сон
   uint32_t contrast;                                 // Контраст дисплея
 //  uint32_t second_pump;                              // кол-во импульсов подкачки каждую секунду
 //  uint32_t Geiger_angle_of_counter_characteristics; // угол наклона счетной хакактиристики в десятых долях процента на Вольт
