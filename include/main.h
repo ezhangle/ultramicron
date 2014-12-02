@@ -8,8 +8,16 @@
 #define U_ID_1 (*(uint32_t*) 0x1FF80054)
 #define U_ID_2 (*(uint32_t*) 0x1FF80064)
 
-#define debug // отладка
-#define hidden_menu // Показ сервисных пунктов меню
+//#define service // сервисная прошивка
+#define version_204 // Версия платы дозиметра 2.04
+//#define version_300 // Версия платы дозиметра 3.00 - 3.20
+//#define version_330 // Версия платы дозиметра 3.30 - 3.31
+
+
+#ifdef service
+	#define debug // отладка
+	#define hidden_menu // Показ сервисных пунктов меню
+#endif
 
 typedef struct
 {

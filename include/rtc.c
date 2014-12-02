@@ -166,26 +166,23 @@ void RTC_Config(void)
 
   RCC_RTCResetCmd(ENABLE);
   RCC_RTCResetCmd(DISABLE);
-  
-	RCC_LSEConfig(RCC_LSE_ON); // Пытаемся включить LSE
-	delay_ms(1500); // по ДШ время запуска 1 секунда
+
+#ifdef version_204  // версия без кварца
+	if(Settings.LSI_freq == 0x00)Settings.LSI_freq=37000;
+	RCC_LSICmd(ENABLE);
+	while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);  
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+  SynchPrediv = (Settings.LSI_freq/128) - 1;
+#else // версии с кварцем
+	RCC_LSEConfig(RCC_LSE_ON); // Пытаемся включить LSE // по ДШ время запуска 1 секунда
+	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
+	{
+	}
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+	SynchPrediv = 0xFF;
+	Settings.LSI_freq=0x00;
+#endif
 	
-	if(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == SET) // LSE включен
-	{
-		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
-		SynchPrediv = 0xFF;
-		Settings.LSI_freq=0x00;
-
-	} 
-	else // LSE не запустился
-	{
-		RCC_LSEConfig(RCC_LSE_OFF);
-		RCC_LSICmd(ENABLE);
-		while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);  
-		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
-	  SynchPrediv = (Settings.LSI_freq/128) - 1;
-  }
-
   /* Enable the RTC Clock */
   RCC_RTCCLKCmd(ENABLE);
   
