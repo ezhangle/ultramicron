@@ -4,23 +4,15 @@
 void sound_activate(void)
 {
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
+//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
 
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
-#ifdef version_330 // версия платы с индуктивностью
-  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 524250) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 кГц
-	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
-	TIM_SetAutoreload(TIM10, 65 );
-
-#else // версия платы без индуктивности
-  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 32000)  - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 кГц
-	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
-	TIM_SetAutoreload(TIM10, 4 );
-#endif
 	TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
 	TIM2->EGR  |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-	TIM_Cmd(TIM10, ENABLE);
+
+	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
+//	TIM_Cmd(TIM10, ENABLE);
 	TIM_Cmd(TIM2, ENABLE);
 	Alarm.Tick_beep_count=0;
 	Power.Sound_active=ENABLE;
@@ -33,10 +25,17 @@ void sound_deactivate(void)
 	TIM_Cmd(TIM2, DISABLE);
 	
 	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // запретить подачу импульсов
-	TIM_Cmd(TIM10, DISABLE);
+//	TIM_Cmd(TIM10, DISABLE);
+
+#ifdef version_330 // версия платы с индуктивностью
+	TIM_SetAutoreload(TIM10, 65 );
+#else // версия платы без индуктивности
+	TIM_SetAutoreload(TIM10, 4 );
+#endif
+
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, DISABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, DISABLE);
+//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, DISABLE);
 
   Power.Sound_active=DISABLE;      
 	Sound_key_pressed=DISABLE;
@@ -89,6 +88,7 @@ void timer10_Config(void) // генерация звука
 {
 TIM_TimeBaseInitTypeDef TIM_BaseConfig;
 TIM_OCInitTypeDef TIM_OCConfig;
+GPIO_InitTypeDef   GPIO_InitStructure;
 	
 	TIM_TimeBaseStructInit(&TIM_BaseConfig);
 	TIM_OCStructInit(&TIM_OCConfig);
@@ -113,14 +113,28 @@ TIM_OCInitTypeDef TIM_OCConfig;
   // Как я понял - автоматическая перезарядка таймера, если неправ - поправте.
 
 	TIM_DeInit(TIM10); // Де-инициализируем таймер №10
-  TIM_TimeBaseInit(TIM10, &TIM_BaseConfig);
-  TIM_OC1Init(TIM10, &TIM_OCConfig);  // Инициализируем первый выход таймера
 
   TIM_OC1PreloadConfig(TIM10, TIM_OCPreload_Enable);
   TIM_ARRPreloadConfig(TIM10, ENABLE);
 
-  TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // Запретить выдачу звука
+// ===============================================================================================  
+  // Динамик
+  GPIO_StructInit(&GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12;           // Ножка
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);  // Загружаем конфигурацию
+  GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_TIM10);
+// ===============================================================================================  
+
+	TIM_TimeBaseInit(TIM10, &TIM_BaseConfig);
+  TIM_OC1Init(TIM10, &TIM_OCConfig);  // Инициализируем первый выход таймера
+
+//  TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
+	//TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // Запретить выдачу звука
+	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // Запретить выдачу звука
   TIM_Cmd(TIM10, ENABLE);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
