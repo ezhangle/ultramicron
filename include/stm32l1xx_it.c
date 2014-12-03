@@ -294,68 +294,40 @@ void TIM9_IRQHandler(void)
 }
 
 // ========================================================
-// ????
-void TIM10_IRQHandler(void)
+// генерация звука на динамик
+void TIM2_IRQHandler(void)
 {
-#ifdef debug
-	  Wakeup.tim10_wakeup++;
-#endif	
-  if (TIM_GetITStatus(TIM10, TIM_IT_Update) != RESET)
+  if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
   {
-		TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
-    if(Alarm.Alarm_active)
-    {
-      if(!Alarm.User_cancel)
-      {        
-        Alarm.Alarm_beep_count++;
-        if(Alarm.Alarm_beep_count==500)  TIM_SetCompare1(TIM10, 1 );
-        if(Alarm.Alarm_beep_count==1000){TIM_SetCompare1(TIM10, 2 );Alarm.Alarm_beep_count=0;}
-      }
-      else
-      {
-				if(Power.Sound_active==ENABLE)
-				{	
-					if(Sound_key_pressed)
-					{
-						if(Alarm.Tick_beep_count>1500)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-							
-					} else if(Alarm.Tick_beep_count>50)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-				}
-			}     
-    }else
-    {
-		 if(Power.Sound_active==ENABLE)
-		 {	
-			if(Sound_key_pressed)
-			{
-				 if(Alarm.Tick_beep_count>1500)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-							
-			} else if(Alarm.Tick_beep_count>50)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-		 }
-		}
-  }
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
-  if (TIM_GetITStatus(TIM10, TIM_IT_CC1) != RESET)
-  {
-      TIM_ClearITPendingBit(TIM10, TIM_IT_CC1);
-  }
+    if(Alarm.Alarm_active & !Alarm.User_cancel)
+    {
+			Alarm.Alarm_beep_count++;
+      if(Alarm.Alarm_beep_count==25)  TIM_SetAutoreload(TIM10, 130 );
+      if(Alarm.Alarm_beep_count==50) {TIM_SetAutoreload(TIM10, 65 );Alarm.Alarm_beep_count=0;}
+    }
+
+		if((Power.Sound_active == ENABLE) | (Alarm.Alarm_active & Alarm.User_cancel))
+		{	
+			TIM_SetAutoreload(TIM10, 65 );
+			if(Sound_key_pressed) // нажатие кнопки
+			{
+				 if(Alarm.Tick_beep_count>40)
+							{
+								Alarm.Tick_beep_count=0;
+								tim10_sound_deactivate();
+							} else Alarm.Tick_beep_count++;
+							
+			} else if(Alarm.Tick_beep_count>10) // тик датчика
+							{
+								Alarm.Tick_beep_count=0;
+								tim10_sound_deactivate();
+							} else Alarm.Tick_beep_count++;
+		}
+	}
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -429,7 +401,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 				Wakeup.tim9_wakeup=0;
 				Wakeup.pump_wakeup=0;
 				Wakeup.comp_wakeup=0;
-				Wakeup.tim10_wakeup=0;
+//				Wakeup.tim10_wakeup=0;
 				Wakeup.sensor_wakeup=0;
 #endif
 

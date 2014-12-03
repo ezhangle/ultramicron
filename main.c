@@ -137,8 +137,6 @@ int main(void)
 	
   Settings.Geiger_voltage=360; // Напряжение на датчике 360 вольт
   Settings.Pump_Energy=350;    // энергия накачки 350 мТл
-	Settings.Sound_freq=8;       // Резонанс 8 кГц
-
 	
 	io_init(); // Инициализация потров МК
 
@@ -156,6 +154,7 @@ int main(void)
 	comp_on();
 	timer9_Config(); // Конфигурируем таймер накачки	
 	timer10_Config();
+	tim2_Config();
 	tim10_sound_activate();
 	delay_ms(100);
 	tim10_sound_deactivate();

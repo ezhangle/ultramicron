@@ -4,7 +4,6 @@
 #include "ext2760.h"
 #include "eeprom.h"
 #include "usb.h"
-#include "stm32l1xx_ulp_modes.h"
 #include <stdio.h>
 #include <string.h>
 

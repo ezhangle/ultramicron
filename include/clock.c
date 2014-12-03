@@ -122,8 +122,15 @@ PWR_VoltageScalingConfig(PWR_VoltageScaling_Range3); // Voltage Scaling Range 3 
 while(PWR_GetFlagStatus(PWR_FLAG_VOS) != RESET); // Wait Until the Voltage Regulator is ready
 
 SystemCoreClockUpdate();
+
+#ifdef version_330 // верси€ платы с индуктивностью
+  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 500000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
+#else // верси€ платы без индуктивности
+  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 16000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 к√ц
+#endif
+
 tim10_sound_activate();
-TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Immediate);
+
 TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
 Power.Pump_active=DISABLE;
@@ -184,8 +191,15 @@ FLASH_SetLatency(FLASH_Latency_1);
         while (RCC_GetSYSCLKSource() != 0x0C);
 
 SystemCoreClockUpdate();
+
+#ifdef version_330 // верси€ платы с индуктивностью
+  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 500000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
+#else // верси€ платы без индуктивности
+  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 16000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 к√ц
+#endif
+
 tim10_sound_activate();
-TIM_PrescalerConfig(TIM10,(uint16_t) (SystemCoreClock / (Settings.Sound_freq*4000)) - 1,TIM_PSCReloadMode_Immediate);
+
 TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
 Power.Pump_active=DISABLE;
