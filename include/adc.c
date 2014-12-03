@@ -22,7 +22,7 @@ void adc_check_event(void)
     RCC_HSICmd(DISABLE); // ¬ыключаем HSI
 		ADCData.Batt_voltage=(ADCData.Calibration_bit_voltage*ADCData.Batt_voltage_raw/1000)*2;
 		pump_period=(176*Settings.Pump_Energy)/ADCData.Batt_voltage;
-		if((pump_period>16) & (Settings.LSI_freq==0)) // не привышать критический уровень дл€ верии 3.*
+		if((pump_period>16) && (Settings.LSI_freq==0)) // не привышать критический уровень дл€ верии 3.*
 		{
 			TIM_SetCompare1(TIM9,16); // изменение энергии накачки
 		} else TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки

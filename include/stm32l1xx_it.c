@@ -301,33 +301,38 @@ void TIM2_IRQHandler(void)
   {
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
-    if(Alarm.Alarm_active & !Alarm.User_cancel)
+    if(Alarm.Alarm_active && !Alarm.User_cancel)
     {
 			Alarm.Alarm_beep_count++;
+			TIM_Cmd(TIM10, DISABLE);
 #ifdef version_330 // версия платы с индуктивностью
-      if(Alarm.Alarm_beep_count==25)  TIM_SetAutoreload(TIM10, 130 );
-      if(Alarm.Alarm_beep_count==50) {TIM_SetAutoreload(TIM10, 65 );Alarm.Alarm_beep_count=0;}
+      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 130);
+      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 65 );Alarm.Alarm_beep_count=0;}
 #else // версия платы без индуктивности
-      if(Alarm.Alarm_beep_count==25)  TIM_SetAutoreload(TIM10, 8 );
-      if(Alarm.Alarm_beep_count==50) {TIM_SetAutoreload(TIM10, 4 );Alarm.Alarm_beep_count=0;}
+      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 8  );
+      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 4  );Alarm.Alarm_beep_count=0;}
 #endif
+			TIM_Cmd(TIM10, ENABLE);
     }
 
-		if((Power.Sound_active == ENABLE) | (Alarm.Alarm_active & Alarm.User_cancel))
-		{	
-			if(Sound_key_pressed) // нажатие кнопки
-			{
-				 if(Alarm.Tick_beep_count>40)
+		if((Alarm.Alarm_active && Alarm.User_cancel) || !Alarm.Alarm_active)
+		{
+			if(Power.Sound_active == ENABLE)
+			{	
+				if(Sound_key_pressed) // нажатие кнопки
+				{
+					if(Alarm.Tick_beep_count>40)
 							{
 								Alarm.Tick_beep_count=0;
 								sound_deactivate();
 							} else Alarm.Tick_beep_count++;
 							
-			} else if(Alarm.Tick_beep_count>2) // тик датчика
+				} else if(Alarm.Tick_beep_count>5) // тик датчика
 							{
 								Alarm.Tick_beep_count=0;
 								sound_deactivate();
 							} else Alarm.Tick_beep_count++;
+			} else sound_deactivate();
 		}
 	}
 }

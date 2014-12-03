@@ -22,6 +22,7 @@ void sound_activate(void)
 	TIM2->EGR  |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
 	TIM_Cmd(TIM10, ENABLE);
 	TIM_Cmd(TIM2, ENABLE);
+	Alarm.Tick_beep_count=0;
 	Power.Sound_active=ENABLE;
 }
 

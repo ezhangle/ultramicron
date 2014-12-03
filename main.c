@@ -214,7 +214,7 @@ int main(void)
 		{
 			if(current_pulse_count<30)      // Если счетчик не зашкаливает, то можно уйти в сон
 			{
-				if(!Power.Pump_active & !Power.Sound_active)
+				if(!Power.Pump_active && !Power.Sound_active)
 				{
 					PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);    // Переходим в сон
 #ifdef debug
