@@ -323,7 +323,7 @@ void TIM2_IRQHandler(void)
 								sound_deactivate();
 							} else Alarm.Tick_beep_count++;
 							
-			} else if(Alarm.Tick_beep_count>10) // тик датчика
+			} else if(Alarm.Tick_beep_count>2) // тик датчика
 							{
 								Alarm.Tick_beep_count=0;
 								sound_deactivate();
@@ -338,8 +338,8 @@ void TIM2_IRQHandler(void)
 void recalculate_fon()
 {
 	int i,pointer;
-	int massive_len=Settings.Second_count>>2; // 50
-	int recalc_len=massive_len/auto_speedup_factor; // 5.55
+	int massive_len=Settings.Second_count>>2; // 50@200 62@250
+	int recalc_len=massive_len/auto_speedup_factor; // 62/9 = 6.8
 	float tmp;
 	
 	fon_level=0;				  
@@ -355,10 +355,12 @@ void recalculate_fon()
 		}
 		fon_level+=Detector_massive[pointer];
 	}
-	tmp=fon_level;
-	tmp=tmp/recalc_len;
-	tmp=tmp*(massive_len/auto_speedup_factor);
+	tmp=fon_level; // фон 6-ти €чеек (при ускорении 9)... 24 000
+	//tmp=tmp/recalc_len;
+	//tmp=tmp*(massive_len/auto_speedup_factor);
 	tmp=tmp*auto_speedup_factor;
+	tmp=tmp+(((tmp/recalc_len)/auto_speedup_factor)*(massive_len % auto_speedup_factor)); // €чейка 24000/6=4000; остаток от делени€ 8
+																																												// (4000/9*)8=3552; 24000+3552=27552
 	fon_level=tmp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
