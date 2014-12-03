@@ -4,14 +4,24 @@
 void sound_activate(void)
 {
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
-	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
-	TIM_Cmd(TIM10, ENABLE);
+
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+
+#ifdef version_330 // верси€ платы с индуктивностью
+  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 524250) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
 	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
 	TIM_SetAutoreload(TIM10, 65 );
 
+#else // верси€ платы без индуктивности
+  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 32000)  - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 к√ц
+	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
+	TIM_SetAutoreload(TIM10, 4 );
+#endif
+	TIM10->EGR |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
+	TIM2->EGR  |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
+	TIM_Cmd(TIM10, ENABLE);
+	TIM_Cmd(TIM2, ENABLE);
 	Power.Sound_active=ENABLE;
 }
 
@@ -20,11 +30,11 @@ void sound_deactivate(void)
 
 	TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
 	TIM_Cmd(TIM2, DISABLE);
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, DISABLE);
-
 	
 	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // запретить подачу импульсов
 	TIM_Cmd(TIM10, DISABLE);
+	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, DISABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, DISABLE);
 
   Power.Sound_active=DISABLE;      
@@ -91,21 +101,22 @@ TIM_OCInitTypeDef TIM_OCConfig;
   TIM_OCConfig.TIM_OCPolarity = TIM_OCPolarity_High;
 
 #ifdef version_330 // верси€ платы с индуктивностью
-  TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 500000) - 1; // частота таймера ~524.2 к√ц
+  TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 524250) - 1; // частота таймера ~524.2 к√ц
   TIM_BaseConfig.TIM_Period = 65;  // ~8 к√ц
   TIM_OCConfig.TIM_Pulse = 2; // —кваженность ~3% (ток около 16.8мј)
 #else // верси€ платы без индуктивности
-  TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 16000) - 1; // частота таймера 16 к√ц
-  TIM_BaseConfig.TIM_Period = 2;  // ~8 к√ц
-  TIM_OCConfig.TIM_Pulse = 1; // —кваженность ~50% 
+  TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 32000) - 1; // частота таймера 32 к√ц
+  TIM_BaseConfig.TIM_Period = 4;  // ~8 к√ц
+  TIM_OCConfig.TIM_Pulse = 2; // —кваженность ~50% 
 #endif
   //  ак € пон€л - автоматическа€ перезар€дка таймера, если неправ - поправте.
+
+	TIM_DeInit(TIM10); // ƒе-инициализируем таймер є10
+  TIM_TimeBaseInit(TIM10, &TIM_BaseConfig);
+  TIM_OC1Init(TIM10, &TIM_OCConfig);  // »нициализируем первый выход таймера
+
   TIM_OC1PreloadConfig(TIM10, TIM_OCPreload_Enable);
   TIM_ARRPreloadConfig(TIM10, ENABLE);
-
-  TIM_TimeBaseInit(TIM10, &TIM_BaseConfig);
-  TIM_OC1Init(TIM10, &TIM_OCConfig);  // »нициализируем первый выход таймера є9 (у HD это PB13)
-
 
   TIM10->EGR |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
 	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // «апретить выдачу звука
@@ -123,12 +134,12 @@ NVIC_InitTypeDef NVIC_InitStructure;
 	
 	TIM_TimeBaseStructInit(&TIM_BaseConfig);
 
-  TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 100) - 1; // ƒелитель (1 тик = 10мс)
+  TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 800) - 1; // ƒелитель (1 тик = 10мс)
   TIM_BaseConfig.TIM_ClockDivision = 0;
   TIM_BaseConfig.TIM_Period = 1;  // ќбщее количество тиков
   TIM_BaseConfig.TIM_CounterMode = TIM_CounterMode_Up;
 
-	TIM_ARRPreloadConfig(TIM10, ENABLE);
+	TIM_ARRPreloadConfig(TIM2, ENABLE);
   TIM_TimeBaseInit(TIM2, &TIM_BaseConfig);
 
   NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
@@ -139,7 +150,7 @@ NVIC_InitTypeDef NVIC_InitStructure;
   
   TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
-	
+	TIM2->EGR |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
   TIM_Cmd(TIM2, ENABLE);
 	
 }

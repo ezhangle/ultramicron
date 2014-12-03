@@ -304,13 +304,17 @@ void TIM2_IRQHandler(void)
     if(Alarm.Alarm_active & !Alarm.User_cancel)
     {
 			Alarm.Alarm_beep_count++;
+#ifdef version_330 // верси€ платы с индуктивностью
       if(Alarm.Alarm_beep_count==25)  TIM_SetAutoreload(TIM10, 130 );
       if(Alarm.Alarm_beep_count==50) {TIM_SetAutoreload(TIM10, 65 );Alarm.Alarm_beep_count=0;}
+#else // верси€ платы без индуктивности
+      if(Alarm.Alarm_beep_count==25)  TIM_SetAutoreload(TIM10, 8 );
+      if(Alarm.Alarm_beep_count==50) {TIM_SetAutoreload(TIM10, 4 );Alarm.Alarm_beep_count=0;}
+#endif
     }
 
 		if((Power.Sound_active == ENABLE) | (Alarm.Alarm_active & Alarm.User_cancel))
 		{	
-			TIM_SetAutoreload(TIM10, 65 );
 			if(Sound_key_pressed) // нажатие кнопки
 			{
 				 if(Alarm.Tick_beep_count>40)
@@ -401,7 +405,6 @@ void RTC_Alarm_IRQHandler(void) { // “ик каждые 4 секунды
 				Wakeup.tim9_wakeup=0;
 				Wakeup.pump_wakeup=0;
 				Wakeup.comp_wakeup=0;
-//				Wakeup.tim10_wakeup=0;
 				Wakeup.sensor_wakeup=0;
 #endif
 

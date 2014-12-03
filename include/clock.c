@@ -123,13 +123,8 @@ while(PWR_GetFlagStatus(PWR_FLAG_VOS) != RESET); // Wait Until the Voltage Regul
 
 SystemCoreClockUpdate();
 
-#ifdef version_330 // верси€ платы с индуктивностью
-  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 500000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
-#else // верси€ платы без индуктивности
-  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 16000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 к√ц
-#endif
-
 sound_activate();
+TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / (100*8)) - 1,TIM_PSCReloadMode_Immediate); // ƒелитель (1 тик = 10мс)
 
 TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
@@ -192,13 +187,9 @@ FLASH_SetLatency(FLASH_Latency_1);
 
 SystemCoreClockUpdate();
 
-#ifdef version_330 // верси€ платы с индуктивностью
-  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 500000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
-#else // верси€ платы без индуктивности
-  TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 16000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 к√ц
-#endif
-
 sound_activate();
+TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / 10) - 1,TIM_PSCReloadMode_Immediate); // ƒелитель (1 тик = 10мс)
+
 
 TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки

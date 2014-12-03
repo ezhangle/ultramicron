@@ -271,7 +271,6 @@ void stat_screen()
 		sprintf (lcd_buf, "tim9   %5i", Wakeup.tim9_wakeup); 	 	  LcdString(1,3);
 		sprintf (lcd_buf, "Имп.   %5i", Wakeup.pump_wakeup); 			LcdString(1,4);
 		sprintf (lcd_buf, "COMP2  %5i", Wakeup.comp_wakeup); 			LcdString(1,5);
-//		sprintf (lcd_buf, "tim10  %5i", Wakeup.tim10_wakeup); 		LcdString(1,6);
 		sprintf (lcd_buf, "время %6i",  debug_wutr/2); 	        	LcdString(1,7);
 		sprintf (lcd_buf, "Датчик %5i", Wakeup.sensor_wakeup);  		LcdString(1,8);
 		break;
