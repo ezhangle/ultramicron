@@ -118,7 +118,7 @@ void geiger_calc_fon(void)
 			Power.led_sleep_time=Settings.Sleep_time-3;
 			sleep_mode(DISABLE);
 			sound_activate();
-		}
+		} else sound_activate();
     
   }
   if((Alarm.Alarm_active && fon_level<Settings.Alarm_level) || (Alarm.Alarm_active && Settings.Alarm_level==0))

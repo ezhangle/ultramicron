@@ -34,7 +34,7 @@ void sound_deactivate(void)
 #ifdef version_330 // верси€ платы с индуктивностью
 	TIM_SetAutoreload(TIM10, 65 );
 #else // верси€ платы без индуктивности
-	TIM_SetAutoreload(TIM10, 4 );
+	TIM_SetAutoreload(TIM10, 16 );
 #endif
 
 	
@@ -51,7 +51,7 @@ void sound_reset_prescaller(void)
 #ifdef version_330 // верси€ платы с индуктивностью
 TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 524250) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
 #else // верси€ платы без индуктивности
-TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 32000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 32 к√ц
+TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 128000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 32 к√ц
 #endif
 
 }
@@ -119,9 +119,9 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   TIM_BaseConfig.TIM_Period = 65;  // ~8 к√ц
   TIM_OCConfig.TIM_Pulse = 2; // —кваженность ~3% (ток около 16.8мј)
 #else // верси€ платы без индуктивности
-  TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 32000) - 1; // частота таймера 32 к√ц
-  TIM_BaseConfig.TIM_Period = 4;  // ~8 к√ц
-  TIM_OCConfig.TIM_Pulse = 2; // —кваженность ~50% 
+  TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 128000) - 1; // частота таймера 32 к√ц
+  TIM_BaseConfig.TIM_Period = 16;  // ~8 к√ц
+  TIM_OCConfig.TIM_Pulse = 8; // —кваженность ~50% 
 #endif
   //  ак € пон€л - автоматическа€ перезар€дка таймера, если неправ - поправте.
 
@@ -136,8 +136,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12;           // Ќожка
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_400KHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);  // «агружаем конфигурацию
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_TIM10);
 // ===============================================================================================  

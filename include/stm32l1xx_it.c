@@ -308,8 +308,8 @@ void TIM2_IRQHandler(void)
       if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 130);
       if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 65 );Alarm.Alarm_beep_count=0;}
 #else // версия платы без индуктивности
-      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 8  );
-      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 4  );Alarm.Alarm_beep_count=0;}
+      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 32  );
+      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 16  );Alarm.Alarm_beep_count=0;}
 #endif
     }
 
@@ -325,7 +325,7 @@ void TIM2_IRQHandler(void)
 								sound_deactivate();
 							} else Alarm.Tick_beep_count++;
 							
-				} else if(Alarm.Tick_beep_count>5) // тик датчика
+				} else if(Alarm.Tick_beep_count>3) // тик датчика
 							{
 								Alarm.Tick_beep_count=0;
 								sound_deactivate();
