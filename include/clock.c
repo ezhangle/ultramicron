@@ -68,7 +68,8 @@ void set_msi(FunctionalState sleep)
     
     /* PCLK1 = HCLK /4*/
     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV4;
-    if(sleep)
+
+		if(sleep)
     {
 			RCC_MSIRangeConfig(RCC_MSIRange_5); // 2.097 MHZ
     }else{
@@ -123,7 +124,8 @@ while(PWR_GetFlagStatus(PWR_FLAG_VOS) != RESET); // Wait Until the Voltage Regul
 
 SystemCoreClockUpdate();
 
-sound_activate();
+sound_reset_prescaller();
+
 TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / (100*8)) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 10мс)
 
 TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
@@ -187,7 +189,8 @@ FLASH_SetLatency(FLASH_Latency_1);
 
 SystemCoreClockUpdate();
 
-sound_activate();
+sound_reset_prescaller();
+
 TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / 10) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 10мс)
 
 

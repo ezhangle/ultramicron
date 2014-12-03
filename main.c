@@ -97,6 +97,7 @@ void sleep_mode(FunctionalState sleep)
 			DataUpdate.Need_display_update=ENABLE;
 			adc_check_event(); // запустить преобразование
 			RTC_ITConfig(RTC_IT_WUT, ENABLE);
+			sound_deactivate();
     }
   } 
 }

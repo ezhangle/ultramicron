@@ -6,16 +6,20 @@ void sound_activate(void)
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 //	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
 
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	if(Power.Display_active==ENABLE)
+	{
 
-	TIM10->EGR |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
-	TIM2->EGR  |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
+		TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
-	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
-//	TIM_Cmd(TIM10, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
-	Alarm.Tick_beep_count=0;
-	Power.Sound_active=ENABLE;
+		TIM10->EGR |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
+		TIM2->EGR  |= 0x0001;  // ”станавливаем бит UG дл€ принудительного сброса счетчика
+
+		TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
+//		TIM_Cmd(TIM10, ENABLE);
+		TIM_Cmd(TIM2, ENABLE);
+		Alarm.Tick_beep_count=0;
+		Power.Sound_active=ENABLE;
+	}
 }
 
 void sound_deactivate(void)
@@ -42,6 +46,15 @@ void sound_deactivate(void)
 }
 
 
+void sound_reset_prescaller(void)
+{
+#ifdef version_330 // верси€ платы с индуктивностью
+TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 524250) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
+#else // верси€ платы без индуктивности
+TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 32000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 32 к√ц
+#endif
+
+}
 
 void timer9_Config(void) // генераци€ накачки
 {
