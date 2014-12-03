@@ -110,7 +110,14 @@ void geiger_calc_fon(void)
   {
     Alarm.Alarm_active=ENABLE;
 		Alarm.User_cancel=DISABLE;
-		sound_activate();
+		if(Power.Display_active==DISABLE)
+		{
+			screen=1;
+			Power.sleep_time=Settings.Sleep_time;
+			Power.led_sleep_time=Settings.Sleep_time-3;
+			sleep_mode(DISABLE);
+			sound_activate();
+		}
     
   }
   if((Alarm.Alarm_active && fon_level<Settings.Alarm_level) || (Alarm.Alarm_active && Settings.Alarm_level==0))
