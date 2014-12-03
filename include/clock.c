@@ -129,7 +129,7 @@ SystemCoreClockUpdate();
   TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 16000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 к√ц
 #endif
 
-tim10_sound_activate();
+sound_activate();
 
 TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
@@ -198,7 +198,7 @@ SystemCoreClockUpdate();
   TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 16000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 16 к√ц
 #endif
 
-tim10_sound_activate();
+sound_activate();
 
 TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
 TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки

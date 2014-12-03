@@ -161,7 +161,7 @@ void check_wakeup_keys()
 {
 	if ((!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3) && GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) && !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)) || Power.Display_active)
 	{
-		tim10_sound_activate();
+		sound_activate();
     Power.sleep_time=Settings.Sleep_time;
 		Power.led_sleep_time=Settings.Sleep_time-3;
 	}
@@ -240,7 +240,7 @@ void EXTI9_5_IRQHandler(void)
     {
       if(Power.Display_active)
       {
-        tim10_sound_activate();
+        sound_activate();
       }
     }
   }
@@ -316,13 +316,13 @@ void TIM2_IRQHandler(void)
 				 if(Alarm.Tick_beep_count>40)
 							{
 								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
+								sound_deactivate();
 							} else Alarm.Tick_beep_count++;
 							
 			} else if(Alarm.Tick_beep_count>10) // тик датчика
 							{
 								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
+								sound_deactivate();
 							} else Alarm.Tick_beep_count++;
 		}
 	}

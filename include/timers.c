@@ -1,26 +1,34 @@
 #include "stm32l1xx_tim.h"
 #include "main.h"
 
-void tim10_sound_activate(void)
+void sound_activate(void)
 {
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM2, ENABLE);
+	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
 	TIM_Cmd(TIM10, ENABLE);
-	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // запретить накачку
-	TIM_ITConfig(TIM10, TIM_IT_Update, ENABLE);
-	TIM_SetCompare1(TIM10, 2 );
+	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
+	TIM_SetAutoreload(TIM10, 65 );
 
 	Power.Sound_active=ENABLE;
 }
 
-void tim10_sound_deactivate(void)
+void sound_deactivate(void)
 {	
-			TIM_ITConfig(TIM10, TIM_IT_Update, DISABLE);
-			TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку    
-			TIM_Cmd(TIM10, DISABLE);
-			RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, DISABLE);
 
-      Power.Sound_active=DISABLE;      
-			Sound_key_pressed=DISABLE;
+	TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
+	TIM_Cmd(TIM2, DISABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, DISABLE);
+
+	
+	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // запретить подачу импульсов
+	TIM_Cmd(TIM10, DISABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, DISABLE);
+
+  Power.Sound_active=DISABLE;      
+	Sound_key_pressed=DISABLE;
 }
 
 
@@ -111,6 +119,8 @@ void tim2_Config()
 TIM_TimeBaseInitTypeDef TIM_BaseConfig;
 NVIC_InitTypeDef NVIC_InitStructure;
 
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+	
 	TIM_TimeBaseStructInit(&TIM_BaseConfig);
 
   TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 100) - 1; // Делитель (1 тик = 10мс)

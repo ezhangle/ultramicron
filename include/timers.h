@@ -5,7 +5,7 @@
 void tim2_Config(void);
 void timer9_Config(void);
 void timer10_Config(void);
-void tim10_sound_activate(void);
-void tim10_sound_deactivate(void);
+void sound_activate(void);
+void sound_deactivate(void);
 
 #endif

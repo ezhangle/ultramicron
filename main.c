@@ -110,12 +110,12 @@ void geiger_calc_fon(void)
   {
     Alarm.Alarm_active=ENABLE;
 		Alarm.User_cancel=DISABLE;
-		tim10_sound_activate();
+		sound_activate();
     
   }
   if((Alarm.Alarm_active && fon_level<Settings.Alarm_level) || (Alarm.Alarm_active && Settings.Alarm_level==0))
   {
-		tim10_sound_deactivate();
+		sound_deactivate();
     Power.Sound_active=DISABLE;
     Alarm.Alarm_active=DISABLE;
     Alarm.User_cancel=DISABLE;
@@ -155,9 +155,9 @@ int main(void)
 	timer9_Config(); // Конфигурируем таймер накачки	
 	timer10_Config();
 	tim2_Config();
-	tim10_sound_activate();
+	sound_activate();
 	delay_ms(100);
-	tim10_sound_deactivate();
+	sound_deactivate();
 //--------------------------------------------------------------------
 	RTC_Config();	   // Конфигурируем часы
 //--------------------------------------------------------------------
