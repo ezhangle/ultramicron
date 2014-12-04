@@ -133,6 +133,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_Init(     GPIOC,&GPIO_InitStructure);  // Загружаем конфигурацию
   GPIO_SetBits(  GPIOC, GPIO_InitStructure.GPIO_Pin);// Отключаем токосемник
 
+// ===============================================================================================  
   // Ножка LCDLED
   GPIO_StructInit(&GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_7;           // Ножка
@@ -152,17 +153,6 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);  // Загружаем конфигурацию
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_TIM9);
-
-// ===============================================================================================  
-  // Динамик
-  GPIO_StructInit(&GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12;           // Ножка
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);  // Загружаем конфигурацию
-  GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_TIM10);
 	
 // ===============================================================================================  
   // Ножка DAC канал 2

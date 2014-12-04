@@ -3,13 +3,21 @@
 
 #include "stm32l1xx.h"
 
+//#define service // сервисная прошивка
+#define version_204 // Версия платы дозиметра 2.04
+//#define version_300 // Версия платы дозиметра 3.00 - 3.20
+#define version_330 // Версия платы дозиметра 3.30 - 3.31
+
+
 // ------------- СЕРИЙНИК ! ------------- 
 #define U_ID_0 (*(uint32_t*) 0x1FF80050) // MCU Serial
 #define U_ID_1 (*(uint32_t*) 0x1FF80054)
 #define U_ID_2 (*(uint32_t*) 0x1FF80064)
 
-#define debug // отладка
-#define hidden_menu // Показ сервисных пунктов меню
+#ifdef service
+	#define debug // отладка
+	#define hidden_menu // Показ сервисных пунктов меню
+#endif
 
 typedef struct
 {
@@ -65,7 +73,7 @@ typedef struct
 //  uint32_t HV_ADC_Corr;                             // Корректировка ВВ делителя
 //  uint32_t pump_pulse_by_impulse;                   // кол-во импульсов подкачки на каждый импульс датчика
 //  uint32_t pump_skvagennost;                        // скваженность накачки
-  uint32_t Sound_freq;				    // Частота звука в кГц
+//  uint32_t Sound_freq;				    // Частота звука в кГц
   uint32_t Power_comp;				    // Уровень потребления
   uint32_t Geiger_voltage;			    // Напряжение датчика
 	uint32_t Pump_Energy;

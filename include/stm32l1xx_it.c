@@ -161,7 +161,7 @@ void check_wakeup_keys()
 {
 	if ((!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3) && GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) && !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)) || Power.Display_active)
 	{
-		tim10_sound_activate();
+		sound_activate();
     Power.sleep_time=Settings.Sleep_time;
 		Power.led_sleep_time=Settings.Sleep_time-3;
 	}
@@ -240,7 +240,7 @@ void EXTI9_5_IRQHandler(void)
     {
       if(Power.Display_active)
       {
-        tim10_sound_activate();
+        sound_activate();
       }
     }
   }
@@ -294,76 +294,55 @@ void TIM9_IRQHandler(void)
 }
 
 // ========================================================
-// ????
-void TIM10_IRQHandler(void)
+// генераци€ звука на динамик
+void TIM2_IRQHandler(void)
 {
-#ifdef debug
-	  Wakeup.tim10_wakeup++;
-#endif	
-  if (TIM_GetITStatus(TIM10, TIM_IT_Update) != RESET)
+  if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
   {
-		TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
-    if(Alarm.Alarm_active)
-    {
-      if(!Alarm.User_cancel)
-      {        
-        Alarm.Alarm_beep_count++;
-        if(Alarm.Alarm_beep_count==500)  TIM_SetCompare1(TIM10, 1 );
-        if(Alarm.Alarm_beep_count==1000){TIM_SetCompare1(TIM10, 2 );Alarm.Alarm_beep_count=0;}
-      }
-      else
-      {
-				if(Power.Sound_active==ENABLE)
-				{	
-					if(Sound_key_pressed)
-					{
-						if(Alarm.Tick_beep_count>1500)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-							
-					} else if(Alarm.Tick_beep_count>50)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-				}
-			}     
-    }else
-    {
-		 if(Power.Sound_active==ENABLE)
-		 {	
-			if(Sound_key_pressed)
-			{
-				 if(Alarm.Tick_beep_count>1500)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-							
-			} else if(Alarm.Tick_beep_count>50)
-							{
-								Alarm.Tick_beep_count=0;
-								tim10_sound_deactivate();
-							} else Alarm.Tick_beep_count++;
-		 }
-		}
-  }
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
-  if (TIM_GetITStatus(TIM10, TIM_IT_CC1) != RESET)
-  {
-      TIM_ClearITPendingBit(TIM10, TIM_IT_CC1);
-  }
+    if(Alarm.Alarm_active && !Alarm.User_cancel)
+    {
+			Alarm.Alarm_beep_count++;
+#ifdef version_330 // верси€ платы с индуктивностью
+      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 130);
+      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 65 );Alarm.Alarm_beep_count=0;}
+#else // верси€ платы без индуктивности
+      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 8  );
+      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 4  );Alarm.Alarm_beep_count=0;}
+#endif
+    }
+
+		if((Alarm.Alarm_active && Alarm.User_cancel) || !Alarm.Alarm_active)
+		{
+			if(Power.Sound_active == ENABLE)
+			{	
+				if(Sound_key_pressed) // нажатие кнопки
+				{
+					if(Alarm.Tick_beep_count>40)
+							{
+								Alarm.Tick_beep_count=0;
+								sound_deactivate();
+							} else Alarm.Tick_beep_count++;
+							
+				} else if(Alarm.Tick_beep_count>5) // тик датчика
+							{
+								Alarm.Tick_beep_count=0;
+								sound_deactivate();
+							} else Alarm.Tick_beep_count++;
+			} else sound_deactivate();
+		}
+	}
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void recalculate_fon()
 {
 	int i,pointer;
-	int massive_len=Settings.Second_count>>2; // 50
-	int recalc_len=massive_len/auto_speedup_factor; // 5.55
+	int massive_len=Settings.Second_count>>2; // 50@200 62@250
+	int recalc_len=massive_len/auto_speedup_factor; // 62/9 = 6.8
 	float tmp;
 	
 	fon_level=0;				  
@@ -379,10 +358,12 @@ void recalculate_fon()
 		}
 		fon_level+=Detector_massive[pointer];
 	}
-	tmp=fon_level;
-	tmp=tmp/recalc_len;
-	tmp=tmp*(massive_len/auto_speedup_factor);
+	tmp=fon_level; // фон 6-ти €чеек (при ускорении 9)... 24 000
+	//tmp=tmp/recalc_len;
+	//tmp=tmp*(massive_len/auto_speedup_factor);
 	tmp=tmp*auto_speedup_factor;
+	tmp=tmp+(((tmp/recalc_len)/auto_speedup_factor)*(massive_len % auto_speedup_factor)); // €чейка 24000/6=4000; остаток от делени€ 8
+																																												// (4000/9*)8=3552; 24000+3552=27552
 	fon_level=tmp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -429,7 +410,6 @@ void RTC_Alarm_IRQHandler(void) { // “ик каждые 4 секунды
 				Wakeup.tim9_wakeup=0;
 				Wakeup.pump_wakeup=0;
 				Wakeup.comp_wakeup=0;
-				Wakeup.tim10_wakeup=0;
 				Wakeup.sensor_wakeup=0;
 #endif
 

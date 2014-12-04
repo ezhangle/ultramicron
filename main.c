@@ -97,6 +97,7 @@ void sleep_mode(FunctionalState sleep)
 			DataUpdate.Need_display_update=ENABLE;
 			adc_check_event(); // запустить преобразование
 			RTC_ITConfig(RTC_IT_WUT, ENABLE);
+			sound_deactivate();
     }
   } 
 }
@@ -110,12 +111,19 @@ void geiger_calc_fon(void)
   {
     Alarm.Alarm_active=ENABLE;
 		Alarm.User_cancel=DISABLE;
-		tim10_sound_activate();
+		if(Power.Display_active==DISABLE)
+		{
+			screen=1;
+			Power.sleep_time=Settings.Sleep_time;
+			Power.led_sleep_time=Settings.Sleep_time-3;
+			sleep_mode(DISABLE);
+			sound_activate();
+		}
     
   }
   if((Alarm.Alarm_active && fon_level<Settings.Alarm_level) || (Alarm.Alarm_active && Settings.Alarm_level==0))
   {
-		tim10_sound_deactivate();
+		sound_deactivate();
     Power.Sound_active=DISABLE;
     Alarm.Alarm_active=DISABLE;
     Alarm.User_cancel=DISABLE;
@@ -137,8 +145,6 @@ int main(void)
 	
   Settings.Geiger_voltage=360; // Напряжение на датчике 360 вольт
   Settings.Pump_Energy=350;    // энергия накачки 350 мТл
-	Settings.Sound_freq=8;       // Резонанс 8 кГц
-
 	
 	io_init(); // Инициализация потров МК
 
@@ -156,9 +162,10 @@ int main(void)
 	comp_on();
 	timer9_Config(); // Конфигурируем таймер накачки	
 	timer10_Config();
-	tim10_sound_activate();
+	tim2_Config();
+	sound_activate();
 	delay_ms(100);
-	tim10_sound_deactivate();
+	sound_deactivate();
 //--------------------------------------------------------------------
 	RTC_Config();	   // Конфигурируем часы
 //--------------------------------------------------------------------
@@ -215,7 +222,7 @@ int main(void)
 		{
 			if(current_pulse_count<30)      // Если счетчик не зашкаливает, то можно уйти в сон
 			{
-				if(!Power.Pump_active & !Power.Sound_active)
+				if(!Power.Pump_active && !Power.Sound_active)
 				{
 					PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);    // Переходим в сон
 #ifdef debug

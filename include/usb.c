@@ -246,6 +246,15 @@ void USB_off()
 	PowerOff();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, DISABLE);
 	set_msi(DISABLE);
+
+	// Приводим в порядок систему тактирования (заплатка)
+	sleep_mode(ENABLE);
+	while(Power.Pump_active || Power.Sound_active);
+	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);    // Переходим в сон
+	sleep_mode(DISABLE);
+	Power.sleep_time=Settings.Sleep_time;
+	Power.led_sleep_time=Settings.Sleep_time-3;
+
 }
 
 

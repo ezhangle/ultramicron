@@ -681,11 +681,6 @@
               <FileType>1</FileType>
               <FilePath>.\include\power.c</FilePath>
             </File>
-            <File>
-              <FileName>stm32l1xx_ulp_modes.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\include\stm32l1xx_ulp_modes.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
