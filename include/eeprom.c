@@ -14,12 +14,12 @@ uint32_t NbrOfPage = 0, j = 0, Address = 0;
 // Запись параметров по умолчанию
     void eeprom_write_default_settings(void)
     {
-      if(eeprom_read(Pump_Energy_address) == 0x00)
+      if(eeprom_read(Second_count_address) == 0x00)
       { 
         Settings.Alarm_level=50;
         Settings.Sound=ENABLE;
         Settings.Sleep_time=60;
-        Settings.Display_reverse=1;
+        Settings.Display_reverse=2;
 				Settings.Second_count=250;
 				Settings.LSI_freq=37000;
 				Settings.Power_comp=0;
@@ -84,7 +84,7 @@ void eeprom_read_settings(void)
   Settings.Second_count=          eeprom_read(Second_count_address);
 	Settings.Sound=                 eeprom_read(Sound_address);
   Settings.LSI_freq=  			      eeprom_read(LSI_freq_address);  
-	Settings.Power_comp=  			      eeprom_read(Power_comp_address);  
+	Settings.Power_comp= 			      eeprom_read(Power_comp_address);  
 	Power.led_sleep_time=Settings.Sleep_time-3;
 }
 
