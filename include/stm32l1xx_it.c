@@ -304,13 +304,8 @@ void TIM2_IRQHandler(void)
     if(Alarm.Alarm_active && !Alarm.User_cancel)
     {
 			Alarm.Alarm_beep_count++;
-#ifdef version_330 // версия платы с индуктивностью
-      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 130);
-      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 65 );Alarm.Alarm_beep_count=0;}
-#else // версия платы без индуктивности
       if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 32  );
       if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 16  );Alarm.Alarm_beep_count=0;}
-#endif
     }
 
 		if((Alarm.Alarm_active && Alarm.User_cancel) || !Alarm.Alarm_active)

@@ -31,11 +31,7 @@ void sound_deactivate(void)
 	TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Disable); // запретить подачу импульсов
 //	TIM_Cmd(TIM10, DISABLE);
 
-#ifdef version_330 // верси€ платы с индуктивностью
-	TIM_SetAutoreload(TIM10, 65 );
-#else // верси€ платы без индуктивности
 	TIM_SetAutoreload(TIM10, 16 );
-#endif
 
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, DISABLE);
@@ -48,11 +44,7 @@ void sound_deactivate(void)
 
 void sound_reset_prescaller(void)
 {
-#ifdef version_330 // верси€ платы с индуктивностью
-TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 524250) - 1,TIM_PSCReloadMode_Immediate); // частота таймера ~524.2 к√ц
-#else // верси€ платы без индуктивности
 TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 128000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 32 к√ц
-#endif
 
 }
 
@@ -114,15 +106,9 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   TIM_OCConfig.TIM_OutputState = TIM_OutputState_Enable;
   TIM_OCConfig.TIM_OCPolarity = TIM_OCPolarity_High;
 
-#ifdef version_330 // верси€ платы с индуктивностью
-  TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 524250) - 1; // частота таймера ~524.2 к√ц
-  TIM_BaseConfig.TIM_Period = 65;  // ~8 к√ц
-  TIM_OCConfig.TIM_Pulse = 2; // —кваженность ~3% (ток около 16.8мј)
-#else // верси€ платы без индуктивности
   TIM_BaseConfig.TIM_Prescaler = (uint32_t) (SystemCoreClock / 128000) - 1; // частота таймера 32 к√ц
   TIM_BaseConfig.TIM_Period = 16;  // ~8 к√ц
   TIM_OCConfig.TIM_Pulse = 8; // —кваженность ~50% 
-#endif
   //  ак € пон€л - автоматическа€ перезар€дка таймера, если неправ - поправте.
 
 	TIM_DeInit(TIM10); // ƒе-инициализируем таймер є10
