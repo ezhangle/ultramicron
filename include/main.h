@@ -29,6 +29,7 @@ typedef struct
 //  uint8_t Calibration_update_time_counter;     // счетчик таймаута измерения напряжения АКБ
   uint8_t pump_counter_update_time;
 	uint16_t  doze_sec_count;                    // Служебный счетчик для времени дозы
+	uint16_t  days_sec_count;
 //  uint8_t second_pump_counter;
 //  uint8_t pump_pulse_by_impulse_counter;
   
@@ -117,8 +118,8 @@ typedef struct
   FunctionalState sleep_now;     // Активность сна
 
   uint32_t APB1ENR;  //
- 
-  uint32_t sleep_time;  //
+	
+	uint32_t sleep_time;  //
   uint32_t led_sleep_time;  //
   
 }PowerDef;
@@ -151,6 +152,7 @@ extern uint8_t stat_screen_number;
 extern uint16_t Detector_massive_pointer;
 extern uint16_t pump_counter_avg_impulse_by_1sec[2];
 extern uint32_t fon_level;
+extern uint32_t working_days;
 extern uint8_t  auto_speedup_factor;
 extern uint32_t madorc_impulse;
 extern uint32_t USB_not_active;
