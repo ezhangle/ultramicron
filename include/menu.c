@@ -18,10 +18,10 @@ MenuItem Menu_list[max_struct_index] = {
   {  0x01, "Контраст",	    "",		  						"",			        	"%u",  	       &Settings.contrast,                                     0,       15,       0,       &plus_one,                &minus_one},
   {  0x01, "Реверс",	      "откл",							"",			        	"%u",	         &Settings.Display_reverse,                              0,       3,        0,       &plus_one,                &minus_one},
   {  0x01, "Счет",	        "",		  						"",			        	"%uсек",	     &Settings.Second_count,                                 200,     450,      200,     &plus_ten,                &minus_ten},
-	{  0x01, "LSI",		        "Кварц",						"",			        	"%u Гц",	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500}
+	{  0x01, "LSI",		        "Кварц",						"",			        	"%u Гц",	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500},
 //  {  0x00, "Подсветка",		  "откл",							"",			        	"%uсек",	     &Settings.Led_Sleep_time,                               0,       300,      30,      &plus_sleep,              &minus_sleep},
 //  {  0x01, "Звук",	        "",		  						"",			        	"%uкГц",	     &Settings.Sound_freq,                                   1,       10,       8,       &plus_one,                &minus_one}
-//	{  0x01, "Напряжение",	  "",		  						"",			        	"%uV",	       &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten},
+	{  0x01, "Напряжение",	  "",		  						"",			        	"%uV",	       &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten}
 //	{  0x01, "Индукция",	    "",		  						"",			        	"%uмТл",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
 
 /*  {  0x01, "Потребление",	  "мин",  						"макс",		       	"",	           &Settings.Power_comp,                                   0,       1,        0,       &plus_one,                &minus_one}
@@ -252,15 +252,15 @@ void stat_screen()
 		sprintf(lcd_buf, "Накачка"); // Выводим на дисплей
 		LcdString(1,6); // // Выводим обычным текстом содержание буфера на строку 8
   
-		sprintf(lcd_buf, "имп/м | индукция"); // Выводим на дисплей
+		sprintf(lcd_buf, "имп/м | наработ."); // Выводим на дисплей
 		LcdString(1,7); // // Выводим обычным текстом содержание буфера на строку 8
   
 		if(pump_counter_avg_impulse_by_1sec[1]==0){sprintf(lcd_buf, "расчет");} // Выводим на дисплей
 		else                                       sprintf(lcd_buf, "%5i ",pump_counter_avg_impulse_by_1sec[1]); // Выводим на дисплей
 		LcdString(1,8); // // Выводим обычным текстом содержание буфера на строку 8
   
-		sprintf(lcd_buf, "%3iмТл",(TIM9->CCR1*ADCData.Batt_voltage)/176); // Выводим на дисплей
-		LcdString(10,8); // // Выводим обычным текстом содержание буфера на строку 8
+		sprintf(lcd_buf, "%4iдн.",working_days); // Выводим на дисплей
+		LcdString(9,8); // // Выводим обычным текстом содержание буфера на строку 8
 		break;
 
 #ifdef debug

@@ -52,6 +52,8 @@ uint8_t stat_screen_number=0;
 uint16_t pump_counter_avg_impulse_by_1sec[2];
 uint32_t fon_level=0;
 
+uint32_t working_days=0;
+
 uint32_t madorc_impulse=0;
 
 FunctionalState Sound_key_pressed=DISABLE;

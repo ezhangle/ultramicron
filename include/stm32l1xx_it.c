@@ -425,6 +425,13 @@ void RTC_Alarm_IRQHandler(void) { // “ик каждые 4 секунды
 
 			} else DataUpdate.pump_counter_update_time++;
 	
+			// —четчик дней
+			if(DataUpdate.days_sec_count>=24600) // каждые 24 часа минут
+			{
+				DataUpdate.days_sec_count=0;
+				working_days++;
+				
+			} else DataUpdate.days_sec_count++;
 			// —двиг массива дозы
 			if(DataUpdate.doze_sec_count>=150) // каждые 10 минут
 			{
