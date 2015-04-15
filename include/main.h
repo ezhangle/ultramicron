@@ -3,9 +3,9 @@
 
 #include "stm32l1xx.h"
 
-//#define service // сервисная прошивка
-//#define version_204 // Версия платы дозиметра 2.04
-#define version_300 // Версия платы дозиметра 3.00 - 3.20
+#define service // сервисная прошивка
+#define version_204 // Версия платы дозиметра 2.04
+//#define version_300 // Версия платы дозиметра 3.00 - 3.20
 
 
 
