@@ -128,8 +128,8 @@ sound_reset_prescaller();
 
 TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / (100*8)) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 10мс)
 
-TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
-TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
+TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 4000000) - 1,                   TIM_PSCReloadMode_Immediate);
+TIM_SetCompare1    (TIM9,            (352*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
 Power.Pump_active=DISABLE;
 
 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
@@ -194,8 +194,8 @@ sound_reset_prescaller();
 TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / 10) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 10мс)
 
 
-TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
-TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
+TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 4000000) - 1,                   TIM_PSCReloadMode_Immediate);
+TIM_SetCompare1    (TIM9,            (352*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
 Power.Pump_active=DISABLE;
 }
 //-------------------------------------------------------------------------------------------------------

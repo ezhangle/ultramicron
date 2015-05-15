@@ -61,9 +61,9 @@ NVIC_InitTypeDef NVIC_InitStructure;
   TIM_OCConfig.TIM_Pulse = 1;   // Расчет необходимой энергии
   TIM_OCConfig.TIM_OCPolarity = TIM_OCPolarity_High; // Полярность => пульс - это единица (+3.3V)
 
-  TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 2000000) - 1; // Делитель (1 тик = 0.5мкс)
+  TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 4000000) - 1; // Делитель (1 тик = 0.25мкс)
   TIM_BaseConfig.TIM_ClockDivision = 0;
-  TIM_BaseConfig.TIM_Period = 280;  // Общее количество тиков (скваженность) 140мкс (было 500)
+  TIM_BaseConfig.TIM_Period = 560;  // Общее количество тиков (скваженность) 140мкс (было 500)
   TIM_BaseConfig.TIM_CounterMode = TIM_CounterMode_Up; // Отсчет от нуля до TIM_Period
   
   

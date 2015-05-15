@@ -21,10 +21,10 @@ void adc_check_event(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, DISABLE);
     RCC_HSICmd(DISABLE); // ¬ыключаем HSI
 		ADCData.Batt_voltage=(ADCData.Calibration_bit_voltage*ADCData.Batt_voltage_raw/1000)*2;
-		pump_period=(176*Settings.Pump_Energy)/ADCData.Batt_voltage;
-		if((pump_period>16) && (Settings.LSI_freq==0)) // не привышать критический уровень дл€ верии 3.*
+		pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage;
+		if((pump_period>32) && (Settings.LSI_freq==0)) // не привышать критический уровень дл€ верии 3.*
 		{
-			TIM_SetCompare1(TIM9,16); // изменение энергии накачки
+			TIM_SetCompare1(TIM9,32); // изменение энергии накачки
 		} else TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки
     DataUpdate.Need_batt_voltage_update=DISABLE;
  }
