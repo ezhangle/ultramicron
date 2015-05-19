@@ -12,7 +12,7 @@ void io_off_unused(void)
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 	GPIO_PinLockConfig(GPIOA, GPIO_InitStructure.GPIO_Pin);
 
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	GPIO_PinLockConfig(GPIOB, GPIO_InitStructure.GPIO_Pin);
 	
@@ -41,7 +41,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;        // ????? ????? "????"
 		GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
 		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All & ~GPIO_Pin_12 & ~GPIO_Pin_13 & ~GPIO_Pin_14& ~GPIO_Pin_4;
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All & ~GPIO_Pin_12 & ~GPIO_Pin_13 & ~GPIO_Pin_14 & ~GPIO_Pin_4;
     GPIO_Init(     GPIOB, &GPIO_InitStructure);   
     GPIO_ResetBits(GPIOB,GPIO_InitStructure.GPIO_Pin);// Отключаем токосемник
 
@@ -110,6 +110,16 @@ GPIO_InitTypeDef   GPIO_InitStructure;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 
+#ifdef version_401
+// ===============================================================================================  
+  //Конфигурируем ножку для детектора USB
+  GPIO_StructInit(&GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;  // GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AN;         // Аналоговый режим
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+#endif
 
 // ===============================================================================================  
   // Ножка изиерения напряжения АКБ

@@ -10,6 +10,7 @@
 #include "usb_pwr.h"
 #include "usb.h"
 #include "rtc.h"
+#include "keys.h"
 
 
 
@@ -256,6 +257,14 @@ void EXTI9_5_IRQHandler(void)
 		Sound_key_pressed=ENABLE;
 		check_wakeup_keys();
   }
+#ifdef version_401
+  if(EXTI_GetITStatus(EXTI_Line9) != RESET) // Подключено USB
+  {
+    
+    EXTI_ClearITPendingBit(EXTI_Line9);
+    if(Settings.USB==0)usb_activate(0x0);
+  }
+#endif
   
 }
 

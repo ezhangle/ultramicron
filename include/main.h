@@ -85,6 +85,7 @@ typedef struct
   uint32_t Second_count;
   uint32_t LSI_freq;
   uint32_t USB;
+	uint32_t Vibro;
 }SettingsDef;
 
 

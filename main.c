@@ -184,7 +184,10 @@ int main(void)
 	delay_ms(10);
 //--------------------------------------------------------------------
   EXTI8_Config();
-  EXTI3_Config();
+#ifdef version_401
+  EXTI9_Config();
+#endif
+	EXTI3_Config();
   EXTI4_Config();
   EXTI6_Config();
 		
