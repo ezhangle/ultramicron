@@ -222,11 +222,12 @@ int main(void)
 			}
 ///////////////////////////////////////////////////////////////////////////////
 		}
-
+#ifdef version_401
 		if((!Power.USB_active) && (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9))){
 			usb_activate(0x0); // Если питание USB начало подаваться включаем USB
 		}
-		
+#endif
+
 		if(!Power.USB_active)		// если USB не активен, можно уходить в сон
 		{
 			if(current_pulse_count<30)      // Если счетчик не зашкаливает, то можно уйти в сон
