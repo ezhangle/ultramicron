@@ -19,6 +19,11 @@ void sound_activate(void)
 		TIM_Cmd(TIM2, ENABLE);
 		Alarm.Tick_beep_count=0;
 		Power.Sound_active=ENABLE;
+
+#ifdef version_401
+		if(Settings.Vibro==1                                 )GPIO_SetBits(GPIOA,GPIO_Pin_15);// Активируем вибромотор
+		if((Settings.Vibro>1) && (Alarm.Alarm_active==ENABLE))GPIO_SetBits(GPIOA,GPIO_Pin_15);// Активируем вибромотор
+#endif
 	}
 }
 
@@ -39,6 +44,11 @@ void sound_deactivate(void)
 
   Power.Sound_active=DISABLE;      
 	Sound_key_pressed=DISABLE;
+
+#ifdef version_401
+			GPIO_ResetBits(GPIOA,GPIO_Pin_15);// де-активируем вибромотор
+#endif
+
 }
 
 
