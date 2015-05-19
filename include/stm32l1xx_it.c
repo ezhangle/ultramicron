@@ -10,6 +10,7 @@
 #include "usb_pwr.h"
 #include "usb.h"
 #include "rtc.h"
+#include "keys.h"
 
 
 
@@ -256,6 +257,17 @@ void EXTI9_5_IRQHandler(void)
 		Sound_key_pressed=ENABLE;
 		check_wakeup_keys();
   }
+#ifdef version_401
+  if(EXTI_GetITStatus(EXTI_Line9) != RESET) // Подключено USB
+  {
+    EXTI_ClearITPendingBit(EXTI_Line9);
+
+		sound_activate();
+    Power.sleep_time=Settings.Sleep_time;
+		Power.led_sleep_time=Settings.Sleep_time-3;
+		
+  }
+#endif
   
 }
 
@@ -558,8 +570,8 @@ void COMP_IRQHandler(void)
 					{	// Матрица лидерства, твою мать! :)
 									if(i>0x3E76){i-=0x1F2C;}    // Если больше 8    сек, вычитаем 4     сек
 						else {if(i>0xF96 ){i-=0x636 ;}    // Если больше 2    сек, вычитаем 0.8   сек
-						else {if(i>0x198 ){i-=0x30C ;}    // Если больше 0.2  сек, вычитаем 0.4   сек
-						else {if(i>0x3C  ){i-=0x01E ;}}}} // Если больше 0.03 сек, вычитаем 0.015 сек
+						else {if(i>0x30C ){i-=0x198 ;}    // Если больше 0.4  сек, вычитаем 0.2   сек
+						else {if(i>0x03C ){i-=0x01E ;}}}} // Если больше 0.03 сек, вычитаем 0.015 сек
 									
 					} else { // Количество импульсов накачки мало, значит можно увеличить интервал между импульсами
 				  	      if(i<0x198 ){i+=0x01E;}     // Если меньше 0.2 сек, прибавляем 0.015 сек

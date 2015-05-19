@@ -24,6 +24,7 @@ uint32_t NbrOfPage = 0, j = 0, Address = 0;
 				Settings.LSI_freq=37000;
 				Settings.Geiger_voltage=360;
 				Settings.Power_comp=0;
+				Settings.Vibro=0;
         eeprom_write_settings(); // Запись
       }  
     }
@@ -39,7 +40,8 @@ void eeprom_write_settings(void)
   if(eeprom_read(Display_reverse_address)!=Settings.Display_reverse)eeprom_write(Display_reverse_address,Settings.Display_reverse);
 	if(eeprom_read(Second_count_address)   !=Settings.Second_count)   eeprom_write(Second_count_address,   Settings.Second_count);
 	if(eeprom_read(Sound_address)          !=Settings.Sound)          eeprom_write(Sound_address,          Settings.Sound);
-	if(eeprom_read(Power_comp_address)     !=Settings.Power_comp)          eeprom_write(Power_comp_address,          Settings.Power_comp);
+	if(eeprom_read(Power_comp_address)     !=Settings.Power_comp)     eeprom_write(Power_comp_address,     Settings.Power_comp);
+	if(eeprom_read(Vibro_address)     		 !=Settings.Vibro)          eeprom_write(Vibro_address,          Settings.Vibro);
 	if(eeprom_read(Geiger_voltage_address) !=Settings.Geiger_voltage) eeprom_write(Geiger_voltage_address, Settings.Geiger_voltage);
 	if(Settings.LSI_freq != 0x00) // если запустился кварц, попытки сохранения игнорировать
 	{
@@ -67,8 +69,14 @@ void eeprom_apply_settings(void)
 	// -------------------------------------------------------------------
 	if(eeprom_read(Geiger_voltage_address) !=Settings.Geiger_voltage) 
  	{
-		ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/30/11);
-		ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage;
+	// Расчет напряжения компаратора
+#ifdef version_401
+		ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/10/34); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
+#else
+		ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/30/11); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
+#endif
+		ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage; // коррекция значения по напряжению опоры
+
 		DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   /* Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V */
  	}
 	// -------------------------------------------------------------------
@@ -94,6 +102,7 @@ void eeprom_read_settings(void)
 	Settings.Sound=                 eeprom_read(Sound_address);
   Settings.LSI_freq=  			      eeprom_read(LSI_freq_address);  
 	Settings.Power_comp= 			      eeprom_read(Power_comp_address);  
+	Settings.Vibro= 			  		    eeprom_read(Vibro_address);  
 	Settings.Geiger_voltage=				eeprom_read(Geiger_voltage_address);
 	Power.led_sleep_time=Settings.Sleep_time-3;
 }

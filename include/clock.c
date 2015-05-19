@@ -128,8 +128,12 @@ sound_reset_prescaller();
 
 TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / (100*8)) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 10мс)
 
-TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
-TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
+TIM_PrescalerConfig(TIM9,(uint16_t)  (SystemCoreClock / 4000000) - 1,                   TIM_PSCReloadMode_Immediate);
+#ifdef version_401
+	TIM_SetCompare1    (TIM9,            4 ); // перерасчет энергии накачки (для версии 4 строго 1 мкс)
+#else
+	TIM_SetCompare1    (TIM9,            (352*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
+#endif
 Power.Pump_active=DISABLE;
 
 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
@@ -147,7 +151,8 @@ RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOH, DISABLE);
 //-------------------------------------------------------------------------------------------------------
 void set_pll_for_usb()
 {
-
+uint32_t pump_period;
+	
 TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку	
 Power.Pump_active=DISABLE;
 PWR_VoltageScalingConfig(PWR_VoltageScaling_Range1); // Voltage Scaling Range 1 (VCORE = 1.8V)
@@ -194,8 +199,15 @@ sound_reset_prescaller();
 TIM_PrescalerConfig(TIM2, (uint16_t) (SystemCoreClock / 10) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 10мс)
 
 
-TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 2000000) - 1,                   TIM_PSCReloadMode_Immediate);
-TIM_SetCompare1    (TIM9,            (176*Settings.Pump_Energy)/ADCData.Batt_voltage); // перерасчет энергии накачки
+TIM_PrescalerConfig(TIM9, (uint16_t) (SystemCoreClock / 4000000) - 1,                   TIM_PSCReloadMode_Immediate);
+
+#ifdef version_401
+	pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1мкс*4.2В/3.3напряжение АКБ=1.25мкс)
+#else
+	pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage; // перерасчет энергии накачки
+#endif
+TIM_SetCompare1(TIM9,pump_period); // перерасчет энергии накачки
+
 Power.Pump_active=DISABLE;
 }
 //-------------------------------------------------------------------------------------------------------

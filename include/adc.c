@@ -21,11 +21,16 @@ void adc_check_event(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, DISABLE);
     RCC_HSICmd(DISABLE); // Выключаем HSI
 		ADCData.Batt_voltage=(ADCData.Calibration_bit_voltage*ADCData.Batt_voltage_raw/1000)*2;
-		pump_period=(176*Settings.Pump_Energy)/ADCData.Batt_voltage;
-		if((pump_period>16) && (Settings.LSI_freq==0)) // не привышать критический уровень для верии 3.*
+#ifdef version_401
+		pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1мкс*4.2В/3.3напряжение АКБ=1.25мкс)
+#else
+		pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage;
+		if((pump_period>32) && (Settings.LSI_freq==0)) // не привышать критический уровень для верии 3.*
 		{
-			TIM_SetCompare1(TIM9,16); // изменение энергии накачки
-		} else TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки
+			pump_period=32;
+		}
+#endif
+		TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки		
     DataUpdate.Need_batt_voltage_update=DISABLE;
  }
 // -----------
@@ -53,9 +58,14 @@ void adc_calibration(void)
   ADCData.Power_voltage=((ADCData.Calibration_bit_voltage * 4095)/1000);
 
 	// Расчет напряжения компаратора
-  ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/30/11);
-  ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage;
+#ifdef version_401
+  ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/10/34); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
+#else
+	ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/30/11); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
+#endif
+	ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage; // коррекция значения по напряжению опоры
 	DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   /* Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V */
+
 }
 
 //************************************************************************************************************

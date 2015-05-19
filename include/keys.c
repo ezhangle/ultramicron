@@ -219,14 +219,18 @@ if(!Power.USB_active)
   LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
   delay_ms(1000);
 }
+#ifndef version_401
 Settings.USB=1;
+#endif
 }
 
 void usb_deactivate(uint32_t *param) // Выключение USB
 {
 	if(Power.USB_active)
 	{
+#ifndef version_401
 		Settings.USB=0;
+#endif
 		USB_off(); 		
 		LcdClear_massive();
 		sprintf (lcd_buf, "USB  выключен"); // Пишем в буфер значение счетчика

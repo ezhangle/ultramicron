@@ -184,7 +184,10 @@ int main(void)
 	delay_ms(10);
 //--------------------------------------------------------------------
   EXTI8_Config();
-  EXTI3_Config();
+#ifdef version_401
+  EXTI9_Config();
+#endif
+	EXTI3_Config();
   EXTI4_Config();
   EXTI6_Config();
 		
@@ -219,6 +222,11 @@ int main(void)
 			}
 ///////////////////////////////////////////////////////////////////////////////
 		}
+#ifdef version_401
+		if((!Power.USB_active) && (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9))){
+			usb_activate(0x0); // ≈сли питание USB начало подаватьс€ включаем USB
+		}
+#endif
 
 		if(!Power.USB_active)		// если USB не активен, можно уходить в сон
 		{

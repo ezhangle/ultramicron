@@ -37,7 +37,9 @@ void USB_work()
     {
       CDC_Receive_DATA();
 
+#ifndef version_401 // Версия платы дозиметра 4.01+
 			if(Settings.USB == 1) // MadOrc
+#endif				
 			{
 			
 				/*Check to see if we have data yet */
@@ -81,10 +83,16 @@ void USB_work()
 		}
 // -----------------------------------------------------------------------------------------------------------------------
 	}
-	if ((USB_not_active>60) && (Settings.USB == 1)) // если USB неактивно в режиме MadOrc более 4-х минут, то отключаем его
+#ifdef version_401
+	if (!GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9)) // если 5В на USB не подается, то отключаем его
+#else
+	if ((USB_not_active>60) && (Settings.USB == 1)) // если 4 минуты USB не активно, то отключаем его
+#endif
 	{
 		delay_ms(100);
+#ifndef version_401 
 		Settings.USB=0;
+#endif
 		usb_deactivate(0x00);
 	}
 

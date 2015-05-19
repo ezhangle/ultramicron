@@ -10,9 +10,13 @@ MenuItem Menu_list[max_struct_index] = {
   
   //Сервис   Текст          Если значение 0   Если 1          если больше чем 1  Откуда брать само значение                             минимум  максимум  дефолт   Реакция на увеличение     на уменьшение 
   {  0x00, "Тревога",	      "откл",							"",		          	"%uмкР",	     &Settings.Alarm_level,                                  0,       10000,    60,      &plus_alarm,              &minus_alarm},
-  {  0x00, "Сон",	    		  "откл",							"",			        	"%uсек",	     &Settings.Sleep_time,                                   10,      230,      30,      &plus_ten,              &minus_ten},
+  {  0x00, "Сон",	    		  "откл",							"",			        	"%uсек",	     &Settings.Sleep_time,                                   10,      230,      30,      &plus_ten,                &minus_ten},
   {  0x00, "Звук",	        "откл",							"вкл",	        	"",	           &Settings.Sound,                                        0,       1,        0,       &plus_on,                 &minus_off},
+#ifdef version_401
+	{  0x00, "Вибро",         "выкл",    		  		"вкл", 		       	"трев",        &Settings.Vibro,                                        0,       2,        0x00,    &plus_one,                &minus_one},
+#else
 	{  0x00, "Режим USB",     "выкл",    		  		"вкл", 		       	"",            &Settings.USB,                                          0x00,    0x00,     0x00,    &usb_activate,            &usb_deactivate},
+#endif
   {  0x00, "Сброс дозы",    "*",   							"*",		        	"*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_doze_reset,         0x00},
   {  0x00, "Перезагрузка",  "*",   							"*",		        	"*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_reboot,             0x00},
   {  0x01, "Контраст",	    "",		  						"",			        	"%u",  	       &Settings.contrast,                                     0,       15,       0,       &plus_one,                &minus_one},
