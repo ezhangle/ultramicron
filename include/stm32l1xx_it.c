@@ -260,9 +260,12 @@ void EXTI9_5_IRQHandler(void)
 #ifdef version_401
   if(EXTI_GetITStatus(EXTI_Line9) != RESET) // Подключено USB
   {
-    
     EXTI_ClearITPendingBit(EXTI_Line9);
-    if(Settings.USB==0)usb_activate(0x0);
+
+		sound_activate();
+    Power.sleep_time=Settings.Sleep_time;
+		Power.led_sleep_time=Settings.Sleep_time-3;
+		
   }
 #endif
   
