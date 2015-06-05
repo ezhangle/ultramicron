@@ -11,7 +11,6 @@
 //************************************************************************************************************
 void adc_check_event(void)
 {
-	uint32_t pump_period;
   if(DataUpdate.Need_batt_voltage_update)
   {
     adc_init();
@@ -22,16 +21,9 @@ void adc_check_event(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, DISABLE);
     RCC_HSICmd(DISABLE); // Выключаем HSI
 		ADCData.Batt_voltage=(ADCData.Calibration_bit_voltage*ADCData.Batt_voltage_raw/1000)*2;
-#ifdef version_401
-		pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1мкс*4.2В/3.3напряжение АКБ=1.25мкс)
-#else
-		pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage;
-		if((pump_period>32) && (Settings.LSI_freq==0)) // не привышать критический уровень для верии 3.*
-		{
-			pump_period=32;
-		}
-#endif
-		TIM_SetCompare1(TIM9,pump_period); // изменение энергии накачки		
+
+		reset_TIM_prescallers_and_Compare();
+
     DataUpdate.Need_batt_voltage_update=DISABLE;
  }
 // -----------

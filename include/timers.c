@@ -1,6 +1,7 @@
 #include "stm32l1xx_tim.h"
 #include "main.h"
 
+/////////////////////////////////////////////////////////////////////////////////
 void sound_activate(void)
 {
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
@@ -26,7 +27,10 @@ void sound_activate(void)
 #endif
 	}
 }
+/////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////
 void sound_deactivate(void)
 {	
 
@@ -50,14 +54,32 @@ void sound_deactivate(void)
 #endif
 
 }
+/////////////////////////////////////////////////////////////////////////////////
 
 
-void sound_reset_prescaller(void)
+
+/////////////////////////////////////////////////////////////////////////////////
+void reset_TIM_prescallers_and_Compare(void)
 {
-TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock / 128000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 32 кГц
+	uint32_t pump_period;
+	
+	TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock /  128000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 128 кГц
+	TIM_PrescalerConfig(TIM2, (uint32_t) (SystemCoreClock /     800) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 1.25мс)
+	TIM_PrescalerConfig(TIM9, (uint32_t) (SystemCoreClock / 4000000) - 1,TIM_PSCReloadMode_Immediate); // 0.25 мкс
 
+#ifdef version_401
+	pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1мкс*4.2В/3.3напряжение АКБ=1.25мкс)
+#else
+	pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage; // перерасчет энергии накачки
+	if((pump_period>32) && (Settings.LSI_freq==0))pump_period=32; // не привышать критический уровень для верии 3.*
+#endif
+
+	TIM_SetCompare1(TIM9,pump_period); // перерасчет энергии накачки
 }
+/////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////
 void timer9_Config(void) // генерация накачки
 {
 TIM_TimeBaseInitTypeDef TIM_BaseConfig;
@@ -102,7 +124,11 @@ NVIC_InitTypeDef NVIC_InitStructure;
   TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
   TIM_Cmd(TIM9, ENABLE);
 }
+/////////////////////////////////////////////////////////////////////////////////
 
+
+
+/////////////////////////////////////////////////////////////////////////////////
 void timer10_Config(void) // генерация звука
 {
 TIM_TimeBaseInitTypeDef TIM_BaseConfig;
@@ -151,6 +177,7 @@ GPIO_InitTypeDef   GPIO_InitStructure;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 void tim2_Config()
 {
@@ -181,3 +208,4 @@ NVIC_InitTypeDef NVIC_InitStructure;
   TIM_Cmd(TIM2, ENABLE);
 	
 }
+/////////////////////////////////////////////////////////////////////////////////
