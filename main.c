@@ -69,7 +69,7 @@ WakeupDef Wakeup;
 
 void sleep_mode(FunctionalState sleep)
 { 
-  if(Settings.Sleep_time>0 && !Power.USB_active)
+  if(Settings.Sleep_time>0 && !Power.USB_active && !Power.Pump_active)
   {
 		set_msi(sleep);
     if(sleep)

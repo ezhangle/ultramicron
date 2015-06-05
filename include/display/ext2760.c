@@ -16,6 +16,7 @@
 #include "main.h"
 #include "delay.h"
 #include "ext2760.h"
+#include "lang.h"
 
 char lcd_buf[20];		        // текстовый буфер для вывода на LCD
 unsigned char  LcdCache [LCD_CACHSIZE];	// Фреймбуфер
@@ -487,10 +488,10 @@ void Draw_fon_digit(uint8_t line, uint8_t start_char, uint8_t seconds)
   LcdStringBold(start_char,i);
   
   
-  sprintf(lcd_buf,"мкР");                            
+  sprintf(lcd_buf,LANG_UR);                            
   LcdString(((start_char+6)*2),i);                        
   
-  sprintf(lcd_buf," ч ");                            
+  sprintf(lcd_buf,LANG_H);                            
   LcdString(((start_char+6)*2),i+1);
   
   LcdLine(((start_char+5)*12)+5,i*8,((start_char+5)*12)+18+5,i*8,1);

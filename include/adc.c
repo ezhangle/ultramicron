@@ -2,6 +2,7 @@
 #include "delay.h"
 #include "adc.h"
 #include "timers.h"
+#include "dac.h"
 
 #define  ADC_CCR_ADCPRE                      ((uint32_t)0x00030000)        /*!< ADC prescaler*/
 #define  ADC_CCR_ADCPRE_0                    ((uint32_t)0x00010000)        /*!< Bit 0 */
@@ -57,15 +58,7 @@ void adc_calibration(void)
   ADCData.Calibration_bit_voltage=(1220000/ADC_GetConversionValue(ADC1)); // битовое значение соотв. напряжению референса 1.22в, из него вычисляем скольким микровольтам соответствует 1 бит.
   ADCData.Power_voltage=((ADCData.Calibration_bit_voltage * 4095)/1000);
 
-	// Расчет напряжения компаратора
-#ifdef version_401
-  ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/10/34); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
-#else
-	ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/30/11); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
-#endif
-	ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage; // коррекция значения по напряжению опоры
-	DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   /* Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V */
-
+	dac_reload(); //перезагрузить в ЦАП новое напряжение отсечки накачки
 }
 
 //************************************************************************************************************
