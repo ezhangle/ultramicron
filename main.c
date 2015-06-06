@@ -18,6 +18,8 @@
 #include "usb.h"
 #include "clock.h"
 #include "power.h"
+#include "stm32l1xx_it.h"
+
 
 
 uint16_t key; // массив нажатых кнопок [012]
@@ -71,6 +73,8 @@ void sleep_mode(FunctionalState sleep)
 { 
   if(Settings.Sleep_time>0 && !Power.USB_active)
   {
+		if(Power.Pump_active)Pump_now(DISABLE);
+		
 		set_msi(sleep);
     if(sleep)
     {
@@ -81,12 +85,15 @@ void sleep_mode(FunctionalState sleep)
 
       display_off(); // выключить дисплей
  			GPIO_ResetBits(GPIOA,GPIO_Pin_7);// Фиксируем режим 1.8 вольта, с низким потреблением ножки
+
 			delay_ms(1000); // подождать установки напряжения
+			DataUpdate.Need_batt_voltage_update=ENABLE; // разрешить работу АЦП
+			adc_check_event(); // запустить преобразование
+			delay_ms(100); // подождать установки напряжения
+
 			PWR_FastWakeUpCmd(DISABLE);
 			PWR_UltraLowPowerCmd(ENABLE); 
 			PWR_PVDCmd(DISABLE);
-			DataUpdate.Need_batt_voltage_update=ENABLE; // разрешить работу АЦП
-			adc_check_event(); // запустить преобразование
 			RTC_ITConfig(RTC_IT_WUT, ENABLE);
     }
     else

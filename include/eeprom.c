@@ -5,6 +5,7 @@
 #include "delay.h"
 #include "timers.h"
 #include "clock.h"
+#include "dac.h"
 
 __IO FLASH_Status FLASHStatus = FLASH_COMPLETE;
 __IO TestStatus DataMemoryProgramStatus = PASSED;
@@ -69,15 +70,7 @@ void eeprom_apply_settings(void)
 	// -------------------------------------------------------------------
 	if(eeprom_read(Geiger_voltage_address) !=Settings.Geiger_voltage) 
  	{
-	// Расчет напряжения компаратора
-#ifdef version_401
-		ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/10/34); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
-#else
-		ADCData.DAC_voltage_raw=((Settings.Geiger_voltage*1000)/30/11); // напряжение датчика/Ктансформации/коэффицент резистивного делителя
-#endif
-		ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage; // коррекция значения по напряжению опоры
-
-		DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   /* Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V */
+		dac_reload(); //перезагрузить в ЦАП новое напряжение отсечки накачки
  	}
 	// -------------------------------------------------------------------
 	if(eeprom_read(LSI_freq_address)       !=Settings.LSI_freq)
