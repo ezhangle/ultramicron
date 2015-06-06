@@ -68,7 +68,12 @@ void reset_TIM_prescallers_and_Compare(void)
 	TIM_PrescalerConfig(TIM9, (uint32_t) (SystemCoreClock / 4000000) - 1,TIM_PSCReloadMode_Immediate); // 0.25 мкс
 
 #ifdef version_401
-	pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1мкс*4.2В/3.3напряжение АКБ=1.25мкс)
+	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9))
+	{
+		pump_period=(v4_target_pump*4200)/5000; // расчет целевой накачки (Пример 1,75мкс*4.2В/5.0В напряжение USB=1.25мкс)
+	} else {
+		pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1,75мкс*4.2В/3.3В напряжение АКБ=2.0мкс)
+	}
 #else
 	pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage; // перерасчет энергии накачки
 	if((pump_period>32) && (Settings.LSI_freq==0))pump_period=32; // не привышать критический уровень для верии 3.*
@@ -90,13 +95,13 @@ NVIC_InitTypeDef NVIC_InitStructure;
 
   TIM_OCConfig.TIM_OCMode = TIM_OCMode_PWM1; // Конфигурируем выход таймера, режим - PWM1
   TIM_OCConfig.TIM_OutputState = TIM_OutputState_Enable;   // Собственно - выход включен
-  TIM_OCConfig.TIM_Pulse = 1;   // Расчет необходимой энергии
+  TIM_OCConfig.TIM_Pulse = 5;   
   TIM_OCConfig.TIM_OCPolarity = TIM_OCPolarity_High; // Полярность => пульс - это единица (+3.3V)
 
   TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 4000000) - 1; // Делитель (1 тик = 0.25мкс)
   TIM_BaseConfig.TIM_ClockDivision = 0;
 #ifdef version_401
-  TIM_BaseConfig.TIM_Period = 256;  // Общее количество тиков (скваженность) 64мкс
+  TIM_BaseConfig.TIM_Period = 300;  // Общее количество тиков (скваженность) 75мкс (частота накачки 1с/75мкс=13 кГц)
 #else
   TIM_BaseConfig.TIM_Period = 560;  // Общее количество тиков (скваженность) 140мкс
 #endif
@@ -104,7 +109,12 @@ NVIC_InitTypeDef NVIC_InitStructure;
   
   
   TIM_DeInit(TIM9); // Де-инициализируем таймер №9
-  TIM_TimeBaseInit(TIM9, &TIM_BaseConfig);
+  
+// Как я понял - автоматическая перезарядка таймера, если неправ - поправте.
+  TIM_OC1PreloadConfig(TIM9, TIM_OCPreload_Enable);
+  TIM_ARRPreloadConfig(TIM9, ENABLE);
+	
+	TIM_TimeBaseInit(TIM9, &TIM_BaseConfig);
   TIM_OC1Init(TIM9, &TIM_OCConfig);  // Инициализируем первый выход таймера №9 (у HD это PB13)
 
   // Как я понял - автоматическая перезарядка таймера, если неправ - поправте.

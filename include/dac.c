@@ -36,9 +36,14 @@ void dac_on()
 void dac_reload()
 {
 #ifdef version_401
-  if(Settings.Geiger_voltage>300)
+  if(Settings.Geiger_voltage>200)
 	{
-		ADCData.DAC_voltage_raw=(((Settings.Geiger_voltage*1000)/11)-2700)/34; // 2700mV - падение на диоде и сдвиг питания, 34 - Кделитель
+		// 500  - Падение на диоде мВ
+		// 34   - Коэфицент резистивного делителя (1к+33к)
+		// 45   - Коэфицент конденсаторного делителя (1000-(1000*(10нФ/(10нФ+470пФ))))
+		// 11   - Коэфицент трансформации (10+1:1)
+		// 1000 - приведение к милливольтам, для минимизации ошибки целочисленного расчета
+		ADCData.DAC_voltage_raw=(((Settings.Geiger_voltage*(1000-45))/11)-500)/34; 
 	} else {
 		ADCData.DAC_voltage_raw=1; //Заплатка
 	}
@@ -48,5 +53,5 @@ void dac_reload()
 
 	ADCData.DAC_voltage_raw=(ADCData.DAC_voltage_raw*1000)/ADCData.Calibration_bit_voltage; // коррекция значения по напряжению опоры
 
-DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   /* Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V */
+	DAC_SetChannel2Data(DAC_Align_12b_R, ADCData.DAC_voltage_raw);   /* Set DAC Channel2 DHR register: DAC_OUT2 = (1.224 * 128) / 256 = 0.612 V */
 }
