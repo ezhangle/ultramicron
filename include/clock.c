@@ -45,7 +45,7 @@
   --------------------------------------------------------------------------------
 */
 //-------------------------------------------------------------------------------------------------------
-void set_msi(FunctionalState sleep)
+void set_msi()
 {
 	GPIO_InitTypeDef   GPIO_InitStructure;
 	 
@@ -68,13 +68,7 @@ void set_msi(FunctionalState sleep)
     /* PCLK1 = HCLK /4*/
     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV4;
 
-		if(sleep)
-    {
-			//RCC_MSIRangeConfig(RCC_MSIRange_5); // 2.097 MHZ
-			RCC_MSIRangeConfig(RCC_MSIRange_6); // 4.194 MHz
-    }else{
-			RCC_MSIRangeConfig(RCC_MSIRange_6); // 4.194 MHz
-    }
+		RCC_MSIRangeConfig(RCC_MSIRange_6); // 4.194 MHz
 
 	
 /*                - 0x00: MSI used as system clock
@@ -122,7 +116,6 @@ FLASH_ReadAccess64Cmd(DISABLE);
 PWR_VoltageScalingConfig(PWR_VoltageScaling_Range3); // Voltage Scaling Range 3 (VCORE = 1.2V)
 while(PWR_GetFlagStatus(PWR_FLAG_VOS) != RESET); // Wait Until the Voltage Regulator is ready
 
-SystemCoreClockUpdate();
 
 reset_TIM_prescallers_and_Compare();
 
@@ -181,8 +174,6 @@ FLASH_SetLatency(FLASH_Latency_1);
  
         /* Wait till PLL is used as system clock source */
         while (RCC_GetSYSCLKSource() != 0x0C);
-
-SystemCoreClockUpdate();
 
 reset_TIM_prescallers_and_Compare();
 
