@@ -75,7 +75,7 @@ void sleep_mode(FunctionalState sleep)
   {
 		if(Power.Pump_active)Pump_now(DISABLE);
 		
-		set_msi(sleep);
+		set_msi();
     if(sleep)
     {
 			RTC_ITConfig(RTC_IT_WUT, DISABLE);
@@ -146,7 +146,7 @@ int main(void)
 
 {
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH,0x3000);  
-	set_msi(DISABLE);
+	set_msi();
 	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, DISABLE);
 	
   set_bor();

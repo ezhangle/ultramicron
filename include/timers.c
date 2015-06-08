@@ -1,5 +1,6 @@
 #include "stm32l1xx_tim.h"
 #include "main.h"
+#include "delay.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 void sound_activate(void)
@@ -63,6 +64,9 @@ void reset_TIM_prescallers_and_Compare(void)
 {
 	uint32_t pump_period;
 	
+	delay_ms(20);
+	SystemCoreClockUpdate();
+	
 	TIM_PrescalerConfig(TIM10,(uint32_t) (SystemCoreClock /  128000) - 1,TIM_PSCReloadMode_Immediate); // частота таймера 128 кГц
 	TIM_PrescalerConfig(TIM2, (uint32_t) (SystemCoreClock /     800) - 1,TIM_PSCReloadMode_Immediate); // Делитель (1 тик = 1.25мс)
 	TIM_PrescalerConfig(TIM9, (uint32_t) (SystemCoreClock / 4000000) - 1,TIM_PSCReloadMode_Immediate); // 0.25 мкс
@@ -74,6 +78,7 @@ void reset_TIM_prescallers_and_Compare(void)
 	} else {
 		pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1,75мкс*4.2В/3.3В напряжение АКБ=2.0мкс)
 	}
+//	pump_period=v4_target_pump;
 #else
 	pump_period=(352*Settings.Pump_Energy)/ADCData.Batt_voltage; // перерасчет энергии накачки
 	if((pump_period>32) && (Settings.LSI_freq==0))pump_period=32; // не привышать критический уровень для верии 3.*
