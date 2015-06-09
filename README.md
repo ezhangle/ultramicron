@@ -1,3 +1,11 @@
+Ultra-Micron (Ультра-Микрон)
+
+Ultra-Micron is the smallest and lightweight "digital radioactive dosimeter" in the world.
+It design with fully Open-Source code, schematics and PCB, for easy for DIY and modifications. License GPLv3.
+
+Commercial use avoid!
+ONLY FOR HOBBYIST !
+
 Author: Andrey Bykanov (Tula, Russia)
 
 Blog: [here] (http://www.xn--80aighkbzclf7a.net/) (use with Google Translate)
