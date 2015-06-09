@@ -88,6 +88,7 @@ typedef struct
 #ifndef version_401 // Версия платы дозиметра 4.01+
   uint32_t USB;
 #endif
+//	uint32_t v4_target_pump;
 	uint32_t Vibro;
 }SettingsDef;
 
