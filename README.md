@@ -6,7 +6,7 @@ It design with fully Open-Source code, schematics and PCB, for easy for DIY and 
 Commercial use avoid!
 ONLY FOR HOBBYIST !
 
-Author: Andrey Bykanov (Tula, Russia)
+Author: Andrey Bykanov Tula, Russia (Андрей Быканов, Тула, Россия)
 
 Blog: [here] (http://www.xn--80aighkbzclf7a.net/) (use with Google Translate)
 
