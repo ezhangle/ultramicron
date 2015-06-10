@@ -229,7 +229,7 @@ void EXTI9_5_IRQHandler(void)
 
 		if(Power.Pump_active==DISABLE)
     {
-			if(last_count_pump_on_impulse>2)
+			if(last_count_pump_on_impulse>3)
 			{
 				pump_on_impulse=ENABLE;
 				Pump_now(ENABLE);
@@ -585,8 +585,8 @@ void COMP_IRQHandler(void)
 						} else 
 						{
 							// если умножать на 2 уже нельзя, просто прибавляем до придела
-							i=i+0x1FFF;
-							if(i>0xFFFF)i=0xFFFF; // придел
+							i=i+0x2000; // + 4 секунды
+							if(i>0xFFFF)i=0xFFFF; // придел 32 секунды
 						}
 					}
 
