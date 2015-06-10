@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "lang.h"
+#include "stm32l1xx_it.h"
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Изменение порога тревоги
@@ -200,8 +202,81 @@ void plus_reboot(uint32_t *param) // перезагрузка
   while(1);
 }
 
-void plus_poweroff(uint32_t *param) // выключение
+void minus_poweroff(uint32_t *param) // выключение
 {
+  NVIC_InitTypeDef NVIC_InitStructure;
+  EXTI_InitTypeDef   EXTI_InitStructure;
+
+	LcdClear_massive();
+	sprintf (lcd_buf, LANG_POWEROFF); // Пишем в буфер значение счетчика
+	LcdString(1,5); // // Выводим обычным текстом содержание буфера
+	sprintf (lcd_buf, LANG_DONTOTO1); // Пишем в буфер значение счетчика
+	LcdString(1,7); // // Выводим обычным текстом содержание буфера
+	sprintf (lcd_buf, LANG_DONTOTO2); // Пишем в буфер значение счетчика
+	LcdString(1,8); // // Выводим обычным текстом содержание буфера
+
+  LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
+	delay_ms(6000);
+
+	
+	sleep_mode(ENABLE);
+	poweroff_state=ENABLE;
+	Pump_now(DISABLE);
+// =======================================================
+// Де-Инициализация прерывания датчика 1
+
+  EXTI_InitStructure.EXTI_Line = EXTI_Line8;             // Номер EXTI
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;    // Режим прерывания
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising; // Триггер по нарастающему фронту
+  EXTI_InitStructure.EXTI_LineCmd = DISABLE;              // Включаем
+  EXTI_Init(&EXTI_InitStructure);                        // записиваем конфигурацию
+  
+  // Описываем канал прерывания
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;           // канал
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+  NVIC_Init(&NVIC_InitStructure);
+// =======================================================
+  NVIC_InitStructure.NVIC_IRQChannel = COMP_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+
+	RTC_ITConfig(RTC_IT_ALRA, DISABLE);
+  RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
+  RTC_ClearFlag(RTC_FLAG_ALRAF);
+
+	while(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6))
+	{
+		while(RTC_WakeUpCmd(DISABLE)!=SUCCESS);
+		RTC_SetWakeUpCounter(0x2800); // 5 секунд
+		while(RTC_WakeUpCmd(ENABLE)!=SUCCESS);
+		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);    // Переходим в сон
+	}
+
+	sleep_mode(DISABLE);
+
+	LcdClear_massive();
+	sprintf (lcd_buf, LANG_REBOOTPR); // Пишем в буфер значение счетчика
+	LcdString(1,5); // // Выводим обычным текстом содержание буфера
+	sprintf (lcd_buf, LANG_DONTOTO1); // Пишем в буфер значение счетчика
+	LcdString(1,7); // // Выводим обычным текстом содержание буфера
+	sprintf (lcd_buf, LANG_DONTOTO2); // Пишем в буфер значение счетчика
+	LcdString(1,8); // // Выводим обычным текстом содержание буфера
+
+  LcdUpdate(); // записываем данные из сформированного фрейм-буфера на дисплей
+
+	
+  delay_ms(6000);
+  IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+  IWDG_SetPrescaler(IWDG_Prescaler_4);
+  IWDG_SetReload(2);
+  IWDG_ReloadCounter();
+  IWDG_Enable();
+  while(1);
+
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

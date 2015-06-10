@@ -3,12 +3,6 @@
 
 #include "stm32l1xx.h"
 
-//#define service // сервисная прошивка
-
-//#define version_204 // Версия платы дозиметра 2.04
-//#define version_300 // Версия платы дозиметра 3.00 - 3.31
-//#define version_401 // Версия платы дозиметра 4.01+
-
 #define v4_target_pump 11 // целевая накачка версии 4.01+ (2,75мкс@4.2В)
 
 
@@ -166,6 +160,8 @@ extern uint32_t USB_not_active;
 extern uint32_t last_count_pump_on_impulse;
 extern FunctionalState pump_on_impulse;
 
+
+extern FunctionalState poweroff_state;
 
 extern uint32_t fullstop;
 extern FunctionalState Sound_key_pressed;

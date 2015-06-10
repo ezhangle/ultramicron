@@ -53,6 +53,7 @@ uint8_t screen=1;
 uint8_t stat_screen_number=0;
 uint16_t pump_counter_avg_impulse_by_1sec[2];
 uint32_t fon_level=0;
+FunctionalState poweroff_state=DISABLE;
 
 uint32_t working_days=0;
 

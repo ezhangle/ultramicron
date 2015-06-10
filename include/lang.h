@@ -10,7 +10,7 @@
 #define LANG_VIBRO    "Вибро"
 #define LANG_USBMODE  "Режим USB"
 #define LANG_CLEARDO  "Сброс дозы"
-#define LANG_REBOOT   "Перезагрузка"
+#define LANG_REBOOT   "Перезаг/выкл"
 #define LANG_CONTRAST "Контраст"
 #define LANG_REVERSE  "Реверс"
 #define LANG_COUNT    "Счет"
@@ -54,11 +54,12 @@
 #define LANG_ABOUT    "  О программе   "
 #define LANG_DOZIK    "  Ультра-Микрон "
 #define LANG_AUTHOR   "   (c)Shodan    "
-#define LANG_CITY     " г.Тула  2014г."
+#define LANG_CITY     " г.Тула 2014-15г"
 #define LANG_SITE     " радиокружок.net"
 #define LANG_BUILD    " Прошивка:"
 ///////////////////////////////////////////////////////
 
+#define LANG_POWEROFF " Выключение.... "
 
 #define LANG_REBOOTPR "Перезагрузка...."
 #define LANG_DONTOTO1 "   На клавиши   "
@@ -80,7 +81,7 @@
 #define LANG_VIBRO    "Vibro"
 #define LANG_USBMODE  "USB state"
 #define LANG_CLEARDO  "Clr dose"
-#define LANG_REBOOT   "Reboot"
+#define LANG_REBOOT   "Reboot/off"
 #define LANG_CONTRAST "Contrast"
 #define LANG_REVERSE  "Reverse"
 #define LANG_COUNT    "Count"
@@ -130,6 +131,7 @@
 #define LANG_BUILD    " FW Build:"
 ///////////////////////////////////////////////////////
 
+#define LANG_POWEROFF "Power off...... "
 
 #define LANG_REBOOTPR "Rebooting......."
 #define LANG_DONTOTO1 "  DO NOT TOUCH  "

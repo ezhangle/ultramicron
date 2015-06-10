@@ -175,20 +175,23 @@ void EXTI3_IRQHandler(void)
 {
   if(EXTI_GetITStatus(EXTI_Line3) != RESET)
   {
-    if(Alarm.Alarm_active && !Alarm.User_cancel)
-    {
-      Alarm.User_cancel=ENABLE;
-    }
-    else
-    {
-      if(Power.Display_active)
-      {
-				key|=0x1; // Кнопка Меnu
-      }
-    }
-		Sound_key_pressed=ENABLE;
-		check_wakeup_keys();
-    EXTI_ClearITPendingBit(EXTI_Line3);
+	if(!poweroff_state)
+		{
+			if(Alarm.Alarm_active && !Alarm.User_cancel)
+			{
+				Alarm.User_cancel=ENABLE;
+			}
+			else
+			{
+				if(Power.Display_active)
+				{
+					key|=0x1; // Кнопка Меnu
+				}
+			}
+			Sound_key_pressed=ENABLE;
+			check_wakeup_keys();
+		}
+		EXTI_ClearITPendingBit(EXTI_Line3);
   }
 }
 
@@ -198,16 +201,17 @@ void EXTI4_IRQHandler(void)
 {
   if(EXTI_GetITStatus(EXTI_Line4) != RESET)
   {
-    
-    
-    if(Power.Display_active)
-    {      
-      key|=0x4;   // Кнопка -
-    }    
-		Sound_key_pressed=ENABLE;
-		check_wakeup_keys();
-    EXTI_ClearITPendingBit(EXTI_Line4);
-  }
+		if(!poweroff_state)  
+		{
+			if(Power.Display_active)
+			{      
+				key|=0x4;   // Кнопка -
+			}    
+			Sound_key_pressed=ENABLE;
+			check_wakeup_keys();
+		}
+		EXTI_ClearITPendingBit(EXTI_Line4);
+	}
 }
 
 // =======================================================
@@ -223,49 +227,52 @@ void EXTI9_5_IRQHandler(void)
   if(EXTI_GetITStatus(EXTI_Line8) != RESET)
   {
 		EXTI_ClearITPendingBit(EXTI_Line8);
-		
-		Detector_massive[Detector_massive_pointer]++;  // Добавляем пойманную частицу к счетчику  
-		Doze_massive[0]++;	           					// Увеличение суточного массива дозы
+		if(!poweroff_state)  
+		{		
+			Detector_massive[Detector_massive_pointer]++;  // Добавляем пойманную частицу к счетчику  
+			Doze_massive[0]++;	           					// Увеличение суточного массива дозы
 
-		if(Power.Pump_active==DISABLE)
-    {
-			if(last_count_pump_on_impulse>2)
+			if(Power.Pump_active==DISABLE)
 			{
-				pump_on_impulse=ENABLE;
-				Pump_now(ENABLE);
-			} else last_count_pump_on_impulse++;
-
-
+				if(last_count_pump_on_impulse>3)
+				{
+					pump_on_impulse=ENABLE;
+					Pump_now(ENABLE);
+				} else last_count_pump_on_impulse++;
+			}
+			if(Settings.Sound && !(Alarm.Alarm_active && !Alarm.User_cancel))
+			{
+				if(Power.Display_active)
+				{
+					sound_activate();
+				}
+			}
 		}
-    if(Settings.Sound && !(Alarm.Alarm_active && !Alarm.User_cancel))
-    {
-      if(Power.Display_active)
-      {
-        sound_activate();
-      }
-    }
-  }
+	}
   
   if(EXTI_GetITStatus(EXTI_Line6) != RESET)
   {
-    
     EXTI_ClearITPendingBit(EXTI_Line6);
-    if(Power.Display_active)
-    {
-        key|=0x2; // Кнопка +
-    }
-		Sound_key_pressed=ENABLE;
-		check_wakeup_keys();
-  }
+		if(!poweroff_state)
+		{
+			if(Power.Display_active)
+			{
+					key|=0x2; // Кнопка +
+			}
+			Sound_key_pressed=ENABLE;
+			check_wakeup_keys();
+		}
+	}
 #ifdef version_401
   if(EXTI_GetITStatus(EXTI_Line9) != RESET) // Подключено USB
   {
     EXTI_ClearITPendingBit(EXTI_Line9);
-
-		sound_activate();
-    Power.sleep_time=Settings.Sleep_time;
-		Power.led_sleep_time=Settings.Sleep_time-3;
-		
+		if(!poweroff_state)
+		{
+			sound_activate();
+			Power.sleep_time=Settings.Sleep_time;
+			Power.led_sleep_time=Settings.Sleep_time-3;
+		}			
   }
 #endif
   
@@ -282,21 +289,24 @@ void TIM9_IRQHandler(void)
   if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET)
   {
     TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
-     if(TIM9->CCER & (TIM_CCx_Enable << TIM_Channel_1))
-			 {
-				 current_pulse_count++;
-				 pump_counter_avg_impulse_by_1sec[0]++;
+		if(!poweroff_state)
+		{
+			if(TIM9->CCER & (TIM_CCx_Enable << TIM_Channel_1))
+			{
+				current_pulse_count++;
+				pump_counter_avg_impulse_by_1sec[0]++;
 
-				 if(COMP->CSR  & COMP_CSR_INSEL) // если компаратор активен
-				 {
-						if(Power.Pump_active==DISABLE)
-						{
-							Pump_now(DISABLE);
-						} 
-				 }else{
-					 comp_on();
-				 }
+				if(COMP->CSR  & COMP_CSR_INSEL) // если компаратор активен
+				{
+					if(Power.Pump_active==DISABLE)
+					{
+						Pump_now(DISABLE);
+					} 
+				}else{
+					comp_on();
+				}
 			 }
+		 }
   }
   if (TIM_GetITStatus(TIM9, TIM_IT_CC1) != RESET)
   {
@@ -312,33 +322,35 @@ void TIM2_IRQHandler(void)
   if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
   {
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-
-    if(Alarm.Alarm_active && !Alarm.User_cancel)
-    {
-			Alarm.Alarm_beep_count++;
-      if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 32  );
-      if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 16  );Alarm.Alarm_beep_count=0;}
-    }
-
-		if((Alarm.Alarm_active && Alarm.User_cancel) || !Alarm.Alarm_active)
+		if(!poweroff_state)
 		{
-			if(Power.Sound_active == ENABLE)
-			{	
-				if(Sound_key_pressed) // нажатие кнопки
-				{
-					if(Alarm.Tick_beep_count>40)
-							{
-								Alarm.Tick_beep_count=0;
-								sound_deactivate();
-							} else Alarm.Tick_beep_count++;
+			if(Alarm.Alarm_active && !Alarm.User_cancel)
+			{
+				Alarm.Alarm_beep_count++;
+				if(Alarm.Alarm_beep_count==50)   TIM_SetAutoreload(TIM10, 32  );
+				if(Alarm.Alarm_beep_count==100) {TIM_SetAutoreload(TIM10, 16  );Alarm.Alarm_beep_count=0;}
+			}
+
+			if((Alarm.Alarm_active && Alarm.User_cancel) || !Alarm.Alarm_active)
+			{
+				if(Power.Sound_active == ENABLE)
+				{	
+					if(Sound_key_pressed) // нажатие кнопки
+					{
+						if(Alarm.Tick_beep_count>40)
+								{
+									Alarm.Tick_beep_count=0;
+									sound_deactivate();
+								} else Alarm.Tick_beep_count++;
 							
-				} else if(Alarm.Tick_beep_count>3) // тик датчика
+					} else if(Alarm.Tick_beep_count>3) // тик датчика
 							{
 								Alarm.Tick_beep_count=0;
 								sound_deactivate();
 							} else Alarm.Tick_beep_count++;
 			} else sound_deactivate();
 		}
+	}
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -389,7 +401,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 		{
 			RTC_ClearITPendingBit(RTC_IT_ALRA);
       EXTI_ClearITPendingBit(EXTI_Line17);
-			
+			if(!poweroff_state){
 			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
 			
 			DataUpdate.Need_display_update=ENABLE;
@@ -519,6 +531,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 			
 			if(Power.led_sleep_time>4){Power.led_sleep_time-=4;}
 			else{Power.led_sleep_time=0;}
+		}
  
 		}
 }
@@ -532,14 +545,17 @@ void RTC_WKUP_IRQHandler (void)
 	Wakeup.pump_wakeup++;
 #endif	
 	EXTI_ClearITPendingBit(EXTI_Line20);
-  if(RTC_GetITStatus(RTC_IT_WUT) != RESET)
-  {
-		RTC_ClearITPendingBit(RTC_IT_WUT);
-		if(!Power.Pump_active)
+	if(!poweroff_state)
+	{
+		if(RTC_GetITStatus(RTC_IT_WUT) != RESET)
 		{
-			Pump_now(ENABLE);
-		}
-  } 
+			RTC_ClearITPendingBit(RTC_IT_WUT);
+			if(!Power.Pump_active)
+			{
+				Pump_now(ENABLE);
+			}
+		} 
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -555,31 +571,43 @@ void COMP_IRQHandler(void)
   if(EXTI_GetITStatus(EXTI_Line22) != RESET)
   {
    EXTI_ClearITPendingBit(EXTI_Line22);
-   // Зафиксирован выброс нужной амплитуды, выключаем накачку
+	 if(!poweroff_state)
 	 {
+		// Зафиксирован выброс нужной амплитуды, выключаем накачку
+		{
 			Pump_now(DISABLE);
 		 	if(!pump_on_impulse)
 			{
 				i=RTC->WUTR;
 				if(current_pulse_count>20) // если подключена мощьная нагрузка типа мультиметра, резко ускаряем накачку.
 				{
-					i=0x008; // = 4 мс
+					if(i>0x80)
+					{
+						i>>=4; // ускоренное деление на 16
+					}else
+					{
+						i=0x8; // Если делить нельзя, то = 4 мс
+					}
 				} else
 				{
+					if(i<0x8)i=0x8;
 					if(current_pulse_count>2) // Если количество импульсов велико, то напряжения не достаточно, ускоряем накачку.
-					{	// Матрица лидерства, твою мать! :)
-									if(i>0x3E76){i-=0x1F2C;}     // Если больше 8     сек, вычитаем 4     сек
-						else {if(i>0xF96 ){i-=0x636 ;}     // Если больше 2     сек, вычитаем 0.8   сек
-						else {if(i>0x30C ){i-=0x198 ;}     // Если больше 0.4   сек, вычитаем 0.2   сек
-						else {if(i>0x03C ){i-=0x01E ;}     // Если больше 0.03  сек, вычитаем 0.015 сек
-						else {if(i>0x01E ){i-=0x00F ;}}}}} // Если больше 0.015 сек, вычитаем 0.007 сек
-									
-					} else { // Количество импульсов накачки мало, значит можно увеличить интервал между импульсами.
-				  	      if(i<0x198 ){i+=0x01E;}     // Если меньше 0.2 сек, прибавляем 0.015 сек
-						else {if(i<0xF96 ){i+=0x30C;}     // Если меньше 2   сек, прибавляем 0.4   сек
-						else {if(i<0x3E76){i+=0x636;}     // Если меньше 8   сек, прибавляем 0.8   сек
-						else {if(i<0xCB16){i+=0x1F2C;}}}} // Если меньше 26  сек, прибавляем 4     сек
+					{ 
+						if(i>0x0010)i>>=1; // деление на 2
+					} else 
+					
+					{ // Количество импульсов накачки мало, значит можно увеличить интервал между импульсами.
+						if(i<0x7FFF)
+						{
+							i<<=1; // умножаем на 2
+						} else 
+						{
+							// если умножать на 2 уже нельзя, просто прибавляем до придела
+							i=i+0x2000; // + 4 секунды
+							if(i>0xFFFF)i=0xFFFF; // придел 32 секунды
+						}
 					}
+
 				} 
 #ifdef debug
 				debug_wutr=i;
@@ -593,6 +621,7 @@ void COMP_IRQHandler(void)
 				pump_on_impulse=DISABLE;
 			}
 		}
+	}
 		EXTI_ClearITPendingBit(EXTI_Line22);
   }
 }

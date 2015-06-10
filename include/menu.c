@@ -18,7 +18,7 @@ MenuItem Menu_list[max_struct_index] = {
 	{  0x00, LANG_USBMODE,    LANG_OFF,    		  LANG_ON, 		    "",      		   &Settings.USB,                                          0x00,    0x00,     0x00,    &usb_activate,            &usb_deactivate},
 #endif
   {  0x00, LANG_CLEARDO,    "*",   						"*",		        "*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_doze_reset,         0x00},
-  {  0x00, LANG_REBOOT,     "*",   						"*",		        "*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_reboot,             0x00},
+  {  0x00, LANG_REBOOT,     "*",   						"*",		        "*",	         0x00,                                                   0x00,    0x00,     0x00,    &plus_reboot,             &minus_poweroff},
   {  0x01, LANG_CONTRAST,   "",		  					"",			        "%u",  	       &Settings.contrast,                                     0,       15,       0,       &plus_one,                &minus_one},
   {  0x01, LANG_REVERSE,    LANG_OFF,					"",			        "%u",	         &Settings.Display_reverse,                              0,       3,        0,       &plus_one,                &minus_one},
   {  0x01, LANG_COUNT,      "",		  					"",			        LANG_USEC,	   &Settings.Second_count,                                 200,     450,      200,     &plus_ten,                &minus_ten},
