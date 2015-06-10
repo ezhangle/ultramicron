@@ -25,7 +25,7 @@ extern void minus_500(uint32_t *param);
 
 void plus_doze_reset(uint32_t *param);
 void plus_reboot(uint32_t *param);
-void plus_poweroff(uint32_t *param);
+void minus_poweroff(uint32_t *param);
 
 void usb_activate(uint32_t *param);
 void usb_deactivate(uint32_t *param);
