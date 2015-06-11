@@ -244,15 +244,66 @@ void minus_poweroff(uint32_t *param) // выключение
   NVIC_Init(&NVIC_InitStructure);
 
 
-	RTC_ITConfig(RTC_IT_ALRA, DISABLE);
+/////////////////////////////////////////////////////
+  /* Enable the alarm  A */
+  RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
+  
+  /* Clear the RTC Alarm Flag */
+  RTC_ClearFlag(RTC_FLAG_ALRAF);
+
+  /* Clear the EXTI Line 17 Pending bit (Connected internally to RTC Alarm) */
+  EXTI_ClearITPendingBit(EXTI_Line17);
+
+	  /* RTC Alarm A Interrupt Configuration */
+  /* EXTI configuration *********************************************************/
+  EXTI_ClearITPendingBit(EXTI_Line17);
+  EXTI_InitStructure.EXTI_Line = EXTI_Line17;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+  EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+  EXTI_Init(&EXTI_InitStructure);
+  
+  /* Enable the RTC Alarm Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = RTC_Alarm_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  // EXTI configuration
+  EXTI_ClearITPendingBit(EXTI_Line20);
+  EXTI_InitStructure.EXTI_Line = EXTI_Line20;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+  EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+  EXTI_Init(&EXTI_InitStructure);
+  
+  // Enable the RTC Wakeup Interrupt
+  NVIC_InitStructure.NVIC_IRQChannel = RTC_WKUP_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
   RTC_AlarmCmd(RTC_Alarm_A, DISABLE);
   RTC_ClearFlag(RTC_FLAG_ALRAF);
 
+	while(RTC_WakeUpCmd(DISABLE)!=SUCCESS);
+  RTC_ITConfig(RTC_IT_WUT, DISABLE);
+  RTC_ITConfig(RTC_IT_ALRA, DISABLE);
+  PWR_RTCAccessCmd(DISABLE);
+  RCC_RTCCLKCmd(DISABLE);
+
+#ifdef version_204  // версия без кварца
+	RCC_LSICmd(DISABLE);
+#else // версии с кварцем
+	RCC_LSEConfig(RCC_LSE_OFF);
+#endif
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, DISABLE);
+/////////////////////////////////////////////////////
+
 	while(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6))
 	{
-		while(RTC_WakeUpCmd(DISABLE)!=SUCCESS);
-		RTC_SetWakeUpCounter(0x2800); // 5 секунд
-		while(RTC_WakeUpCmd(ENABLE)!=SUCCESS);
 		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);    // Переходим в сон
 	}
 

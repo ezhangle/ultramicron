@@ -401,7 +401,8 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 		{
 			RTC_ClearITPendingBit(RTC_IT_ALRA);
       EXTI_ClearITPendingBit(EXTI_Line17);
-			if(!poweroff_state){
+			if(!poweroff_state)
+			{
 			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
 			
 			DataUpdate.Need_display_update=ENABLE;
