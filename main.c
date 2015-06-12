@@ -54,6 +54,7 @@ uint8_t stat_screen_number=0;
 uint16_t pump_counter_avg_impulse_by_1sec[2];
 uint32_t fon_level=0;
 FunctionalState poweroff_state=DISABLE;
+FunctionalState hidden_menu=DISABLE;
 
 uint32_t working_days=0;
 
@@ -200,6 +201,8 @@ int main(void)
   EXTI6_Config();
 		
 	DataUpdate.Need_batt_voltage_update=ENABLE;
+	
+	if(!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6))hidden_menu=ENABLE; // Открытие сервисных пунктов меню
 	
 	delay_ms(500); // подождать установки напряжения
   while(1) 

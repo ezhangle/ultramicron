@@ -24,7 +24,6 @@ void Pump_now(FunctionalState pump)
 
 	if(pump==ENABLE)
 	{
-		TIM_ITConfig(TIM9, TIM_IT_CC1, ENABLE);
 		TIM9->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
 		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Enable); // разрешить накачку	
 		TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
@@ -38,7 +37,6 @@ void Pump_now(FunctionalState pump)
 		
 		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
 		TIM_ITConfig(TIM9, TIM_IT_Update, DISABLE);
-		TIM_ITConfig(TIM9, TIM_IT_CC1, DISABLE);
 		Power.Pump_active=DISABLE;
 		pump_counter_avg_impulse_by_1sec[0]++;
 		comp_off();              // Выключаем компаратор
@@ -308,11 +306,6 @@ void TIM9_IRQHandler(void)
 			 }
 		 }
   }
-  if (TIM_GetITStatus(TIM9, TIM_IT_CC1) != RESET)
-  {
-      TIM_ClearITPendingBit(TIM9, TIM_IT_CC1);
-  }
-  
 }
 
 // ========================================================

@@ -23,6 +23,8 @@
 #define LANG_UMKR     "%uмкР"
 #define LANG_UHZ      "%u Гц"
 #define LANG_UV       "%uB"
+#define LANG_V4PUMP   "Накачка"
+#define LANG_UV4PUMP  "%uтик"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////
@@ -94,6 +96,8 @@
 #define LANG_UMKR     "%uuRh"
 #define LANG_UHZ      "%u Hz"
 #define LANG_UV       "%uV"
+#define LANG_V4PUMP   "Pump"
+#define LANG_UV4PUMP  "%uT"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////

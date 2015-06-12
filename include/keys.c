@@ -397,11 +397,11 @@ void keys_proccessing(void)
 				stat_screen_number++;
 			}
 		}
-#ifdef hidden_menu
+		if(hidden_menu){
 			if(menu_select>max_struct_index)menu_select=max_struct_index;
-#else
+		}else{
 			if(menu_select>(max_string_count-start_offset))menu_select=(max_string_count-start_offset);
-#endif
+		}
 		
     key=0;
 		
@@ -443,11 +443,11 @@ void keys_proccessing(void)
 					stat_screen_number--;
 				}
 		}
-#ifdef hidden_menu
+		if(hidden_menu){
 			if(menu_select>max_struct_index)menu_select=0;
-#else
+		}else{
 		  if(menu_select>(max_string_count-start_offset))menu_select=0;
-#endif
+		}
 
     key=0;
 

@@ -23,6 +23,7 @@ MenuItem Menu_list[max_struct_index] = {
   {  0x01, LANG_REVERSE,    LANG_OFF,					"",			        "%u",	         &Settings.Display_reverse,                              0,       3,        0,       &plus_one,                &minus_one},
   {  0x01, LANG_COUNT,      "",		  					"",			        LANG_USEC,	   &Settings.Second_count,                                 200,     450,      200,     &plus_ten,                &minus_ten},
 	{  0x01, "LSI",		        LANG_QUARTZ,			"",			        LANG_UHZ,	     &Settings.LSI_freq,                            	       26000,   56000,    38000,   &plus_500,                &minus_500},
+	{  0x01, LANG_V4PUMP,     "",								"",			        LANG_UV4PUMP,  &Settings.v4_target_pump,                       	       4,       14,       11,      &plus_one,                &minus_one},
 	{  0x01, LANG_VOLTAGE,	  "",		  					"",			        LANG_UV,	     &Settings.Geiger_voltage,                               300,     450,      380,     &plus_ten,                &minus_ten}
 /*	{  0x01, "»ндукци€",	    "",		  						"",			        	"%uм“л",	     &Settings.Pump_Energy,                                  150,     450,      250,     &plus_50,                 &minus_50},
   {  0x00, "ѕодсветка",		  "откл",							"",			        	"%uсек",	     &Settings.Led_Sleep_time,                               0,       300,      30,      &plus_sleep,              &minus_sleep},
@@ -161,11 +162,11 @@ void menu_screen()
     menu_page=0;
   }else{
 
-#ifdef hidden_menu
-    menu_page=(menu_select-1)/(max_string_count-start_offset);// определение страницы меню 
-#else
-		menu_page=0;
-#endif
+		if(hidden_menu){
+			menu_page=(menu_select-1)/(max_string_count-start_offset);// определение страницы меню 
+		}else{
+			menu_page=0;
+		}
   }
 	
   for(i=0;i<(max_string_count-start_offset);i++)
