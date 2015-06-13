@@ -26,7 +26,7 @@ uint32_t NbrOfPage = 0, j = 0, Address = 0;
 				Settings.Geiger_voltage=360;
 				Settings.Power_comp=0;
 				Settings.Vibro=0;
-//				Settings.v4_target_pump=11;
+				Settings.v4_target_pump=11;
         eeprom_write_settings(); // Запись
       }  
     }
@@ -45,7 +45,7 @@ void eeprom_write_settings(void)
 	if(eeprom_read(Power_comp_address)     !=Settings.Power_comp)     eeprom_write(Power_comp_address,     Settings.Power_comp);
 	if(eeprom_read(Vibro_address)     		 !=Settings.Vibro)          eeprom_write(Vibro_address,          Settings.Vibro);
 	if(eeprom_read(Geiger_voltage_address) !=Settings.Geiger_voltage) eeprom_write(Geiger_voltage_address, Settings.Geiger_voltage);
-//	if(eeprom_read(v4_target_pump_address) !=Settings.v4_target_pump) eeprom_write(v4_target_pump_address, Settings.v4_target_pump);
+	if(eeprom_read(v4_target_pump_address) !=Settings.v4_target_pump) eeprom_write(v4_target_pump_address, Settings.v4_target_pump);
 	if(Settings.LSI_freq != 0x00) // если запустился кварц, попытки сохранения игнорировать
 	{
 		if(eeprom_read(LSI_freq_address)       !=Settings.LSI_freq)       eeprom_write(LSI_freq_address,       Settings.LSI_freq);
@@ -68,6 +68,11 @@ void eeprom_apply_settings(void)
 		display_off();
 		delay_ms(200);
 		display_on();
+	}
+	// -------------------------------------------------------------------
+  if(eeprom_read(v4_target_pump_address)!=Settings.v4_target_pump)
+	{
+		reset_TIM_prescallers_and_Compare();	
 	}
 	// -------------------------------------------------------------------
 	if(eeprom_read(Geiger_voltage_address) !=Settings.Geiger_voltage) 
@@ -99,7 +104,7 @@ void eeprom_read_settings(void)
 	Settings.Power_comp= 			      eeprom_read(Power_comp_address);  
 	Settings.Vibro= 			  		    eeprom_read(Vibro_address);  
 	Settings.Geiger_voltage=				eeprom_read(Geiger_voltage_address);
-//	Settings.v4_target_pump=				eeprom_read(v4_target_pump_address);
+	Settings.v4_target_pump=				eeprom_read(v4_target_pump_address);
 	Power.led_sleep_time=Settings.Sleep_time-3;
 }
 

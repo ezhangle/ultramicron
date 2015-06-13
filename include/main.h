@@ -3,8 +3,6 @@
 
 #include "stm32l1xx.h"
 
-#define v4_target_pump 11 // целевая накачка версии 4.01+ (2,75мкс@4.2В)
-
 
 // ------------- СЕРИЙНИК ! ------------- 
 #define U_ID_0 (*(uint32_t*) 0x1FF80050) // MCU Serial
@@ -13,7 +11,6 @@
 
 #ifdef service
 	#define debug // отладка
-	#define hidden_menu // Показ сервисных пунктов меню
 #endif
 
 typedef struct
@@ -82,7 +79,7 @@ typedef struct
 #ifndef version_401 // Версия платы дозиметра 4.01+
   uint32_t USB;
 #endif
-//	uint32_t v4_target_pump;
+	uint32_t v4_target_pump;
 	uint32_t Vibro;
 }SettingsDef;
 
@@ -160,6 +157,7 @@ extern uint32_t USB_not_active;
 extern uint32_t last_count_pump_on_impulse;
 extern FunctionalState pump_on_impulse;
 
+extern FunctionalState hidden_menu;
 
 extern FunctionalState poweroff_state;
 

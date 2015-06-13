@@ -74,9 +74,9 @@ void reset_TIM_prescallers_and_Compare(void)
 #ifdef version_401
 	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9))
 	{
-		pump_period=(v4_target_pump*4200)/5000; // расчет целевой накачки (Пример 1,75мкс*4.2В/5.0В напряжение USB=1.25мкс)
+		pump_period=(Settings.v4_target_pump*4200)/5000; // расчет целевой накачки (Пример 1,75мкс*4.2В/5.0В напряжение USB=1.25мкс)
 	} else {
-		pump_period=(v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1,75мкс*4.2В/3.3В напряжение АКБ=2.0мкс)
+		pump_period=(Settings.v4_target_pump*4200)/ADCData.Batt_voltage; // расчет целевой накачки (Пример 1,75мкс*4.2В/3.3В напряжение АКБ=2.0мкс)
 	}
 //	pump_period=v4_target_pump;
 #else
@@ -100,7 +100,7 @@ NVIC_InitTypeDef NVIC_InitStructure;
 
   TIM_OCConfig.TIM_OCMode = TIM_OCMode_PWM1; // Конфигурируем выход таймера, режим - PWM1
   TIM_OCConfig.TIM_OutputState = TIM_OutputState_Enable;   // Собственно - выход включен
-  TIM_OCConfig.TIM_Pulse = 5;   
+  TIM_OCConfig.TIM_Pulse = Settings.v4_target_pump;   
   TIM_OCConfig.TIM_OCPolarity = TIM_OCPolarity_High; // Полярность => пульс - это единица (+3.3V)
 
   TIM_BaseConfig.TIM_Prescaler = (uint16_t) (SystemCoreClock / 4000000) - 1; // Делитель (1 тик = 0.25мкс)
@@ -133,7 +133,6 @@ NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_Init(&NVIC_InitStructure);
   
   TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
-  TIM_ITConfig(TIM9, TIM_IT_CC1, ENABLE);
 
   TIM9->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
   TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку

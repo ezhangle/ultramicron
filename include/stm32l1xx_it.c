@@ -24,12 +24,11 @@ void Pump_now(FunctionalState pump)
 
 	if(pump==ENABLE)
 	{
-		TIM_ITConfig(TIM9, TIM_IT_CC1, ENABLE);
+		dac_on(); // Включаем ЦАП
 		TIM9->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
 		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Enable); // разрешить накачку	
 		TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
 
-		dac_on(); // Включаем ЦАП
 		Power.Pump_active=ENABLE;
 		comp_on();              // Включаем компаратор
 		EXTI_ClearITPendingBit(EXTI_Line22);
@@ -38,7 +37,6 @@ void Pump_now(FunctionalState pump)
 		
 		TIM_CCxCmd(TIM9, TIM_Channel_1, TIM_CCx_Disable); // запретить накачку
 		TIM_ITConfig(TIM9, TIM_IT_Update, DISABLE);
-		TIM_ITConfig(TIM9, TIM_IT_CC1, DISABLE);
 		Power.Pump_active=DISABLE;
 		pump_counter_avg_impulse_by_1sec[0]++;
 		comp_off();              // Выключаем компаратор
@@ -308,11 +306,6 @@ void TIM9_IRQHandler(void)
 			 }
 		 }
   }
-  if (TIM_GetITStatus(TIM9, TIM_IT_CC1) != RESET)
-  {
-      TIM_ClearITPendingBit(TIM9, TIM_IT_CC1);
-  }
-  
 }
 
 // ========================================================
@@ -401,7 +394,8 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 		{
 			RTC_ClearITPendingBit(RTC_IT_ALRA);
       EXTI_ClearITPendingBit(EXTI_Line17);
-			if(!poweroff_state){
+			if(!poweroff_state)
+			{
 			Set_next_alarm_wakeup(); // установить таймер просыпания на +4 секунды
 			
 			DataUpdate.Need_display_update=ENABLE;
@@ -583,7 +577,11 @@ void COMP_IRQHandler(void)
 				{
 					if(i>0x80)
 					{
+#ifdef version_401 // Для версии 4+ делить на 4 для стабилизации накачки
+						i>>=2; // ускоренное деление на 4
+#else
 						i>>=4; // ускоренное деление на 16
+#endif
 					}else
 					{
 						i=0x8; // Если делить нельзя, то = 4 мс
@@ -595,9 +593,21 @@ void COMP_IRQHandler(void)
 					{ 
 						if(i>0x0010)i>>=1; // деление на 2
 					} else 
-					
+#ifdef version_401 // Для версии 4+ накачка немного более агресивна
 					{ // Количество импульсов накачки мало, значит можно увеличить интервал между импульсами.
-						if(i<0x7FFF)
+						if(i<0x2000) //Если больше половины от максимума
+						{
+							i<<=1; // умножаем на 2
+						} else 
+						{
+							// если умножать на 2 уже нельзя, просто прибавляем до придела
+							i=i+0x400; // + 0.5 секунды
+							if(i>0x4000)i=0x4000; // придел 8 секунд
+						}
+					}
+#else
+					{ // Количество импульсов накачки мало, значит можно увеличить интервал между импульсами.
+						if(i<0x7FFF) //Если больше половины от максимума
 						{
 							i<<=1; // умножаем на 2
 						} else 
@@ -607,6 +617,7 @@ void COMP_IRQHandler(void)
 							if(i>0xFFFF)i=0xFFFF; // придел 32 секунды
 						}
 					}
+#endif
 
 				} 
 #ifdef debug
