@@ -170,6 +170,7 @@ int main(void)
 	ADCData.DAC_voltage_raw=0x610;
 		
   dac_init();
+	comp_init();
 	comp_on();
 	timer9_Config(); // Конфигурируем таймер накачки	
 	timer10_Config();

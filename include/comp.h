@@ -3,5 +3,6 @@
 
 void comp_off(void);
 void comp_on(void);
+void comp_init(void);
 
 #endif
