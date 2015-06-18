@@ -119,7 +119,7 @@ typedef struct
 	
 	uint32_t sleep_time;  //
   uint32_t led_sleep_time;  //
-  
+  FunctionalState Pump_deny;  
 }PowerDef;
 
 static __IO uint8_t  timer_is_reload = 0;	// counts 1ms timeTicks
@@ -163,7 +163,7 @@ extern FunctionalState poweroff_state;
 
 extern uint32_t fullstop;
 extern FunctionalState Sound_key_pressed;
-
+extern FunctionalState Pump_on_alarm;
 extern uint16_t current_pulse_count;
 
 extern ADCDataDef    ADCData;

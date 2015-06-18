@@ -55,6 +55,7 @@ uint16_t pump_counter_avg_impulse_by_1sec[2];
 uint32_t fon_level=0;
 FunctionalState poweroff_state=DISABLE;
 FunctionalState hidden_menu=DISABLE;
+FunctionalState Pump_on_alarm=DISABLE;
 
 uint32_t working_days=0;
 
@@ -75,6 +76,7 @@ void sleep_mode(FunctionalState sleep)
 { 
   if(Settings.Sleep_time>0 && !Power.USB_active)
   {
+		Power.Pump_deny=ENABLE;
 		if(Power.Pump_active)Pump_now(DISABLE);
 		
 		set_msi();
@@ -110,6 +112,7 @@ void sleep_mode(FunctionalState sleep)
 			RTC_ITConfig(RTC_IT_WUT, ENABLE);
 			sound_deactivate();
     }
+		Power.Pump_deny=DISABLE;
   } 
 }
 
