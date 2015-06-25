@@ -80,10 +80,7 @@ type
     Timer4: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-//    procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
     procedure AutoStartupBtnClick(Sender: TObject);
@@ -140,12 +137,14 @@ type
 //    function RequestRAD: boolean;
 //    function CheckDev: boolean;
     procedure MakeIcon(f_fon: ulong);
+    procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
 end;
 
 var
   mainFrm: TmainFrm;
   FeatureReportLen: integer = 0;
   DevPresent: boolean = false;
+  DenyCommunications: boolean = false;
   pingback: integer;
   AutoStartup: boolean = true;
   AlarmEnable: boolean = true;
@@ -213,6 +212,23 @@ implementation
 {$R *.dfm}
 {$R sounds.res}
 uses Unit1;
+
+procedure TmainFrm.WMPowerBroadcast(var MyMessage: TMessage);
+begin
+if MyMessage.Msg = WM_POWERBROADCAST then begin
+if MyMessage.WParam = PBT_APMRESUMEAUTOMATIC then begin
+    DenyCommunications:= false;
+end
+else begin
+    DevPresent:= false;
+    DenyCommunications:= true;
+    RS232.StopListner;
+    RS232.Close;
+end;
+end;
+inherited;
+end;
+
 
 procedure TmainFrm.SaveReg;
 var
@@ -774,6 +790,7 @@ Unit1.Form1.max_fon.Caption:='0%';
 Unit1.Form1.impulses.Caption:='0%';
 Unit1.Form1.fix_errors.Caption:='0%';
 Unit1.Form1.errors.Caption:='0';
+RS232.StopListner;
 RS232.Close;
 Timer2.Enabled:=true;
 doze_loading_flag:= false;
@@ -922,6 +939,7 @@ procedure TmainFrm.Timer1Timer(Sender: TObject);
 var
   vAns: TiaBuf;
 begin
+if(DenyCommunications = false) then begin
 if(USB_massive_loading = false) then begin
   if (RS232.Active = false) then
   begin
@@ -931,6 +949,7 @@ if(USB_massive_loading = false) then begin
     RS232.Properties.StopBits := ONESTOPBIT;
     RS232.Open;
     RS232.StartListner;
+
     if (RS232.Active)then
     begin
      iTick:=GetTickCount;
@@ -944,15 +963,18 @@ if(USB_massive_loading = false) then begin
       if(DevPresent=true) then
       begin
         DevPresent:=false;
-        ShowMessage('Õ≈ «¿¡”ƒ‹ Œ“ Àﬁ◊»“‹ ¬ ƒŒ«»Ã≈“–≈ –≈∆»Ã USB!!!');
+//        ShowMessage('Õ≈ «¿¡”ƒ‹ Œ“ Àﬁ◊»“‹ ¬ ƒŒ«»Ã≈“–≈ –≈∆»Ã USB!!!');
       end;
-
+      RS232.StopListner;
+      RS232.Close;
     end;
   end
   else
   begin
+      RS232.StopListner;
       RS232.Close;
   end;
+end;
 end;
 end;
 
@@ -1026,6 +1048,7 @@ if(usb_send_try < 100) then
     address:=0;
     address_last:=0;
     usb_send_try:=0;
+    RS232.StopListner;
     RS232.Close;
     Unit1.Form1.Close;
     Fix_error_now:=false;
@@ -1087,13 +1110,8 @@ end;
 
 procedure TmainFrm.FormDestroy(Sender: TObject);
 begin
+  RS232.StopListner;
   FreeAndNil(RS232);
-end;
-
-procedure TmainFrm.Button5Click(Sender: TObject);
-begin
-  RS232.Properties.PortNum := 3;
-  RS232.Open;
 end;
 
 procedure TmainFrm.Draw_massive();
@@ -1221,10 +1239,6 @@ begin
 
 end;
 
-procedure TmainFrm.Button4Click(Sender: TObject);
-begin
-  RS232.StopListner;
-end;
 //================================================================================================================
 procedure TmainFrm.DoOnReceiveEvent(Sender: TObject; const aData: TiaBuf;
   aCount: Cardinal);
@@ -1332,6 +1346,10 @@ if ((fBuf[0] = $d1) and (fBuf[9] = $d2)) then begin
     if(doze_loading_flag = true) then vAns[0]:=$32;
     if(maxfon_loading_flag=true) then vAns[0]:=$31;
     RS232.Send(vAns);
+
+    sleep(30);
+    RS232.StopListner;
+    RS232.Close;
 
   end;
 
@@ -1466,6 +1484,7 @@ end;
     end;
 if(USB_massive_loading = false) then
 begin
+  RS232.StopListner;
   RS232.Close;
   if((Voltage_level Div 10) Mod 100)>9 then
   begin
