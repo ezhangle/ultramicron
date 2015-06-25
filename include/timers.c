@@ -5,27 +5,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 void sound_activate(void)
 {
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
-
-	if(Power.Display_active==ENABLE)
+	if(!Power.USB_active)
 	{
-
-		TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-
-		TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-		TIM2->EGR  |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
-
-		TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
-//		TIM_Cmd(TIM10, ENABLE);
-		TIM_Cmd(TIM2, ENABLE);
-		Alarm.Tick_beep_count=0;
-		Power.Sound_active=ENABLE;
-
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+		if(Power.Display_active==ENABLE)
+		{
+			TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+			TIM10->EGR |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
+			TIM2->EGR  |= 0x0001;  // Устанавливаем бит UG для принудительного сброса счетчика
+			TIM_CCxCmd(TIM10, TIM_Channel_1, TIM_CCx_Enable); // разрешить подачу импульсов
+			TIM_Cmd(TIM2, ENABLE);
+			Alarm.Tick_beep_count=0;
+			Power.Sound_active=ENABLE;
 #ifdef version_401
-		if(Settings.Vibro==1                                 )GPIO_SetBits(GPIOA,GPIO_Pin_15);// Активируем вибромотор
-		if((Settings.Vibro>1) && (Alarm.Alarm_active==ENABLE))GPIO_SetBits(GPIOA,GPIO_Pin_15);// Активируем вибромотор
+			if(Settings.Vibro==1                                 )GPIO_SetBits(GPIOA,GPIO_Pin_15);// Активируем вибромотор
+			if((Settings.Vibro>1) && (Alarm.Alarm_active==ENABLE))GPIO_SetBits(GPIOA,GPIO_Pin_15);// Активируем вибромотор
 #endif
+		}
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////

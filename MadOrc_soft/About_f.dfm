@@ -1,11 +1,10 @@
 object About: TAbout
   Left = 0
   Top = 0
-  Anchors = []
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 205
-  ClientWidth = 261
+  ClientHeight = 254
+  ClientWidth = 247
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,11 +14,12 @@ object About: TAbout
   OldCreateOrder = False
   Position = poDesktopCenter
   Scaled = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 72
-    Top = 21
+    Left = 54
+    Top = 13
     Width = 164
     Height = 35
     Caption = 'USB Geiger'
@@ -31,8 +31,8 @@ object About: TAbout
     ParentFont = False
   end
   object Image1: TImage
-    Left = 18
-    Top = 8
+    Left = 0
+    Top = 0
     Width = 48
     Height = 48
     Margins.Left = 0
@@ -187,8 +187,8 @@ object About: TAbout
     ShowHint = False
   end
   object Label2: TLabel
-    Left = 72
-    Top = 77
+    Left = 54
+    Top = 69
     Width = 146
     Height = 16
     Caption = #1042#1077#1088#1089#1080#1103' 1.1 ('#1089') MadOrc'
@@ -200,8 +200,8 @@ object About: TAbout
     ParentFont = False
   end
   object Label3: TLabel
-    Left = 122
-    Top = 93
+    Left = 104
+    Top = 85
     Width = 114
     Height = 16
     Caption = 'madorc@gmx.com'
@@ -213,8 +213,8 @@ object About: TAbout
     ParentFont = False
   end
   object Label4: TLabel
-    Left = 72
-    Top = 115
+    Left = 54
+    Top = 107
     Width = 145
     Height = 16
     Caption = #1042#1077#1088#1089#1080#1103' 2.0 ('#1089') Shodan'
@@ -226,8 +226,8 @@ object About: TAbout
     ParentFont = False
   end
   object Label5: TLabel
-    Left = 104
-    Top = 129
+    Left = 86
+    Top = 121
     Width = 132
     Height = 16
     Caption = 'shodan@'#1084#1080#1082#1088#1086#1085'.net'
@@ -238,13 +238,34 @@ object About: TAbout
     Font.Style = [fsBold]
     ParentFont = False
   end
+  object Label6: TLabel
+    Left = 62
+    Top = 157
+    Width = 120
+    Height = 13
+    Caption = #1056#1077#1075#1080#1089#1090#1088#1072#1094#1080#1086#1085#1085#1099#1081' '#1082#1083#1102#1095
+  end
   object Button1: TButton
-    Left = 96
-    Top = 165
+    Left = 86
+    Top = 213
     Width = 75
     Height = 25
     Caption = 'OK'
     TabOrder = 0
     OnClick = Button1Click
+  end
+  object Edit1: TEdit
+    Left = 12
+    Top = 176
+    Width = 219
+    Height = 32
+    Color = clYellow
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -20
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
   end
 end

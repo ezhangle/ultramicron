@@ -7,7 +7,9 @@ uses
   Dialogs, JvTrayIcon, JvComponentBase, ImgList, Registry,
   Menus, StdCtrls, XPMan, ExtCtrls, jpeg, JvExControls, JvPoweredBy,
   shellapi, JvExExtCtrls, MMSystem, About_f, iaRS232, Vcl.ExtDlgs, pngimage,
-  ShlObj;
+  ShlObj, IdAuthentication, IdBaseComponent, IdComponent, IdTCPConnection,
+  IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL,
+  IdSSLOpenSSL;
 
 //  const
 //  cmRxByte = WM_USER;
@@ -74,6 +76,8 @@ type
     ComboBox1: TComboBox;
     Button2: TButton;
     SavePictureDialog1: TSavePictureDialog;
+    IdHTTP1: TIdHTTP;
+    Timer4: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
 //    procedure Button2Click(Sender: TObject);
@@ -116,6 +120,7 @@ type
     procedure ComboBox1Change(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Image2Click(Sender: TObject);
+    procedure Timer4Timer(Sender: TObject);
      private
     { Private declarations }
     RS232: TiaRS232;
@@ -1032,6 +1037,32 @@ if(usb_send_try < 100) then
   end;
 end;
 
+procedure TmainFrm.Timer4Timer(Sender: TObject);
+var
+ AIdHTTP: TIdHTTP;
+ reg: TRegistry;
+ key: String;
+begin
+if (DevPresent) then
+  begin
+    reg := TRegistry.Create;                              // Открываем реестр
+    reg.RootKey := HKEY_CURRENT_USER;
+    reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+    key := reg.ReadString('Reg_key');
+    reg.CloseKey;                                          // Закрываем раздел
+    AIdHTTP := TIdHTTP.Create(nil);
+    AIdHTTP.HandleRedirects := true;
+    try
+      AIdHTTP.Get(  Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key,'&fon=',IntToStr(fon)));
+    except
+      begin
+      end;
+    end;
+    AIdHTTP.Disconnect;
+    AIdHTTP.Free;
+  end;
+end;
+
 procedure TmainFrm.AboutBtnClick(Sender: TObject);
 begin
 try
@@ -1173,8 +1204,21 @@ end;
 //procedure TmainFrm.Button2Click(Sender: TObject);
 
 procedure TmainFrm.Button3Click(Sender: TObject);
+var
+ AIdHTTP: TIdHTTP;
 begin
-  RS232.StartListner;
+ AIdHTTP := TIdHTTP.Create(nil);
+ AIdHTTP.HandleRedirects := true;
+  try
+   AIdHTTP.Get(  Concat('http://upload.xn--h1aeegel.net/upload.php?id=0x0x0xs&password=123456&fon=',IntToStr(fon)));
+
+ except
+    on E: EIdHTTPProtocolException do
+    begin
+     // ShowMessage(E.Message);
+    end;
+  end;
+
 end;
 
 procedure TmainFrm.Button4Click(Sender: TObject);
