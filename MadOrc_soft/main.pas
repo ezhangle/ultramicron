@@ -80,7 +80,6 @@ type
     Timer4: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
     procedure AutoStartupBtnClick(Sender: TObject);
@@ -1219,26 +1218,6 @@ end;
 
 
 
-//procedure TmainFrm.Button2Click(Sender: TObject);
-
-procedure TmainFrm.Button3Click(Sender: TObject);
-var
- AIdHTTP: TIdHTTP;
-begin
- AIdHTTP := TIdHTTP.Create(nil);
- AIdHTTP.HandleRedirects := true;
-  try
-   AIdHTTP.Get(  Concat('http://upload.xn--h1aeegel.net/upload.php?id=0x0x0xs&password=123456&fon=',IntToStr(fon)));
-
- except
-    on E: EIdHTTPProtocolException do
-    begin
-     // ShowMessage(E.Message);
-    end;
-  end;
-
-end;
-
 //================================================================================================================
 procedure TmainFrm.DoOnReceiveEvent(Sender: TObject; const aData: TiaBuf;
   aCount: Cardinal);
@@ -1252,6 +1231,10 @@ Var
   massive_element: UInt32 ;
   vAns: TiaBuf;
   iy : uint32;
+  AIdHTTP: TIdHTTP;
+  reg: TRegistry;
+  key: String;
+
 begin
 Voltage_level:=0;
   If fBufCount >= 10 then
@@ -1409,6 +1392,29 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
 
   if (address < 1007) then
   begin
+
+        // Загрузка данных на сервер
+
+    if((massive_element <> 0) and (Fix_error_now=false)) then
+    begin
+      reg := TRegistry.Create;                              // Открываем реестр
+      reg.RootKey := HKEY_CURRENT_USER;
+      reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+      key := reg.ReadString('Reg_key');
+      reg.CloseKey;                                          // Закрываем раздел
+      AIdHTTP := TIdHTTP.Create(nil);
+      AIdHTTP.HandleRedirects := true;
+
+      try
+        AIdHTTP.Get(  Concat('http://upload.xn--h1aeegel.net/upload.php?shift=',IntToStr(address),'&id=',key,'&fon=',IntToStr(((massive_element * geiger_seconds_count) Div 600))));
+      except
+        begin
+        end;
+      end;
+      AIdHTTP.Disconnect;
+      AIdHTTP.Free;
+    end;
+
     if Fix_error_now=false then
     begin
       Unit1.Form1.impulses.Caption:=   IntToStr(address Div 10)+'%';
