@@ -38182,7 +38182,7 @@ object mainFrm: TmainFrm
     Left = 160
     Top = 8
     Bitmap = {
-      494C010105008C000C0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00140110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38473,6 +38473,29 @@ object mainFrm: TmainFrm
   object SavePictureDialog1: TSavePictureDialog
     Filter = 'PNG (*.png)|*.png'
     Left = 256
+    Top = 8
+  end
+  object IdHTTP1: TIdHTTP
+    AllowCookies = False
+    ProxyParams.BasicAuthentication = False
+    ProxyParams.ProxyPort = 0
+    Request.ContentLength = -1
+    Request.ContentRangeEnd = -1
+    Request.ContentRangeStart = -1
+    Request.ContentRangeInstanceLength = -1
+    Request.Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    Request.BasicAuthentication = False
+    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    Request.Ranges.Units = 'bytes'
+    Request.Ranges = <>
+    HTTPOptions = [hoForceEncodeParams]
+    Left = 288
+    Top = 8
+  end
+  object Timer4: TTimer
+    Interval = 63000
+    OnTimer = Timer4Timer
+    Left = 320
     Top = 8
   end
 end

@@ -7,7 +7,9 @@ uses
   Dialogs, JvTrayIcon, JvComponentBase, ImgList, Registry,
   Menus, StdCtrls, XPMan, ExtCtrls, jpeg, JvExControls, JvPoweredBy,
   shellapi, JvExExtCtrls, MMSystem, About_f, iaRS232, Vcl.ExtDlgs, pngimage,
-  ShlObj;
+  ShlObj, IdAuthentication, IdBaseComponent, IdComponent, IdTCPConnection,
+  IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL,
+  IdSSLOpenSSL;
 
 //  const
 //  cmRxByte = WM_USER;
@@ -74,12 +76,10 @@ type
     ComboBox1: TComboBox;
     Button2: TButton;
     SavePictureDialog1: TSavePictureDialog;
+    IdHTTP1: TIdHTTP;
+    Timer4: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-//    procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
     procedure ExitBtnClick(Sender: TObject);
     procedure OKBtnClick(Sender: TObject);
     procedure AutoStartupBtnClick(Sender: TObject);
@@ -116,6 +116,7 @@ type
     procedure ComboBox1Change(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Image2Click(Sender: TObject);
+    procedure Timer4Timer(Sender: TObject);
      private
     { Private declarations }
     RS232: TiaRS232;
@@ -135,12 +136,14 @@ type
 //    function RequestRAD: boolean;
 //    function CheckDev: boolean;
     procedure MakeIcon(f_fon: ulong);
+    procedure WMPowerBroadcast(var MyMessage: TMessage); message WM_POWERBROADCAST;
 end;
 
 var
   mainFrm: TmainFrm;
   FeatureReportLen: integer = 0;
   DevPresent: boolean = false;
+  DenyCommunications: boolean = false;
   pingback: integer;
   AutoStartup: boolean = true;
   AlarmEnable: boolean = true;
@@ -208,6 +211,23 @@ implementation
 {$R *.dfm}
 {$R sounds.res}
 uses Unit1;
+
+procedure TmainFrm.WMPowerBroadcast(var MyMessage: TMessage);
+begin
+if MyMessage.Msg = WM_POWERBROADCAST then begin
+if MyMessage.WParam = PBT_APMRESUMEAUTOMATIC then begin
+    DenyCommunications:= false;
+end
+else begin
+    DevPresent:= false;
+    DenyCommunications:= true;
+    RS232.StopListner;
+    RS232.Close;
+end;
+end;
+inherited;
+end;
+
 
 procedure TmainFrm.SaveReg;
 var
@@ -769,6 +789,7 @@ Unit1.Form1.max_fon.Caption:='0%';
 Unit1.Form1.impulses.Caption:='0%';
 Unit1.Form1.fix_errors.Caption:='0%';
 Unit1.Form1.errors.Caption:='0';
+RS232.StopListner;
 RS232.Close;
 Timer2.Enabled:=true;
 doze_loading_flag:= false;
@@ -917,6 +938,7 @@ procedure TmainFrm.Timer1Timer(Sender: TObject);
 var
   vAns: TiaBuf;
 begin
+if(DenyCommunications = false) then begin
 if(USB_massive_loading = false) then begin
   if (RS232.Active = false) then
   begin
@@ -926,6 +948,7 @@ if(USB_massive_loading = false) then begin
     RS232.Properties.StopBits := ONESTOPBIT;
     RS232.Open;
     RS232.StartListner;
+
     if (RS232.Active)then
     begin
      iTick:=GetTickCount;
@@ -939,15 +962,18 @@ if(USB_massive_loading = false) then begin
       if(DevPresent=true) then
       begin
         DevPresent:=false;
-        ShowMessage('НЕ ЗАБУДЬ ОТКЛЮЧИТЬ В ДОЗИМЕТРЕ РЕЖИМ USB!!!');
+//        ShowMessage('НЕ ЗАБУДЬ ОТКЛЮЧИТЬ В ДОЗИМЕТРЕ РЕЖИМ USB!!!');
       end;
-
+      RS232.StopListner;
+      RS232.Close;
     end;
   end
   else
   begin
+      RS232.StopListner;
       RS232.Close;
   end;
+end;
 end;
 end;
 
@@ -1021,6 +1047,7 @@ if(usb_send_try < 100) then
     address:=0;
     address_last:=0;
     usb_send_try:=0;
+    RS232.StopListner;
     RS232.Close;
     Unit1.Form1.Close;
     Fix_error_now:=false;
@@ -1029,6 +1056,32 @@ if(usb_send_try < 100) then
     doze_loading_flag:=false;
     maxfon_loading_flag:=false;
 
+  end;
+end;
+
+procedure TmainFrm.Timer4Timer(Sender: TObject);
+var
+ AIdHTTP: TIdHTTP;
+ reg: TRegistry;
+ key: String;
+begin
+if (DevPresent) then
+  begin
+    reg := TRegistry.Create;                              // Открываем реестр
+    reg.RootKey := HKEY_CURRENT_USER;
+    reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+    key := reg.ReadString('Reg_key');
+    reg.CloseKey;                                          // Закрываем раздел
+    AIdHTTP := TIdHTTP.Create(nil);
+    AIdHTTP.HandleRedirects := true;
+    try
+      AIdHTTP.Get(  Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key,'&fon=',IntToStr(fon)));
+    except
+      begin
+      end;
+    end;
+    AIdHTTP.Disconnect;
+    AIdHTTP.Free;
   end;
 end;
 
@@ -1056,13 +1109,8 @@ end;
 
 procedure TmainFrm.FormDestroy(Sender: TObject);
 begin
+  RS232.StopListner;
   FreeAndNil(RS232);
-end;
-
-procedure TmainFrm.Button5Click(Sender: TObject);
-begin
-  RS232.Properties.PortNum := 3;
-  RS232.Open;
 end;
 
 procedure TmainFrm.Draw_massive();
@@ -1170,17 +1218,6 @@ end;
 
 
 
-//procedure TmainFrm.Button2Click(Sender: TObject);
-
-procedure TmainFrm.Button3Click(Sender: TObject);
-begin
-  RS232.StartListner;
-end;
-
-procedure TmainFrm.Button4Click(Sender: TObject);
-begin
-  RS232.StopListner;
-end;
 //================================================================================================================
 procedure TmainFrm.DoOnReceiveEvent(Sender: TObject; const aData: TiaBuf;
   aCount: Cardinal);
@@ -1194,6 +1231,10 @@ Var
   massive_element: UInt32 ;
   vAns: TiaBuf;
   iy : uint32;
+  AIdHTTP: TIdHTTP;
+  reg: TRegistry;
+  key: String;
+
 begin
 Voltage_level:=0;
   If fBufCount >= 10 then
@@ -1289,6 +1330,10 @@ if ((fBuf[0] = $d1) and (fBuf[9] = $d2)) then begin
     if(maxfon_loading_flag=true) then vAns[0]:=$31;
     RS232.Send(vAns);
 
+    sleep(30);
+    RS232.StopListner;
+    RS232.Close;
+
   end;
 
 //-----------------------------------------------------------------------------------
@@ -1347,6 +1392,29 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
 
   if (address < 1007) then
   begin
+
+        // Загрузка данных на сервер
+
+    if((massive_element <> 0) and (Fix_error_now=false)) then
+    begin
+      reg := TRegistry.Create;                              // Открываем реестр
+      reg.RootKey := HKEY_CURRENT_USER;
+      reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+      key := reg.ReadString('Reg_key');
+      reg.CloseKey;                                          // Закрываем раздел
+      AIdHTTP := TIdHTTP.Create(nil);
+      AIdHTTP.HandleRedirects := true;
+
+      try
+        AIdHTTP.Get(  Concat('http://upload.xn--h1aeegel.net/upload.php?shift=',IntToStr(address),'&id=',key,'&fon=',IntToStr(((massive_element * geiger_seconds_count) Div 600))));
+      except
+        begin
+        end;
+      end;
+      AIdHTTP.Disconnect;
+      AIdHTTP.Free;
+    end;
+
     if Fix_error_now=false then
     begin
       Unit1.Form1.impulses.Caption:=   IntToStr(address Div 10)+'%';
@@ -1422,6 +1490,7 @@ end;
     end;
 if(USB_massive_loading = false) then
 begin
+  RS232.StopListner;
   RS232.Close;
   if((Voltage_level Div 10) Mod 100)>9 then
   begin
