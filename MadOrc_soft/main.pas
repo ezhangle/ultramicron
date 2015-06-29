@@ -9,7 +9,7 @@ uses
   shellapi, JvExExtCtrls, MMSystem, About_f, iaRS232, Vcl.ExtDlgs, pngimage,
   ShlObj, IdAuthentication, IdBaseComponent, IdComponent, IdTCPConnection,
   IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL,
-  IdSSLOpenSSL;
+  IdSSLOpenSSL, IdMultipartFormData;
 
 //  const
 //  cmRxByte = WM_USER;
@@ -839,13 +839,14 @@ begin
    vAns[0]:=$39; // выполнить сброс счетчиков дозиметра
    RS232.Send(vAns);
 
-   sleep(100);
-
    SetLength(vAns, 1);
    vAns[0]:=$33; // считать настройки
    RS232.Send(vAns);
 
-   sleep(100);
+   SetLength(vAns, 1);
+   vAns[0]:=$39; // выполнить сброс счетчиков дозиметра
+   RS232.Send(vAns);
+
 
    SetLength(vAns, 1);
    vAns[0]:=$31; // начать загрузку массива
@@ -1219,8 +1220,7 @@ end;
 
 
 //================================================================================================================
-procedure TmainFrm.DoOnReceiveEvent(Sender: TObject; const aData: TiaBuf;
-  aCount: Cardinal);
+procedure TmainFrm.DoOnReceiveEvent(Sender: TObject; const aData: TiaBuf; aCount: Cardinal);
 Var
   ia:uint;
   F: Integer;
@@ -1230,111 +1230,106 @@ Var
   Voltage_level: Integer;
   massive_element: UInt32 ;
   vAns: TiaBuf;
+  ix : uint32;
   iy : uint32;
+  buffer_len: uint32;
+  used_len: uint32;
+  packet_size: uint32;
+  aData_massive_pointer: uint32;
+  fBuf_pointer: uint32;
+  StopRS232: Boolean;
   AIdHTTP: TIdHTTP;
   reg: TRegistry;
   key: String;
+  data: TIdMultiPartFormDataStream;
+
 
 begin
 Voltage_level:=0;
-  If fBufCount >= 10 then
-    fBufCount := 0;
+packet_size:=10;
+aData_massive_pointer:=0;
+fBuf_pointer:=0;
+StopRS232:=FALSE;
 
-//  sleep(1);   // x3, mb это не надо (на всяк случай)
+While used_len<(Length(aData)-1) do begin
 
-  vCount := Length(aData);
-  vBufCount := fBufCount;
+  // Заполнение массива пакета
+   For F := aData_massive_pointer to aData_massive_pointer + packet_size - 1 do
+     Begin
+       fBuf[fBuf_pointer] := aData[F];
+       Inc(fBuf_pointer);
+       if F > (Length(aData)-1) then Break;
+       used_len:=F;
+     end;
+   aData_massive_pointer:=used_len+1;
+   fBuf_pointer:=0;
 
-  For F := vBufCount to vCount + vBufCount - 1 do
-    Begin
-      if fBufCount >= 10 then
-        Break;
-      fBuf[F] := aData[F - vBufCount];
-      Inc(fBufCount);
-    end;
+//   if fBufCount >= 10 then
+     begin
+       ss := '';
+       For F := 0 To packet_size - 1 do
+         ss := ss + IntToHex(fBuf[F],2) + ' ';
 
-  if fBufCount >= 10 then
-    begin
-      ss := '';
-      For F := 0 To fBufCount - 1 do
-        ss := ss + IntToHex(fBuf[F],2) + ' ';
-
-//      Memo1.Lines.Add(ss);
-      //-----------------------------------------------------------------------------------
-
-//  if Result then begin
+//-----------------------------------------------------------------------------------
 if ((fBuf[0] = $d1) and (fBuf[9] = $d2)) then begin
   Fon :=0;
   IMPS :=0;
 
   count_validate := 0;
   count_interval := 0;
-    IMPS := (fBuf[1] shl 8)+fBuf[2]; // собираем 2 чара
-    Fon := ((fBuf[3] shl 16)+(fBuf[4] shl 8))+fBuf[5]; // собираем 3 чара
-    Voltage_level := (fBuf[6] shl 8)+fBuf[7]; // собираем 2 чара
-    count_validate := 0;
-    count_interval := 30;
+  IMPS := (fBuf[1] shl 8)+fBuf[2]; // собираем 2 чара
+  Fon := ((fBuf[3] shl 16)+(fBuf[4] shl 8))+fBuf[5]; // собираем 3 чара
+  Voltage_level := (fBuf[6] shl 8)+fBuf[7]; // собираем 2 чара
+  count_validate := 0;
+  count_interval := 30;
 
-    // обработчик тревоги
-    if (alarmenable and (fon > alarmlevel) and (d_minute mod 2 = 0) and (d_second mod 10 = 0)) then
-    begin
+  // обработчик тревоги
+  if (alarmenable and (fon > alarmlevel) and (d_minute mod 2 = 0) and (d_second mod 10 = 0)) then
+  begin
     MyTray.BalloonHint('ТРЕВОГА!','Фон более '+IntToStr(alarmlevel)+'мкР/ч',TBalloonType(3),5000,true);
     PlaySound('alarm', hInstance, SND_RESOURCE);
-    end;
+  end;
 
-    // обработчик тревоги
+  // обработчик тревоги
+  if maxfon < fon then maxfon:=fon;
 
-    if maxfon < fon then maxfon:=fon;
-
-    // вычисляем пределы импульсов
-    impps[0] := IMPS;
-    divgraphimp := 3;
-    for ia := 60 downto 1 do //?
-    begin
+  // вычисляем пределы импульсов
+  impps[0] := IMPS;
+  divgraphimp := 3;
+  for ia := 60 downto 1 do //?
+  begin
     impps[ia] := impps[ia-1];
     if impps[ia] > divgraphimp then divgraphimp := impps[ia];
-    end;
-    impps[0] := 0;
+  end;
+  impps[0] := 0;
 
-    // вычисляем пределы фона
-    fonps[0] := fon;
-    divgraph := 6;
-    for ia := 61 downto 1 do
-    begin
+  // вычисляем пределы фона
+  fonps[0] := fon;
+  divgraph := 6;
+  for ia := 61 downto 1 do
+  begin
     fonps[ia] := fonps[ia-1];
     if fonps[ia] > divgraph then divgraph := fonps[ia];
-    end;
-    fonps[0] := 0;
-
-//    if (fon > 1500) then
-//    begin
-//      Fon_units := 'МР/Ч';
-//
-//      fon := fon div 1000;
-//    end
-//    else
-    begin
-      Fon_units := 'мкР/ч';
-    end;
-
-    Label15.Caption := IntToStr(fon);
-    Label18.Caption := fon_units;
-
-    if count_interval >0 then
-    count_validate_percent := (100*(count_interval-count_validate)) div count_interval;
-
-    Label19.Caption := 'Интервал счёта '+IntToStr(count_interval)+' секунд(ы) - '+IntToStr(count_validate_percent)+'%';
-
-    SetLength(vAns, 1);
-    if(doze_loading_flag = true) then vAns[0]:=$32;
-    if(maxfon_loading_flag=true) then vAns[0]:=$31;
-    RS232.Send(vAns);
-
-    sleep(30);
-    RS232.StopListner;
-    RS232.Close;
-
   end;
+  fonps[0] := 0;
+  Fon_units := 'мкР/ч';
+
+  Label15.Caption := IntToStr(fon);
+  Label18.Caption := fon_units;
+
+  if count_interval >0 then count_validate_percent := (100*(count_interval-count_validate)) div count_interval;
+
+  Label19.Caption := 'Интервал счёта '+IntToStr(count_interval)+' секунд(ы) - '+IntToStr(count_validate_percent)+'%';
+
+  SetLength(vAns, 1);
+  if(doze_loading_flag = true) then vAns[0]:=$32;
+  if(maxfon_loading_flag=true) then vAns[0]:=$31;
+
+StopRS232:= TRUE;
+end;
+//-----------------------------------------------------------------------------------
+
+
 
 //-----------------------------------------------------------------------------------
 if ((fBuf[0] = $f1) and (fBuf[9] = $f2)) then begin // загрузка элемента массива максимального фона
@@ -1358,13 +1353,11 @@ if ((fBuf[0] = $f1) and (fBuf[9] = $f2)) then begin // загрузка элемента массива
       if(max_fon_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
 
-// !!!!! Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     max_fon_massive[address]:=massive_element;
     max_fon_massive_ready[address]:=true;
     SetLength(vAns, 1);
     vAns[0]:=$31;
     maxfon_loading_flag:=true;
-    RS232.Send(vAns);
   end
   else
   begin
@@ -1372,7 +1365,6 @@ if ((fBuf[0] = $f1) and (fBuf[9] = $f2)) then begin // загрузка элемента массива
     vAns[0]:=$32;
     maxfon_loading_flag:=false;
     doze_loading_flag:=true;
-    RS232.Send(vAns);
   end;
 
 end;
@@ -1392,29 +1384,6 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
 
   if (address < 1007) then
   begin
-
-        // Загрузка данных на сервер
-
-    if((massive_element <> 0) and (Fix_error_now=false)) then
-    begin
-      reg := TRegistry.Create;                              // Открываем реестр
-      reg.RootKey := HKEY_CURRENT_USER;
-      reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
-      key := reg.ReadString('Reg_key');
-      reg.CloseKey;                                          // Закрываем раздел
-      AIdHTTP := TIdHTTP.Create(nil);
-      AIdHTTP.HandleRedirects := true;
-
-      try
-        AIdHTTP.Get(  Concat('http://upload.xn--h1aeegel.net/upload.php?shift=',IntToStr(address),'&id=',key,'&fon=',IntToStr(((massive_element * geiger_seconds_count) Div 600))));
-      except
-        begin
-        end;
-      end;
-      AIdHTTP.Disconnect;
-      AIdHTTP.Free;
-    end;
-
     if Fix_error_now=false then
     begin
       Unit1.Form1.impulses.Caption:=   IntToStr(address Div 10)+'%';
@@ -1429,13 +1398,12 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
     SetLength(vAns, 1);
     vAns[0]:=$32;
     doze_loading_flag:=true;
-    RS232.Send(vAns);
   end
   else
   begin
     SetLength(vAns, 1);
     vAns[0]:=$39;
-    RS232.Send(vAns);
+    StopRS232:=TRUE;
 
     Unit1.Form1.errors.Caption:='0';
     for iy := 0 to 1006 do begin
@@ -1447,6 +1415,36 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
     begin
       USB_massive_loading:=false;
       Draw_massive();
+
+/////////////////////////////////////////////////////////////////////////////////////
+  // Загрузка данных на сервер
+    begin
+      reg := TRegistry.Create;                              // Открываем реестр
+      reg.RootKey := HKEY_CURRENT_USER;
+      reg.OpenKey('Software\USB_Geiger\USB_Geiger', false);
+      key := reg.ReadString('Reg_key');
+      reg.CloseKey;                                          // Закрываем раздел
+
+      data := TIdMultiPartFormDataStream.Create;
+      AIdHTTP := TIdHTTP.Create(nil);
+      AIdHTTP.HandleRedirects := true;
+
+      try
+        // добавляем нужные параметры
+        for ix := 0 to 1007 do begin
+          data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
+        end;
+        IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);
+      except
+        begin
+        end;
+      end;
+      AIdHTTP.Disconnect;
+      AIdHTTP.Free;
+      data.Free;
+    end;
+/////////////////////////////////////////////////////////////////////////////////////
+
       Unit1.Form1.Close;
       maxfon_loading_flag:=false;
       doze_loading_flag:=false;
@@ -1458,7 +1456,6 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
       Fix_error_now:=true;
       SetLength(vAns, 1);
       vAns[0]:=$31;
-      RS232.Send(vAns);
     end;
   end;
 
@@ -1479,15 +1476,28 @@ end;
 
 end;
 
-  If vBufCount + vCount > 10 then
-    Begin
-      fBufCount := 0;
-      For F := 0 to vCount - (vBufCount - 10) - 1 do
-        begin
-          fBuf[F] := aData[F + (vBufCount - 10)];
-          Inc(fBufCount);
-        end;
-    end;
+end;
+
+RS232.Send(vAns);
+if(StopRS232 = TRUE) then
+begin
+  RS232.StopListner;
+  RS232.Close;
+end;
+
+
+//   If vBufCount + vCount > 10 then
+//     Begin
+//       fBufCount := 0;
+//       For F := 0 to vCount - (vBufCount - 10) - 1 do
+//         begin
+//           fBuf[F] := aData[F + (vBufCount - 10)];
+//           Inc(fBufCount);
+//         end;
+//     end;
+
+
+
 if(USB_massive_loading = false) then
 begin
   RS232.StopListner;
