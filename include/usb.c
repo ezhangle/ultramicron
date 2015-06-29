@@ -9,10 +9,11 @@
 #include "keys.h"
 #include "clock.h"
 
-extern __IO uint8_t Receive_Buffer[64];
+extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;
 extern __IO  uint32_t length ;
-uint8_t Send_Buffer[64];
+extern __IO  uint32_t Send_length ;
+uint8_t Send_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 uint32_t packet_sent=1;
 uint32_t packet_receive=1;
 
@@ -51,24 +52,20 @@ void USB_work()
 					if(Receive_Buffer[0] == 0xD4) // передача основных данных в USB Gaiger
 					{
 						USB_send_madorc_data();
-						CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);
 					}
 					if(Receive_Buffer[0] == 0x31) // передача массива максимального фона
 					{
-						USB_send_maxfon_data();
-						CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);
+						Send_length = prepare_data(max_fon_massive, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
 					}
 					if(Receive_Buffer[0] == 0x32) // передача массива дозы
 					{
-						USB_send_doze_data();
-						CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);
+						Send_length = prepare_data(Doze_massive,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
 					}
 					if(Receive_Buffer[0] == 0x33) // передача настроек
 					{
 						USB_maxfon_massive_pointer=0;
 						USB_doze_massive_pointer=0;
 						USB_send_settings_data();
-						CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);
 					}
 					if(Receive_Buffer[0] == 0x39) // завершение передачи
 					{
@@ -77,8 +74,9 @@ void USB_work()
 					}
 
 					Receive_length = 0;
-				
-				delay_ms(1);
+					if(Send_length>0)	CDC_Send_DATA ((unsigned char*)Send_Buffer,Send_length);
+					while(packet_sent != 1);
+					Send_length=0;
 			}
 		}
 // -----------------------------------------------------------------------------------------------------------------------
@@ -97,6 +95,57 @@ void USB_work()
 	}
 
 }
+
+// =========================================================================================
+uint8_t prepare_data(uint32_t *massive, uint16_t *massive_pointer, uint8_t start_key, uint8_t end_key) // Подготовка массива данных к передаче
+{
+  uint8_t i;
+	uint8_t address_hi=0;
+  uint8_t address_lo=0;
+	uint8_t fon_1_4=0;
+  uint8_t fon_2_4=0;
+  uint8_t fon_3_4=0;
+  uint8_t fon_4_4=0;
+  uint32_t crc=0;                // контрольная сумма
+	uint8_t used_lenght=0;
+	
+	while(used_lenght <= (VIRTUAL_COM_PORT_DATA_SIZE-10))
+	{
+		address_lo =  *massive_pointer       & 0xff;	
+		address_hi = (*massive_pointer >> 8) & 0xff;	
+	
+		fon_1_4 =  massive[*massive_pointer]        & 0xff;       
+		fon_2_4 = (massive[*massive_pointer] >> 8)  & 0xff; 
+		fon_3_4 = (massive[*massive_pointer] >> 16) & 0xff;
+		fon_4_4 = (massive[*massive_pointer] >> 24) & 0xff;
+		*massive_pointer = *massive_pointer + 1;
+
+		Send_Buffer[used_lenght  ]=start_key;                                  // передать ключ
+		Send_Buffer[used_lenght+1]=address_hi;                                 // передать по УСАПП 
+		Send_Buffer[used_lenght+2]=address_lo;                                 // передать по УСАПП 
+		Send_Buffer[used_lenght+3]=fon_4_4;                                    // передать по УСАПП 
+		Send_Buffer[used_lenght+4]=fon_3_4;                                    // передать по УСАПП 
+		Send_Buffer[used_lenght+5]=fon_2_4;                                    // передать по УСАПП 
+		Send_Buffer[used_lenght+6]=fon_1_4;                                    // передать по УСАПП 
+		Send_Buffer[used_lenght+7]=0xFF;                                       // передать по УСАПП 
+    
+		for(i=1;i<8;i++)																												//расчет контрольной суммы
+			crc+=Send_Buffer[used_lenght+i]; 
+
+		Send_Buffer[used_lenght+8]=crc & 0xff;  	                              // передать контрольную сумму
+		Send_Buffer[used_lenght+9]=end_key;       	                            // передать ключь окончания передачи
+	
+		used_lenght+=10;
+
+		if(*massive_pointer>=doze_length_week)
+		{
+			*massive_pointer=0;
+			return used_lenght;
+		}
+	}
+	return used_lenght;
+}
+// =========================================================================================
 
 
 void USB_send_madorc_data()
@@ -125,98 +174,19 @@ void USB_send_madorc_data()
 	fonHi = (fon_level >> 8) & 0xff;                             // разбить индекс на старший байт  
 	fonMegaHi = (fon_level >> 16) & 0xff;                        // разбить индекс на старший байт  
 
-	Receive_Buffer[0]=0xD1;                                      // передать ключь Marorc
-	Receive_Buffer[1]=impulseHi;                                 // передать по УСАПП 
-	Receive_Buffer[2]=impulseLo;                                 // передать по УСАПП 
-	Receive_Buffer[3]=fonMegaHi;                                 // передать по УСАПП 
-	Receive_Buffer[4]=fonHi;                                     // передать по УСАПП 
-	Receive_Buffer[5]=fonLo;                                     // передать по УСАПП 
-	Receive_Buffer[6]=voltIndexHi;                               // передать по УСАПП 
-	Receive_Buffer[7]=voltIndexLo;                               // передать по УСАПП 
-                              	for(i=1;i<8;i++)crc+=Receive_Buffer[i]; //расчет контрольной суммы
-	Receive_Buffer[8]=crc & 0xff;                                // передать контрольную сумму
-	Receive_Buffer[9]=0xD2;                                      // передать ключь окончания передачи
+	Send_Buffer[0]=0xD1;                                      // передать ключь Marorc
+	Send_Buffer[1]=impulseHi;                                 // передать по УСАПП 
+	Send_Buffer[2]=impulseLo;                                 // передать по УСАПП 
+	Send_Buffer[3]=fonMegaHi;                                 // передать по УСАПП 
+	Send_Buffer[4]=fonHi;                                     // передать по УСАПП 
+	Send_Buffer[5]=fonLo;                                     // передать по УСАПП 
+	Send_Buffer[6]=voltIndexHi;                               // передать по УСАПП 
+	Send_Buffer[7]=voltIndexLo;                               // передать по УСАПП 
+  for(i=1;i<8;i++)crc+=Send_Buffer[i]; //расчет контрольной суммы
+	Send_Buffer[8]=crc & 0xff;                                // передать контрольную сумму
+	Send_Buffer[9]=0xD2;                                      // передать ключь окончания передачи
 	
-	Receive_length=10;
-}
-
-void USB_send_maxfon_data()
-{
-//---------------------------------------------КомПорт для MadOrc------------------------------------
-  uint8_t i;
-	uint8_t address_hi=0;
-  uint8_t address_lo=0;
-	uint8_t fon_1_4=0;
-  uint8_t fon_2_4=0;
-  uint8_t fon_3_4=0;
-  uint8_t fon_4_4=0;
-  uint32_t crc=0;                // контрольная сумма
-
-  address_lo =  USB_maxfon_massive_pointer       & 0xff;	
-  address_hi = (USB_maxfon_massive_pointer >> 8) & 0xff;	
-	
-	fon_1_4 =  max_fon_massive[USB_maxfon_massive_pointer]        & 0xff;       
-	fon_2_4 = (max_fon_massive[USB_maxfon_massive_pointer] >> 8)  & 0xff; 
-	fon_3_4 = (max_fon_massive[USB_maxfon_massive_pointer] >> 16) & 0xff;
-	fon_4_4 = (max_fon_massive[USB_maxfon_massive_pointer] >> 24) & 0xff;
-	USB_maxfon_massive_pointer++;
-	
-	if(USB_maxfon_massive_pointer<=doze_length_week)
-	{
-		Receive_Buffer[0]=0xF1;                                       // передать ключь
-		Receive_Buffer[1]=address_hi;                                 // передать по УСАПП 
-		Receive_Buffer[2]=address_lo;                                 // передать по УСАПП 
-		Receive_Buffer[3]=fon_4_4;                                    // передать по УСАПП 
-		Receive_Buffer[4]=fon_3_4;                                    // передать по УСАПП 
-		Receive_Buffer[5]=fon_2_4;                                    // передать по УСАПП 
-		Receive_Buffer[6]=fon_1_4;                                    // передать по УСАПП 
-		Receive_Buffer[7]=0xFF;                                       // передать по УСАПП 
-                              	for(i=1;i<8;i++)crc+=Receive_Buffer[i]; //расчет контрольной суммы
-		Receive_Buffer[8]=crc & 0xff;                                 // передать контрольную сумму
-		Receive_Buffer[9]=0xF2;                                       // передать ключь окончания передачи
-	
-		Receive_length=10;
-	}else USB_maxfon_massive_pointer=0;
-}
-
-
-void USB_send_doze_data()
-{
-//---------------------------------------------КомПорт для MadOrc------------------------------------
-  uint8_t i;
-	uint8_t address_hi=0;
-  uint8_t address_lo=0;
-	uint8_t doze_1_4=0;
-  uint8_t doze_2_4=0;
-  uint8_t doze_3_4=0;
-  uint8_t doze_4_4=0;
-  uint32_t crc=0;                // контрольная сумма
-
-  address_lo =  USB_doze_massive_pointer       & 0xff;	
-  address_hi = (USB_doze_massive_pointer >> 8) & 0xff;	
-	
-	doze_1_4 =  Doze_massive[USB_doze_massive_pointer]        & 0xff;       
-	doze_2_4 = (Doze_massive[USB_doze_massive_pointer] >> 8)  & 0xff; 
-	doze_3_4 = (Doze_massive[USB_doze_massive_pointer] >> 16) & 0xff;
-	doze_4_4 = (Doze_massive[USB_doze_massive_pointer] >> 24) & 0xff;
-	USB_doze_massive_pointer++;
-	
-	if(USB_doze_massive_pointer<=doze_length_week)
-	{
-		Receive_Buffer[0]=0xF3;                                       // передать ключь
-		Receive_Buffer[1]=address_hi;                                 // передать по УСАПП 
-		Receive_Buffer[2]=address_lo;                                 // передать по УСАПП 
-		Receive_Buffer[3]=doze_4_4;                                    // передать по УСАПП 
-		Receive_Buffer[4]=doze_3_4;                                    // передать по УСАПП 
-		Receive_Buffer[5]=doze_2_4;                                    // передать по УСАПП 
-		Receive_Buffer[6]=doze_1_4;                                    // передать по УСАПП 
-		Receive_Buffer[7]=0xFF;                                       // передать по УСАПП 
-                              	for(i=1;i<8;i++)crc+=Receive_Buffer[i]; //расчет контрольной суммы
-		Receive_Buffer[8]=crc & 0xff;                                 // передать контрольную сумму
-		Receive_Buffer[9]=0xF4;                                       // передать ключь окончания передачи
-	
-		Receive_length=10;
-	}else USB_doze_massive_pointer=0;
+	Send_length=10;
 }
 
 
@@ -230,19 +200,19 @@ void USB_send_settings_data()
 
   count_time_lo =  Settings.Second_count       & 0xff;	
   count_time_hi = (Settings.Second_count >> 8) & 0xff;	
-		Receive_Buffer[0]=0xF5;                                       // передать ключь
-		Receive_Buffer[1]=count_time_hi;                                 // передать по УСАПП 
-		Receive_Buffer[2]=count_time_lo;                                 // передать по УСАПП 
-		Receive_Buffer[3]=0xFF;                                    // передать по УСАПП 
-		Receive_Buffer[4]=0xFF;                                    // передать по УСАПП 
-		Receive_Buffer[5]=0xFF;                                    // передать по УСАПП 
-		Receive_Buffer[6]=0xFF;                                    // передать по УСАПП 
-		Receive_Buffer[7]=0xFF;                                       // передать по УСАПП 
-                              	for(i=1;i<8;i++)crc+=Receive_Buffer[i]; //расчет контрольной суммы
-		Receive_Buffer[8]=crc & 0xff;                                 // передать контрольную сумму
-		Receive_Buffer[9]=0xF6;                                       // передать ключь окончания передачи
+		Send_Buffer[0]=0xF5;                                       // передать ключь
+		Send_Buffer[1]=count_time_hi;                                 // передать по УСАПП 
+		Send_Buffer[2]=count_time_lo;                                 // передать по УСАПП 
+		Send_Buffer[3]=0xFF;                                    // передать по УСАПП 
+		Send_Buffer[4]=0xFF;                                    // передать по УСАПП 
+		Send_Buffer[5]=0xFF;                                    // передать по УСАПП 
+		Send_Buffer[6]=0xFF;                                    // передать по УСАПП 
+		Send_Buffer[7]=0xFF;                                       // передать по УСАПП 
+    for(i=1;i<8;i++)crc+=Send_Buffer[i]; //расчет контрольной суммы
+		Send_Buffer[8]=crc & 0xff;                                 // передать контрольную сумму
+		Send_Buffer[9]=0xF6;                                       // передать ключь окончания передачи
 	
-		Receive_length=10;
+		Send_length=10;
 }
 
 
