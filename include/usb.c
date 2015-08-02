@@ -55,11 +55,11 @@ void USB_work()
 					}
 					if(Receive_Buffer[0] == 0x31) // передача массива максимального фона
 					{
-						Send_length = prepare_data(max_fon_massive, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
+						Send_length = prepare_data(ram_max_fon_massive, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
 					}
 					if(Receive_Buffer[0] == 0x32) // передача массива дозы
 					{
-						Send_length = prepare_data(Doze_massive,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
+						Send_length = prepare_data(ram_Doze_massive,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
 					}
 					if(Receive_Buffer[0] == 0x33) // передача настроек
 					{
@@ -137,7 +137,7 @@ uint8_t prepare_data(uint32_t *massive, uint16_t *massive_pointer, uint8_t start
 	
 		used_lenght+=10;
 
-		if(*massive_pointer>=doze_length_week)
+		if(*massive_pointer>=doze_length)
 		{
 			*massive_pointer=0;
 			return used_lenght;

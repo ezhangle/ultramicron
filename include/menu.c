@@ -74,10 +74,10 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSE10M); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 	
-			if(Doze_massive[1]>0)
+			if(ram_Doze_massive[1]>0)
 			{
 				//фон за час massive/(3600/время счета)
-				sprintf (lcd_buf, LANG_9UMKR, (Doze_massive[1]*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
+				sprintf (lcd_buf, LANG_9UMKR, (ram_Doze_massive[1]*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
 			}
@@ -88,7 +88,7 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSEHOUR); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
-			if(Doze_massive[6]>0)
+			if(ram_Doze_massive[6]>0)
 			{
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_hour_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
@@ -101,27 +101,35 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSE24H); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 
-			if(Doze_massive[doze_length_day]>0)
+		sprintf (lcd_buf, LANG_9UMKR, (*(__IO uint32_t*)(FLASH_START_ADDR+4)));
+		
+		
+/*			if(ram_Doze_massive[doze_length_day]>0)
 			{
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_day_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
 			}
-
+*/
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
   // -----------------------------------------
 		case 0x05:
 			sprintf (lcd_buf, LANG_DOSEWEEK); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
+  /* Check the written data */
 
-			if(Doze_massive[doze_length_week]>0)
+
+		sprintf (lcd_buf, LANG_9UMKR, (*(__IO uint32_t*)FLASH_START_ADDR));
+
+		/*
+			if(ram_Doze_massive[doze_length]>0)
 			{
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_week_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
 			}
-
+*/
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
   // -----------------------------------------

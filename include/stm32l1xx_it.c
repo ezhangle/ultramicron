@@ -11,6 +11,7 @@
 #include "usb.h"
 #include "rtc.h"
 #include "keys.h"
+#include "flash_save.h"
 
 
 
@@ -227,7 +228,7 @@ void EXTI9_5_IRQHandler(void)
 		if(!poweroff_state)  
 		{		
 			Detector_massive[Detector_massive_pointer]++;  // Добавляем пойманную частицу к счетчику  
-			Doze_massive[0]++;	           					// Увеличение суточного массива дозы
+			ram_Doze_massive[0]++;	           					// Увеличение суточного массива дозы
 
 			if(Power.Pump_active==DISABLE)
 			{
@@ -442,25 +443,39 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 			// Сдвиг массива дозы
 			if(DataUpdate.doze_sec_count>=150) // каждые 10 минут
 			{
+				// -----------------------------------------------------
+				DataUpdate.doze_count++;
+				if(DataUpdate.doze_count>32) // Запись страницы во Flash
+				{
+					DataUpdate.doze_count=0;
+					flash_write_page(DataUpdate.current_flash_page);
+					DataUpdate.current_flash_page++;
+					if(DataUpdate.current_flash_page > ((((FLASH_END_ADDR-FLASH_START_ADDR)+1)/FLASH_PAGE_SIZE))) // если за границами диапазона
+						DataUpdate.current_flash_page=0;
+				}
+				// -----------------------------------------------------
+
 				Doze_week_count=0;
 				Doze_day_count=0;
 				Doze_hour_count=0;
 				Max_fon=0;
-				for(i=doze_length_week;i>0;i--)
+				for(i=doze_length;i>0;i--)
 				{
-					Doze_massive[i]=Doze_massive[i-1];                        // сдвиг массива дозы
-					max_fon_massive[i]=max_fon_massive[i-1];                  // сдвиг массива максимального фона
-					if(max_fon_massive[i]>Max_fon)Max_fon=max_fon_massive[i]; // расчет максимального фона
-					if(i<7)              Doze_hour_count+=Doze_massive[i];    // расчет часовой дозы
-					if(i<doze_length_day)Doze_day_count +=Doze_massive[i];    // расчет дневной дозы
-															 Doze_week_count+=Doze_massive[i];    // расчет недельной дозы
+					ram_Doze_massive[i]=ram_Doze_massive[i-1];                        // сдвиг массива дозы
+					ram_max_fon_massive[i]=ram_max_fon_massive[i-1];                  // сдвиг массива максимального фона
+					if(ram_max_fon_massive[i]>Max_fon)Max_fon=ram_max_fon_massive[i]; // расчет максимального фона
+					if(i<7)              Doze_hour_count+=ram_Doze_massive[i];    // расчет часовой дозы
+//					if(i<doze_length_day)Doze_day_count +=ram_Doze_massive[i];    // расчет дневной дозы
+//															 Doze_week_count+=ram_Doze_massive[i];    // расчет недельной дозы
 				}
-				Doze_massive[0]=0;
-				max_fon_massive[0]=0;
+				ram_Doze_massive[0]=0;
+				ram_max_fon_massive[0]=0;
 				DataUpdate.doze_sec_count=0;
+
 			} else DataUpdate.doze_sec_count++;
-			////////////////////////////////////////////////////
-	
+			////////////////////////////////////////////////////	
+
+			
 			////////////////////////////////////////////////////    
 				if(Detector_massive[Detector_massive_pointer]>9)
 				{	
@@ -504,7 +519,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 					if(auto_speedup_factor==1)fon_level-=Detector_massive[Detector_massive_pointer];
 					Detector_massive[Detector_massive_pointer]=0;
 				}
-				if(fon_level>max_fon_massive[0])max_fon_massive[0]=fon_level; // заполнение массива максимального фона
+				if(fon_level>ram_max_fon_massive[0])ram_max_fon_massive[0]=fon_level; // заполнение массива максимального фона
 			
 				DataUpdate.Need_fon_update=ENABLE;
 			////////////////////////////////////////////////////
