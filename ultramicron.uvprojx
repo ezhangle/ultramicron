@@ -85,7 +85,7 @@
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -310,7 +310,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8003000</StartAddress>
-                <Size>0x1d000</Size>
+                <Size>0xd000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -844,7 +844,7 @@
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -1069,7 +1069,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8003000</StartAddress>
-                <Size>0x1d000</Size>
+                <Size>0xd000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -1603,7 +1603,7 @@
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -1828,7 +1828,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8003000</StartAddress>
-                <Size>0x1d000</Size>
+                <Size>0xd000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -2587,7 +2587,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8003000</StartAddress>
-                <Size>0x1d000</Size>
+                <Size>0xd000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -3346,7 +3346,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8003000</StartAddress>
-                <Size>0x1d000</Size>
+                <Size>0xd000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -4105,7 +4105,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8003000</StartAddress>
-                <Size>0x1d000</Size>
+                <Size>0xd000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -4864,7 +4864,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8003000</StartAddress>
-                <Size>0x1d000</Size>
+                <Size>0xd000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
