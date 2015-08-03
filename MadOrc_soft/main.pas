@@ -58,7 +58,6 @@ type
     RadioButton3: TRadioButton;
     RadioButton4: TRadioButton;
     Timer1: TTimer;
-    Label3: TLabel;
     PortSub: TMenuItem;
     COM11: TMenuItem;
     COM21: TMenuItem;
@@ -185,7 +184,6 @@ var
   d_day: ulong = 0;
   maxfon: ulong = 0;
   serial_active:  boolean = false;
-  iTick: ulong=0;
   comport_number: uint = 1;
   USB_massive_loading: boolean = false;
   max_fon_massive: array[0..10080] of UInt32;
@@ -830,7 +828,6 @@ begin
 
   if (RS232.Active)then
   begin
-   iTick:=GetTickCount;
    DevPresent:=true;
 
    SetLength(vAns, 1);
@@ -950,7 +947,6 @@ if(USB_massive_loading = false) then begin
 
     if (RS232.Active)then
     begin
-     iTick:=GetTickCount;
      DevPresent:=true;
      SetLength(vAns, 1);
      vAns[0]:=$d4;
@@ -1534,7 +1530,6 @@ begin
   begin
    Voltage.Caption:='Напряжение АКБ: '+IntToStr(Voltage_level Div 1000)+'.0'+IntToStr((Voltage_level Div 10) Mod 100)+' В';
   end;
-  Label3.Caption:='Время передачи данных: '+IntToStr(GetTickCount-iTick)+ 'ms';
 end;
 end;
 //================================================================================================================

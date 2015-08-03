@@ -122,14 +122,11 @@ Coordinates=410,146,53,58
 Coordinates=288,461,65,36
 
 []
-Coordinates=219,427,59,58
+Coordinates=88,1,53,58
 Visible=True
 
 [Timer1]
 Coordinates=88,78,55,36
-
-[Label3]
-Coordinates=88,1,53,58
 
 [COM41]
 Coordinates=477,269,58,36
