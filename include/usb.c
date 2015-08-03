@@ -103,6 +103,7 @@ void USB_work()
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key, uint8_t end_key) // Подготовка массива данных к передаче
 {
+	uint8_t data_key=0;
 	uint8_t address_hi=0;
   uint8_t address_lo=0;
 	uint8_t fon_1_4=0;
@@ -117,16 +118,56 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 		address_lo =  *massive_pointer       & 0xff;	
 		address_hi = (*massive_pointer >> 8) & 0xff;	
 
-		if(mode == max_fon_select)tmp=flash_read_max_fon_massive(*massive_pointer);
-		if(mode == dose_select)tmp=flash_read_Doze_massive(*massive_pointer);
+		if(mode == max_fon_select)
+		{
+			if (flash_read_max_fon_massive((*massive_pointer))  <0xff &&
+					flash_read_max_fon_massive((*massive_pointer)+1)<0xff &&
+					flash_read_max_fon_massive((*massive_pointer)+2)<0xff &&
+					flash_read_max_fon_massive((*massive_pointer)+3)<0xff)
+			{	// Если возможно сжатие массива
+				data_key=start_key-0x70;
+				fon_1_4 = flash_read_max_fon_massive((*massive_pointer))   & 0xff; 
+				fon_2_4 = flash_read_max_fon_massive((*massive_pointer)+1) & 0xff; 
+				fon_3_4 = flash_read_max_fon_massive((*massive_pointer)+2) & 0xff;
+				fon_4_4 = flash_read_max_fon_massive((*massive_pointer)+3) & 0xff;
+				*massive_pointer = *massive_pointer + 4;
+			}	else { // Если данные сжать нельзя
+				data_key=start_key;
+				tmp=flash_read_max_fon_massive(*massive_pointer);
+				fon_1_4 =  tmp        & 0xff;       
+				fon_2_4 = (tmp >> 8)  & 0xff; 
+				fon_3_4 = (tmp >> 16) & 0xff;
+				fon_4_4 = (tmp >> 24) & 0xff;
+				*massive_pointer = *massive_pointer + 1;
+			}
+		}
 		
-		fon_1_4 =  tmp        & 0xff;       
-		fon_2_4 = (tmp >> 8)  & 0xff; 
-		fon_3_4 = (tmp >> 16) & 0xff;
-		fon_4_4 = (tmp >> 24) & 0xff;
-		*massive_pointer = *massive_pointer + 1;
+		if(mode == dose_select)
+		{
+			if (flash_read_Doze_massive((*massive_pointer))  <0xff &&
+					flash_read_Doze_massive((*massive_pointer)+1)<0xff &&
+					flash_read_Doze_massive((*massive_pointer)+2)<0xff &&
+					flash_read_Doze_massive((*massive_pointer)+3)<0xff)
+			{	// Если возможно сжатие массива
+				data_key=start_key-0x70;
+				fon_1_4 = flash_read_Doze_massive((*massive_pointer))   & 0xff; 
+				fon_2_4 = flash_read_Doze_massive((*massive_pointer)+1) & 0xff; 
+				fon_3_4 = flash_read_Doze_massive((*massive_pointer)+2) & 0xff;
+				fon_4_4 = flash_read_Doze_massive((*massive_pointer)+3) & 0xff;
+				*massive_pointer = *massive_pointer + 4;
+			}	else { // Если данные сжать нельзя
+				data_key=start_key;
+				tmp=flash_read_Doze_massive(*massive_pointer);
+				fon_1_4 =  tmp        & 0xff;       
+				fon_2_4 = (tmp >> 8)  & 0xff; 
+				fon_3_4 = (tmp >> 16) & 0xff;
+				fon_4_4 = (tmp >> 24) & 0xff;
+				*massive_pointer = *massive_pointer + 1;
+			}
+		}
+		
 
-		Send_Buffer[used_lenght  ]=start_key;                                  // передать ключ
+		Send_Buffer[used_lenght  ]=data_key;                                  // передать ключ
 		Send_Buffer[used_lenght+1]=address_hi;                                 // передать по УСАПП 
 		Send_Buffer[used_lenght+2]=address_lo;                                 // передать по УСАПП 
 		Send_Buffer[used_lenght+3]=fon_4_4;                                    // передать по УСАПП 

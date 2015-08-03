@@ -1330,7 +1330,7 @@ end;
 
 
 //-----------------------------------------------------------------------------------
-if (fBuf[0] = $f1)  then begin // загрузка элемента массива максимального фона
+if ((fBuf[0] = $f1) or (fBuf[0] = $81))  then begin // загрузка элемента массива максимального фона
 
   address:=         fBuf[1] shl 8;
   address:=address+ fBuf[2];
@@ -1340,19 +1340,32 @@ if (fBuf[0] = $f1)  then begin // загрузка элемента массива максимального фона
   massive_element:=massive_element+(fBuf[5] shl 8);
   massive_element:=massive_element+ fBuf[6];
 
-  if (address < 8129) then
+  if (address < 8063) then
   begin
     if Fix_error_now=false then
     begin
-      Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 81)+'%';
+      Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 80)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 81)+'%';
+      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 80)+'%';
       if(max_fon_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
 
     max_fon_massive[address]:=massive_element;
     max_fon_massive_ready[address]:=true;
+
+    if(fBuf[0] = $81) then begin
+      max_fon_massive[address]:=  fBuf[6];
+      max_fon_massive[address+1]:=fBuf[5];
+      max_fon_massive[address+2]:=fBuf[4];
+      max_fon_massive[address+3]:=fBuf[3];
+      max_fon_massive_ready[address]:=true;
+      max_fon_massive_ready[address+1]:=true;
+      max_fon_massive_ready[address+2]:=true;
+      max_fon_massive_ready[address+3]:=true;
+    end;
+
+
     SetLength(vAns, 1);
     vAns[0]:=$31;
     maxfon_loading_flag:=true;
@@ -1369,7 +1382,7 @@ end;
 //-----------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------
-if (fBuf[0] = $f3) then begin // загрузка элемента массива дозы
+if ((fBuf[0] = $f3) or (fBuf[0] = $83)) then begin // загрузка элемента массива дозы
 
   address:=         fBuf[1] shl 8;
   address:=address+ fBuf[2];
@@ -1384,14 +1397,26 @@ if (fBuf[0] = $f3) then begin // загрузка элемента массива дозы
   begin
     if Fix_error_now=false then
     begin
-      Unit1.Form1.impulses.Caption:=   IntToStr(address Div 81)+'%';
+      Unit1.Form1.impulses.Caption:=   IntToStr(address Div 80)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 81)+'%';
+      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 80)+'%';
       if(doze_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
     doze_massive[address]:=massive_element;
     doze_massive_ready[address]:=true;
+
+    if(fBuf[0] = $83) then begin
+      doze_massive[address]:=  fBuf[6];
+      doze_massive[address+1]:=fBuf[5];
+      doze_massive[address+2]:=fBuf[4];
+      doze_massive[address+3]:=fBuf[3];
+      doze_massive_ready[address]:=true;
+      doze_massive_ready[address+1]:=true;
+      doze_massive_ready[address+2]:=true;
+      doze_massive_ready[address+3]:=true;
+    end;
+
 
     SetLength(vAns, 1);
     vAns[0]:=$32;
@@ -1404,7 +1429,7 @@ if (fBuf[0] = $f3) then begin // загрузка элемента массива дозы
     StopRS232:=TRUE;
 
     Unit1.Form1.errors.Caption:='0';
-    for iy := 0 to 1006 do begin
+    for iy := 0 to 8063-1 do begin
       if(max_fon_massive_ready[iy]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
       if(doze_massive_ready[iy]=false)    then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)+1);
     end;
@@ -1433,6 +1458,7 @@ if (fBuf[0] = $f3) then begin // загрузка элемента массива дозы
           data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
         end;
         IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);
+        used_len:=(Length(aData)-1); // принудительно завершаем цикл
       except
         begin
         end;

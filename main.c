@@ -212,7 +212,7 @@ int main(void)
 	
 	delay_ms(500); // подождать установки напряжения
 	
-	//full_erase_flash();
+	full_erase_flash();
 		
   while(1) 
 /////////////////////////////////
