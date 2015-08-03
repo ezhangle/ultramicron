@@ -62,12 +62,12 @@ void minus_off(uint32_t *param) // откл
 void  plus_doze_reset(uint32_t *param) // —брос дозы
 {
 	int i;
-	for(i=doze_length_week;i>0;i--)
+	for(i=doze_length;i>0;i--)
 	{
-		Doze_massive[i]=0;
-		Doze_hour_count+=Doze_massive[i];
-		Doze_day_count+=Doze_massive[i];
-		Doze_week_count+=Doze_massive[i];
+		ram_Doze_massive[i]=0;
+		Doze_hour_count+=ram_Doze_massive[i];
+		Doze_day_count+=ram_Doze_massive[i];
+		Doze_week_count+=ram_Doze_massive[i];
 	}
 Doze_hour_count=0;
 Doze_day_count=0;

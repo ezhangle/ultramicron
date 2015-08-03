@@ -9,6 +9,7 @@
 #define U_ID_1 (*(uint32_t*) 0x1FF80054)
 #define U_ID_2 (*(uint32_t*) 0x1FF80064)
 
+
 #ifdef service
 	#define debug // отладка
 #endif
@@ -24,6 +25,9 @@ typedef struct
   uint8_t pump_counter_update_time;
 	uint16_t  doze_sec_count;                    // —лужебный счетчик дл€ времени дозы
 	uint16_t  days_sec_count;
+	uint16_t  doze_count;                    // —лужебный счетчик дл€ отметки окончани€ массива дозы
+	uint32_t  current_flash_page;                    // —лужебный счетчик дл€ отметки окончани€ массива дозы
+	FunctionalState Need_update_mainscreen_counters;
 //  uint8_t second_pump_counter;
 //  uint8_t pump_pulse_by_impulse_counter;
   
@@ -130,10 +134,22 @@ extern uint32_t ix_update;
 //#define count_seconds 75 // 
 extern uint16_t Detector_massive[120+1];
 
-#define doze_length_day 144 // 1 день интервалами по 10 минут
-#define doze_length_week 1008 // 7 дней интервалами по 10 минут  (6*24*10)=1008 (7 дней)
-extern uint32_t Doze_massive[doze_length_week+1]; // 1 €чейка = 10 минут
-extern uint32_t max_fon_massive[doze_length_week+1]; // 1 €чейка = 10 минут
+#define FLASH_PAGE_SIZE                 0x100
+#define FLASH_START_ADDR                0x0800F000
+#define FLASH_END_ADDR                  0x0801FFFF
+#define FLASH_MAX_ELEMENT               (FLASH_END_ADDR - FLASH_START_ADDR) / 4
+#define FLASH_MAX_PAGE                  (FLASH_END_ADDR - FLASH_START_ADDR)/FLASH_PAGE_SIZE 
+
+#define doze_length_10m      1 // 10 минут
+#define doze_length_hour     6 // 1 час    интервалами по 10 минут 60/10
+#define doze_length_day    144 // 1 день   интервалами по 10 минут (60/10)*24
+#define doze_length_week  1008 // 1 недел€ интервалами по 10 минут (60/10)*24*7
+#define doze_length_month 4320 // 1 мес€ц  интервалами по 10 минут (60/10)*24*30
+
+#define doze_length 32 // длинна массива в пам€ти
+
+extern uint32_t ram_Doze_massive[doze_length+1]; // 1 €чейка = 10 минут
+extern uint32_t ram_max_fon_massive[doze_length+1]; // 1 €чейка = 10 минут
 extern uint16_t USB_maxfon_massive_pointer;
 extern uint16_t USB_doze_massive_pointer;
 
@@ -141,6 +157,7 @@ extern uint16_t Doze_sec_count;
 extern uint32_t Doze_day_count;
 extern uint32_t Doze_hour_count;
 extern uint32_t Doze_week_count;
+extern uint32_t Doze_month_count;
 extern uint32_t Max_fon;
 extern uint8_t  main_menu_stat;
 extern uint32_t menu_select;

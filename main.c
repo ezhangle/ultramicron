@@ -19,7 +19,7 @@
 #include "clock.h"
 #include "power.h"
 #include "stm32l1xx_it.h"
-
+#include "flash_save.h"
 
 
 uint16_t key; // массив нажатых кнопок [012]
@@ -27,8 +27,8 @@ uint32_t ix;
 uint32_t ix_update;
 
 uint16_t Detector_massive[120+1];
-uint32_t Doze_massive[doze_length_week+1]; // 1 ячейка = 10 минут, на протяжении суток
-uint32_t max_fon_massive[doze_length_week+1]; // 1 ячейка = 10 минут, на протяжении суток
+uint32_t ram_Doze_massive[doze_length+1]; // 1 ячейка = 10 минут, на протяжении суток
+uint32_t ram_max_fon_massive[doze_length+1]; // 1 ячейка = 10 минут, на протяжении суток
 uint16_t USB_maxfon_massive_pointer=0;
 uint16_t USB_doze_massive_pointer=0;
 uint16_t current_pulse_count=0;
@@ -37,8 +37,9 @@ uint8_t pump_count=0;
 uint32_t Doze_day_count=0;
 uint32_t Doze_week_count=0;
 uint32_t Doze_hour_count=0;
+uint32_t Doze_month_count=0;
 uint32_t Max_fon=0;
-uint8_t  main_menu_stat=0;
+uint8_t  main_menu_stat=1;
 uint16_t Detector_massive_pointer=0;
 uint8_t  auto_speedup_factor=0;
 uint32_t USB_not_active=0;
@@ -151,20 +152,21 @@ int main(void)
 
 {
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH,0x3000);  
+
 	set_msi();
 	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, DISABLE);
-	
+		
   set_bor();
 	Power.sleep_now=DISABLE;
 	
   Settings.Geiger_voltage=360; // Напряжение на датчике 360 вольт
   Settings.Pump_Energy=350;    // энергия накачки 350 мТл
+	DataUpdate.current_flash_page=0;
 	
 	io_init(); // Инициализация потров МК
 
 	eeprom_write_default_settings(); // Проверка, заполнен ли EEPROM
   eeprom_read_settings(); // Чтение настроек из EEPROM
-	
   screen=1;
 	Power.USB_active=DISABLE;
 	Power.sleep_time=Settings.Sleep_time;
@@ -209,13 +211,19 @@ int main(void)
 	if(!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6))hidden_menu=ENABLE; // Открытие сервисных пунктов меню
 	
 	delay_ms(500); // подождать установки напряжения
+	
+	full_erase_flash();
+		
   while(1) 
 /////////////////////////////////
   {
 		if(DataUpdate.Need_fon_update==ENABLE)	geiger_calc_fon();
     if(key>0)																keys_proccessing();
 		if(DataUpdate.Need_batt_voltage_update)	adc_check_event();
-    
+
+		////////////////////////////////////////////////////
+
+		
 		if((Power.sleep_time>0)&(!Power.Display_active))sleep_mode(DISABLE); // Если дисплей еще выключен, а счетчик сна уже отсчитывает, поднимаем напряжение и включаем дисплей
     
 		if(Power.Display_active)

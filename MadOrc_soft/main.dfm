@@ -37301,19 +37301,6 @@ object mainFrm: TmainFrm
       ParentBiDiMode = False
       ParentFont = False
     end
-    object Label3: TLabel
-      Left = 13
-      Top = 120
-      Width = 149
-      Height = 13
-      Caption = #1042#1088#1077#1084#1103' '#1087#1077#1088#1077#1076#1072#1095#1080' '#1076#1072#1085#1085#1099#1093':'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clHighlightText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
     object Voltage: TLabel
       Left = 13
       Top = 95
@@ -38182,7 +38169,7 @@ object mainFrm: TmainFrm
     Left = 160
     Top = 8
     Bitmap = {
-      494C010105008C00140110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010105008C00380110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -38493,7 +38480,7 @@ object mainFrm: TmainFrm
     Top = 8
   end
   object Timer4: TTimer
-    Interval = 63000
+    Interval = 60000
     OnTimer = Timer4Timer
     Left = 320
     Top = 8
