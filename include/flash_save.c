@@ -1,7 +1,7 @@
 #include "stm32l1xx.h"
 #include "main.h"
 
-#pragma O0
+//#pragma O0
 
 #include "flash_save.h"
                     
@@ -139,7 +139,7 @@ uint32_t flash_read_Doze_massive(uint32_t virt_element)
 		return ram_Doze_massive[virt_element];
 	} else // >31
 	{
-		index=virt_element-doze_length;
+		index=virt_element-(DataUpdate.doze_count+1);
 		page=DataUpdate.current_flash_page;
 		if(page==0) //если достигли начала, взад!
 		{
@@ -154,9 +154,10 @@ uint32_t flash_read_Doze_massive(uint32_t virt_element)
 		{
 			if(index<doze_length) // Нашли нужную страничку
 			{
-				Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE); // вычисляем адрес начала страницы
-				Address = Address + (index*4); // Вычисляем адрес элемента на странице
+				Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE) + (index*4); // вычисляем адрес начала страницы
 				return 	(*(__IO uint32_t*)Address); // Читаем данные из флеша
+				//return 	(index*4); // Читаем данные из флеша
+				//return 	Address; // Читаем данные из флеша
 			}
 			else // Если индекс не в этой странице памяти
 			{
@@ -186,7 +187,7 @@ uint32_t flash_read_max_fon_massive(uint32_t virt_element)
 		return ram_max_fon_massive[virt_element];
 	} else // >31
 	{
-		index=virt_element-doze_length;
+		index=virt_element-(DataUpdate.doze_count+1);
 		page=DataUpdate.current_flash_page;
 		if(page==0) //если достигли начала, взад!
 		{
@@ -201,9 +202,10 @@ uint32_t flash_read_max_fon_massive(uint32_t virt_element)
 		{
 			if(index<doze_length) // Нашли нужную страничку
 			{
-				Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE); // вычисляем адрес начала страницы
-				Address = Address + (index*4) + (FLASH_PAGE_SIZE/2); // Вычисляем адрес элемента на странице
+				Address = FLASH_START_ADDR + (FLASH_PAGE_SIZE/2) + (page * FLASH_PAGE_SIZE) + (index*4); // вычисляем адрес начала страницы
 				return 	(*(__IO uint32_t*)Address); // Читаем данные из флеша
+				//return 	(index*4); // Читаем данные из флеша
+				//return 	Address; // Читаем данные из флеша
 			}
 			else // Если индекс не в этой странице памяти
 			{
@@ -220,3 +222,4 @@ uint32_t flash_read_max_fon_massive(uint32_t virt_element)
 //////////////////////////////////////////////////		
 	}
 }
+

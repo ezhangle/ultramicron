@@ -188,12 +188,12 @@ var
   iTick: ulong=0;
   comport_number: uint = 1;
   USB_massive_loading: boolean = false;
-  max_fon_massive: array[0..1008] of UInt32;
-  doze_massive: array[0..1008] of UInt32;
+  max_fon_massive: array[0..10080] of UInt32;
+  doze_massive: array[0..10080] of UInt32;
   selected_point_massive: uint;
 
-  max_fon_massive_ready: array[0..1008] of boolean;
-  doze_massive_ready: array[0..1008] of boolean;
+  max_fon_massive_ready: array[0..10080] of boolean;
+  doze_massive_ready: array[0..10080] of boolean;
 
   geiger_seconds_count: uint32 = 1;
   address: UInt32 = 0;
@@ -782,6 +782,7 @@ procedure TmainFrm.Load_stat_btnClick(Sender: TObject);
 var
   vAns: TiaBuf;
   ix: uint;
+  ibx: uint;
 begin
 
 Unit1.Form1.Show;
@@ -794,16 +795,13 @@ RS232.Close;
 Timer2.Enabled:=true;
 doze_loading_flag:= false;
 maxfon_loading_flag:=false;
-address_last:=1007;
+address_last:=8063;
 
 ComboBox1.Items.Clear;
-Combobox1.AddItem(DateToStr(Date), nil);
-Combobox1.AddItem(DateToStr(Date-1), nil);
-Combobox1.AddItem(DateToStr(Date-2), nil);
-Combobox1.AddItem(DateToStr(Date-3), nil);
-Combobox1.AddItem(DateToStr(Date-4), nil);
-Combobox1.AddItem(DateToStr(Date-5), nil);
-Combobox1.AddItem(DateToStr(Date-6), nil);
+for ibx := 0 to 55 do
+begin
+Combobox1.AddItem(DateToStr(Date-ibx), nil);
+end;
 
 Combobox1.ItemIndex := 0;
 
@@ -823,7 +821,7 @@ begin
   RS232.Properties.StopBits := ONESTOPBIT;
   RS232.Open;
   RS232.StartListner;
-  for ix := 0 to 1007 do begin
+  for ix := 0 to 8063 do begin
     doze_massive[ix]:=0;
     max_fon_massive[ix]:=0;
     doze_massive_ready[ix]:=false;
@@ -1246,7 +1244,7 @@ Var
 
 begin
 Voltage_level:=0;
-packet_size:=10;
+packet_size:=7;
 aData_massive_pointer:=0;
 fBuf_pointer:=0;
 StopRS232:=FALSE;
@@ -1271,7 +1269,7 @@ While used_len<(Length(aData)-1) do begin
          ss := ss + IntToHex(fBuf[F],2) + ' ';
 
 //-----------------------------------------------------------------------------------
-if ((fBuf[0] = $d1) and (fBuf[9] = $d2)) then begin
+if (fBuf[0] = $d1) then begin
   Fon :=0;
   IMPS :=0;
 
@@ -1279,7 +1277,7 @@ if ((fBuf[0] = $d1) and (fBuf[9] = $d2)) then begin
   count_interval := 0;
   IMPS := (fBuf[1] shl 8)+fBuf[2]; // собираем 2 чара
   Fon := ((fBuf[3] shl 16)+(fBuf[4] shl 8))+fBuf[5]; // собираем 3 чара
-  Voltage_level := (fBuf[6] shl 8)+fBuf[7]; // собираем 2 чара
+  Voltage_level := (fBuf[6]+300) *10; // собираем 2 чара
   count_validate := 0;
   count_interval := 30;
 
@@ -1332,7 +1330,7 @@ end;
 
 
 //-----------------------------------------------------------------------------------
-if ((fBuf[0] = $f1) and (fBuf[9] = $f2)) then begin // загрузка элемента массива максимального фона
+if (fBuf[0] = $f1)  then begin // загрузка элемента массива максимального фона
 
   address:=         fBuf[1] shl 8;
   address:=address+ fBuf[2];
@@ -1342,14 +1340,14 @@ if ((fBuf[0] = $f1) and (fBuf[9] = $f2)) then begin // загрузка элемента массива
   massive_element:=massive_element+(fBuf[5] shl 8);
   massive_element:=massive_element+ fBuf[6];
 
-  if (address < 1007) then
+  if (address < 8129) then
   begin
     if Fix_error_now=false then
     begin
-      Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 10)+'%';
+      Unit1.Form1.max_fon.Caption:=   IntToStr(address Div 81)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 10)+'%';
+      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 81)+'%';
       if(max_fon_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
 
@@ -1371,7 +1369,7 @@ end;
 //-----------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------
-if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива дозы
+if (fBuf[0] = $f3) then begin // загрузка элемента массива дозы
 
   address:=         fBuf[1] shl 8;
   address:=address+ fBuf[2];
@@ -1382,14 +1380,14 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
   massive_element:=massive_element+ fBuf[6];
 
 
-  if (address < 1007) then
+  if (address < 8063) then
   begin
     if Fix_error_now=false then
     begin
-      Unit1.Form1.impulses.Caption:=   IntToStr(address Div 10)+'%';
+      Unit1.Form1.impulses.Caption:=   IntToStr(address Div 81)+'%';
     end else
     begin
-      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 10)+'%';
+      Unit1.Form1.fix_errors.Caption:=IntToStr(address Div 81)+'%';
       if(doze_massive_ready[address]=false) then Unit1.Form1.errors.Caption:=IntToStr(StrToInt(Unit1.Form1.errors.Caption)-1);
     end;
     doze_massive[address]:=massive_element;
@@ -1431,7 +1429,7 @@ if ((fBuf[0] = $f3) and (fBuf[9] = $f4)) then begin // загрузка элемента массива
 
       try
         // добавляем нужные параметры
-        for ix := 0 to 1007 do begin
+        for ix := 0 to 8063 do begin
           data.AddFormField(IntToStr(ix), IntToStr(((doze_massive[ix] * geiger_seconds_count) Div 600)));
         end;
         IdHTTP1.Post(Concat('http://upload.xn--h1aeegel.net/upload.php?id=',key), data);
@@ -1464,7 +1462,7 @@ end;
 
 
 //-----------------------------------------------------------------------------------
-if ((fBuf[0] = $f5) and (fBuf[9] = $f6)) then begin // загрузка настроек
+if (fBuf[0] = $f5) then begin // загрузка настроек
 
   geiger_seconds_count:=                      fBuf[1] shl 8;
   geiger_seconds_count:=geiger_seconds_count+ fBuf[2];

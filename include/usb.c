@@ -103,25 +103,23 @@ void USB_work()
 // =========================================================================================
 uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key, uint8_t end_key) // Подготовка массива данных к передаче
 {
-  uint8_t i;
 	uint8_t address_hi=0;
   uint8_t address_lo=0;
 	uint8_t fon_1_4=0;
   uint8_t fon_2_4=0;
   uint8_t fon_3_4=0;
   uint8_t fon_4_4=0;
-  uint32_t crc=0;                // контрольная сумма
 	uint8_t used_lenght=0;
 	uint32_t tmp=0;                // контрольная сумма
 	
-	while(used_lenght <= (VIRTUAL_COM_PORT_DATA_SIZE-10))
+	while(used_lenght <= (VIRTUAL_COM_PORT_DATA_SIZE-7))
 	{
 		address_lo =  *massive_pointer       & 0xff;	
 		address_hi = (*massive_pointer >> 8) & 0xff;	
 
 		if(mode == max_fon_select)tmp=flash_read_max_fon_massive(*massive_pointer);
 		if(mode == dose_select)tmp=flash_read_Doze_massive(*massive_pointer);
-
+		
 		fon_1_4 =  tmp        & 0xff;       
 		fon_2_4 = (tmp >> 8)  & 0xff; 
 		fon_3_4 = (tmp >> 16) & 0xff;
@@ -135,15 +133,8 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 		Send_Buffer[used_lenght+4]=fon_3_4;                                    // передать по УСАПП 
 		Send_Buffer[used_lenght+5]=fon_2_4;                                    // передать по УСАПП 
 		Send_Buffer[used_lenght+6]=fon_1_4;                                    // передать по УСАПП 
-		Send_Buffer[used_lenght+7]=0xFF;                                       // передать по УСАПП 
-    
-		for(i=1;i<8;i++)																												//расчет контрольной суммы
-			crc+=Send_Buffer[used_lenght+i]; 
-
-		Send_Buffer[used_lenght+8]=crc & 0xff;  	                              // передать контрольную сумму
-		Send_Buffer[used_lenght+9]=end_key;       	                            // передать ключь окончания передачи
-	
-		used_lenght+=10;
+		
+		used_lenght+=7;
 
 		if(*massive_pointer>=FLASH_MAX_ELEMENT)
 		{
@@ -159,23 +150,19 @@ uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key
 void USB_send_madorc_data()
 {
 //---------------------------------------------КомПорт для MadOrc------------------------------------
-  uint8_t i;
 	uint8_t fonMegaHi=0;                //  старший байт индекса
   uint8_t fonHi=0;                //  старший байт индекса
   uint8_t fonLo=0;                // младший  байт индекса 
   uint8_t impulseHi=0;                //  старший байт индекса
   uint8_t impulseLo=0;                // младший  байт индекса 
-  uint8_t voltIndexHi=0;                //  старший байт индекса
   uint8_t voltIndexLo=0;                // младший  байт индекса 
-  uint32_t crc=0;                // контрольная сумма
 
 	
 	impulseLo =  madorc_impulse & 0xff;                         // разбить индекс на младший байт
 	impulseHi = (madorc_impulse >> 8) & 0xff;                   // разбить индекс на старший байт  
   madorc_impulse=0;
 	
-  voltIndexLo =  ADCData.Batt_voltage & 0xff;                         // разбить индекс на младший байт
-	voltIndexHi = (ADCData.Batt_voltage >> 8) & 0xff;                   // разбить индекс на старший байт  
+  voltIndexLo = ((ADCData.Batt_voltage/10)-300) & 0xff;                         // разбить индекс на младший байт
 
 	
 	fonLo =  fon_level & 0xff;                                   // разбить индекс на младший байт
@@ -188,23 +175,18 @@ void USB_send_madorc_data()
 	Send_Buffer[3]=fonMegaHi;                                 // передать по УСАПП 
 	Send_Buffer[4]=fonHi;                                     // передать по УСАПП 
 	Send_Buffer[5]=fonLo;                                     // передать по УСАПП 
-	Send_Buffer[6]=voltIndexHi;                               // передать по УСАПП 
-	Send_Buffer[7]=voltIndexLo;                               // передать по УСАПП 
-  for(i=1;i<8;i++)crc+=Send_Buffer[i]; //расчет контрольной суммы
-	Send_Buffer[8]=crc & 0xff;                                // передать контрольную сумму
-	Send_Buffer[9]=0xD2;                                      // передать ключь окончания передачи
+	Send_Buffer[6]=voltIndexLo;                               // передать по УСАПП 
 	
-	Send_length=10;
+	Send_length=7;
 }
 
 
 void USB_send_settings_data()
 {
 //---------------------------------------------КомПорт для MadOrc------------------------------------
-  uint8_t i;
+
 	uint8_t count_time_hi=0;
   uint8_t count_time_lo=0;
-  uint32_t crc=0;                // контрольная сумма
 
   count_time_lo =  Settings.Second_count       & 0xff;	
   count_time_hi = (Settings.Second_count >> 8) & 0xff;	
@@ -216,11 +198,8 @@ void USB_send_settings_data()
 		Send_Buffer[5]=0xFF;                                    // передать по УСАПП 
 		Send_Buffer[6]=0xFF;                                    // передать по УСАПП 
 		Send_Buffer[7]=0xFF;                                       // передать по УСАПП 
-    for(i=1;i<8;i++)crc+=Send_Buffer[i]; //расчет контрольной суммы
-		Send_Buffer[8]=crc & 0xff;                                 // передать контрольную сумму
-		Send_Buffer[9]=0xF6;                                       // передать ключь окончания передачи
 	
-		Send_length=10;
+		Send_length=7;
 }
 
 

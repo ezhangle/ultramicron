@@ -27,8 +27,8 @@ uint32_t ix;
 uint32_t ix_update;
 
 uint16_t Detector_massive[120+1];
-uint32_t ram_Doze_massive[doze_length]; // 1 €чейка = 10 минут, на прот€жении суток
-uint32_t ram_max_fon_massive[doze_length]; // 1 €чейка = 10 минут, на прот€жении суток
+uint32_t ram_Doze_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
+uint32_t ram_max_fon_massive[doze_length+1]; // 1 €чейка = 10 минут, на прот€жении суток
 uint16_t USB_maxfon_massive_pointer=0;
 uint16_t USB_doze_massive_pointer=0;
 uint16_t current_pulse_count=0;
@@ -39,7 +39,7 @@ uint32_t Doze_week_count=0;
 uint32_t Doze_hour_count=0;
 uint32_t Doze_month_count=0;
 uint32_t Max_fon=0;
-uint8_t  main_menu_stat=0;
+uint8_t  main_menu_stat=1;
 uint16_t Detector_massive_pointer=0;
 uint8_t  auto_speedup_factor=0;
 uint32_t USB_not_active=0;

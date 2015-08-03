@@ -303,15 +303,18 @@ void stat_screen()
 
 #ifdef debug
 	case 2:
+/*
+  	sprintf (lcd_buf, "30 R %9i", flash_read_Doze_massive(61)); LcdString(1,1);
+  	sprintf (lcd_buf, "31 R %9i", flash_read_Doze_massive(62)); LcdString(1,2);
+  	sprintf (lcd_buf, "32 R %9i", flash_read_Doze_massive(63));	LcdString(1,3);
+  	sprintf (lcd_buf, "0  F %09X", flash_read_Doze_massive(64));	LcdString(1,4);
+  	sprintf (lcd_buf, "1  F %09X", flash_read_Doze_massive(65));	LcdString(1,5);
+  	sprintf (lcd_buf, "2  F %09X", flash_read_Doze_massive(66));	LcdString(1,6);
+  	sprintf (lcd_buf, "3  F %09X", flash_read_Doze_massive(67));	LcdString(1,7);
+  	sprintf (lcd_buf, "4  F %09X", flash_read_Doze_massive(68));	LcdString(1,8);
 
-  	sprintf (lcd_buf, "0 RAM %5i", flash_read_Doze_massive(0)); 	LcdString(1,1);
-  	sprintf (lcd_buf, "1 RAM %5i", flash_read_Doze_massive(1)); 	LcdString(1,2);
-  	sprintf (lcd_buf, "0 FL1 %5i", flash_read_Doze_massive(32));	LcdString(1,3);
-  	sprintf (lcd_buf, "1 FL1 %5i", flash_read_Doze_massive(33));	LcdString(1,4);
-  	sprintf (lcd_buf, "0 FL2 %5i", flash_read_Doze_massive(64));	LcdString(1,5);
-  	sprintf (lcd_buf, "1 FL2 %5i", flash_read_Doze_massive(65));	LcdString(1,6);
-
-/*	
+*/
+	
 		sprintf (lcd_buf, LANG_DALL,    Wakeup.total_wakeup); 	 	LcdString(1,1);
 		sprintf (lcd_buf, "RTC    %5i", Wakeup.rtc_wakeup);   		LcdString(1,2);
 		sprintf (lcd_buf, "tim9   %5i", Wakeup.tim9_wakeup); 	 	  LcdString(1,3);
@@ -319,8 +322,8 @@ void stat_screen()
 		sprintf (lcd_buf, "COMP2  %5i", Wakeup.comp_wakeup); 			LcdString(1,5);
 		sprintf (lcd_buf, LANG_DTIME,   debug_wutr/2); 	        	LcdString(1,7);
 		sprintf (lcd_buf, LANG_DSENS,   Wakeup.sensor_wakeup);  		LcdString(1,8);
-*/
-		break;
+
+	break;
 #endif
 	
 	case 1:

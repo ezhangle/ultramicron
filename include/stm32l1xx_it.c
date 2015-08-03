@@ -441,11 +441,11 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 				
 			} else DataUpdate.days_sec_count++;
 			// Сдвиг массива дозы
-			if(DataUpdate.doze_sec_count>=150) // каждые 10 минут
+			if(DataUpdate.doze_sec_count>=150) // каждые 10 минут (150)
 			{
 				// -----------------------------------------------------
 				DataUpdate.doze_count++;
-				if(DataUpdate.doze_count>doze_length) // Запись страницы во Flash
+				if(DataUpdate.doze_count>=doze_length) // Запись страницы во Flash
 				//if(DataUpdate.doze_count>1) // Запись страницы во Flash
 				{
 					DataUpdate.doze_count=0;
@@ -463,7 +463,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 				}
 				ram_Doze_massive[0]=0;
 				ram_max_fon_massive[0]=0;
-				DataUpdate.doze_sec_count=0;
+				DataUpdate.doze_sec_count=1; //// !!!!! 0
 
 			} else DataUpdate.doze_sec_count++;
 			////////////////////////////////////////////////////	
