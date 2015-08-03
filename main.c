@@ -37,6 +37,7 @@ uint8_t pump_count=0;
 uint32_t Doze_day_count=0;
 uint32_t Doze_week_count=0;
 uint32_t Doze_hour_count=0;
+uint32_t Doze_month_count=0;
 uint32_t Max_fon=0;
 uint8_t  main_menu_stat=0;
 uint16_t Detector_massive_pointer=0;

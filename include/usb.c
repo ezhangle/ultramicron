@@ -8,6 +8,10 @@
 #include "usb.h"
 #include "keys.h"
 #include "clock.h"
+#include "flash_save.h"
+
+#define max_fon_select 1
+#define dose_select 2
 
 extern __IO uint8_t Receive_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 extern __IO  uint32_t Receive_length ;
@@ -55,11 +59,11 @@ void USB_work()
 					}
 					if(Receive_Buffer[0] == 0x31) // передача массива максимального фона
 					{
-						Send_length = prepare_data(ram_max_fon_massive, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
+						Send_length = prepare_data(max_fon_select, &USB_maxfon_massive_pointer, 0xF1, 0xF2); // Подготовка массива данных к передаче
 					}
 					if(Receive_Buffer[0] == 0x32) // передача массива дозы
 					{
-						Send_length = prepare_data(ram_Doze_massive,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
+						Send_length = prepare_data(dose_select,    &USB_doze_massive_pointer,   0xF3, 0xF4); // Подготовка массива данных к передаче
 					}
 					if(Receive_Buffer[0] == 0x33) // передача настроек
 					{
@@ -97,7 +101,7 @@ void USB_work()
 }
 
 // =========================================================================================
-uint8_t prepare_data(uint32_t *massive, uint16_t *massive_pointer, uint8_t start_key, uint8_t end_key) // Подготовка массива данных к передаче
+uint8_t prepare_data(uint32_t mode, uint16_t *massive_pointer, uint8_t start_key, uint8_t end_key) // Подготовка массива данных к передаче
 {
   uint8_t i;
 	uint8_t address_hi=0;
@@ -108,16 +112,20 @@ uint8_t prepare_data(uint32_t *massive, uint16_t *massive_pointer, uint8_t start
   uint8_t fon_4_4=0;
   uint32_t crc=0;                // контрольная сумма
 	uint8_t used_lenght=0;
+	uint32_t tmp=0;                // контрольная сумма
 	
 	while(used_lenght <= (VIRTUAL_COM_PORT_DATA_SIZE-10))
 	{
 		address_lo =  *massive_pointer       & 0xff;	
 		address_hi = (*massive_pointer >> 8) & 0xff;	
-	
-		fon_1_4 =  massive[*massive_pointer]        & 0xff;       
-		fon_2_4 = (massive[*massive_pointer] >> 8)  & 0xff; 
-		fon_3_4 = (massive[*massive_pointer] >> 16) & 0xff;
-		fon_4_4 = (massive[*massive_pointer] >> 24) & 0xff;
+
+		if(mode == max_fon_select)tmp=flash_read_max_fon_massive(*massive_pointer);
+		if(mode == dose_select)tmp=flash_read_Doze_massive(*massive_pointer);
+
+		fon_1_4 =  tmp        & 0xff;       
+		fon_2_4 = (tmp >> 8)  & 0xff; 
+		fon_3_4 = (tmp >> 16) & 0xff;
+		fon_4_4 = (tmp >> 24) & 0xff;
 		*massive_pointer = *massive_pointer + 1;
 
 		Send_Buffer[used_lenght  ]=start_key;                                  // передать ключ
@@ -137,7 +145,7 @@ uint8_t prepare_data(uint32_t *massive, uint16_t *massive_pointer, uint8_t start
 	
 		used_lenght+=10;
 
-		if(*massive_pointer>=doze_length)
+		if(*massive_pointer>=FLASH_MAX_ELEMENT)
 		{
 			*massive_pointer=0;
 			return used_lenght;

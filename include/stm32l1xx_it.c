@@ -445,28 +445,21 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 			{
 				// -----------------------------------------------------
 				DataUpdate.doze_count++;
-				if(DataUpdate.doze_count>32) // Запись страницы во Flash
+				if(DataUpdate.doze_count>doze_length) // Запись страницы во Flash
+				//if(DataUpdate.doze_count>1) // Запись страницы во Flash
 				{
 					DataUpdate.doze_count=0;
 					flash_write_page(DataUpdate.current_flash_page);
 					DataUpdate.current_flash_page++;
-					if(DataUpdate.current_flash_page > ((((FLASH_END_ADDR-FLASH_START_ADDR)+1)/FLASH_PAGE_SIZE))) // если за границами диапазона
+					if(DataUpdate.current_flash_page > ((FLASH_END_ADDR-FLASH_START_ADDR)/FLASH_PAGE_SIZE)) // если за границами диапазона
 						DataUpdate.current_flash_page=0;
 				}
 				// -----------------------------------------------------
 
-				Doze_week_count=0;
-				Doze_day_count=0;
-				Doze_hour_count=0;
-				Max_fon=0;
 				for(i=doze_length;i>0;i--)
 				{
 					ram_Doze_massive[i]=ram_Doze_massive[i-1];                        // сдвиг массива дозы
 					ram_max_fon_massive[i]=ram_max_fon_massive[i-1];                  // сдвиг массива максимального фона
-					if(ram_max_fon_massive[i]>Max_fon)Max_fon=ram_max_fon_massive[i]; // расчет максимального фона
-					if(i<7)              Doze_hour_count+=ram_Doze_massive[i];    // расчет часовой дозы
-//					if(i<doze_length_day)Doze_day_count +=ram_Doze_massive[i];    // расчет дневной дозы
-//															 Doze_week_count+=ram_Doze_massive[i];    // расчет недельной дозы
 				}
 				ram_Doze_massive[0]=0;
 				ram_max_fon_massive[0]=0;

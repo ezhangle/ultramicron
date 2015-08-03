@@ -5,6 +5,7 @@
 #include "keys.h"
 #include "ext2760.h"
 #include "lang.h"
+#include "flash_save.h"
 
 MenuItem Menu_list[max_struct_index] = {
   
@@ -49,7 +50,7 @@ MenuItem Menu_list[max_struct_index] = {
 void main_screen()
 {
   
-  uint16_t battery_procent=0;
+  uint16_t battery_procent=0, i=0;
    
   //Рачсет процента батарейки 3.2В = 0% 4.2В = 100%
   battery_procent=ADCData.Batt_voltage;
@@ -58,14 +59,18 @@ void main_screen()
   if(ADCData.Batt_voltage<3200){LcdBatt(82, 19, 82+10, 19+19, 0);}//рисуем батарейкуADCData.Batt_voltage
   else LcdBatt(84, 19, 84+10, 19+19, battery_procent);//рисуем батарейкуADCData.Batt_voltage
 
-	if (main_menu_stat>5)main_menu_stat=1;
-	if (main_menu_stat<1)main_menu_stat=5;
+	if (main_menu_stat>6)main_menu_stat=1;
+	if (main_menu_stat<1)main_menu_stat=6;
 	switch (main_menu_stat)
 	{
 		case 0x01:
 			sprintf (lcd_buf, LANG_MAXFON); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 
+			Max_fon=0;
+			for(i=doze_length;i>0;i--)
+					if(ram_max_fon_massive[i]>Max_fon)Max_fon=ram_max_fon_massive[i]; // расчет максимального фона
+		
 			sprintf (lcd_buf, LANG_9UMKR, Max_fon); // Пишем в буфер значение счетчика
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
@@ -73,11 +78,11 @@ void main_screen()
 		case 0x02:
 			sprintf (lcd_buf, LANG_DOSE10M); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
-	
-			if(ram_Doze_massive[1]>0)
+			
+			if(flash_read_Doze_massive(doze_length_10m)>0)
 			{
 				//фон за час massive/(3600/время счета)
-				sprintf (lcd_buf, LANG_9UMKR, (ram_Doze_massive[1]*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
+				sprintf (lcd_buf, LANG_9UMKR, (flash_read_Doze_massive(doze_length_10m)*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
 			}
@@ -88,8 +93,11 @@ void main_screen()
 			sprintf (lcd_buf, LANG_DOSEHOUR); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
 		
-			if(ram_Doze_massive[6]>0)
+			if(flash_read_Doze_massive(doze_length_hour)>0)
 			{
+				Doze_hour_count=0;
+				for(i=doze_length_hour;i>0;i--)Doze_hour_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_hour_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
@@ -99,41 +107,59 @@ void main_screen()
   // -----------------------------------------
 		case 0x04:
 			sprintf (lcd_buf, LANG_DOSE24H); // Пишем в буфер значение счетчика
-			LcdString(1,4); // // Выводим обычным текстом содержание буфера
-
-		sprintf (lcd_buf, LANG_9UMKR, (*(__IO uint32_t*)(FLASH_START_ADDR+4)));
-		
-		
-/*			if(ram_Doze_massive[doze_length_day]>0)
+			LcdString(1,4); // // Выводим обычным текстом содержание буфера		
+			
+			if(flash_read_Doze_massive(doze_length_day)>0) // День
 			{
+				Doze_day_count=0;
+				for(i=doze_length_day;i>0;i--)Doze_day_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_day_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
 			}
-*/
+
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
   // -----------------------------------------
 		case 0x05:
 			sprintf (lcd_buf, LANG_DOSEWEEK); // Пишем в буфер значение счетчика
 			LcdString(1,4); // // Выводим обычным текстом содержание буфера
-  /* Check the written data */
-
-
-		sprintf (lcd_buf, LANG_9UMKR, (*(__IO uint32_t*)FLASH_START_ADDR));
-
-		/*
-			if(ram_Doze_massive[doze_length]>0)
+		
+			if(flash_read_Doze_massive(doze_length_week)>0) // неделя
 			{
+				Doze_week_count=0;
+				for(i=doze_length_week;i>0;i--)Doze_week_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_week_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
 				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
 			}
-*/
+
 			LcdString(1,5); // // Выводим обычным текстом содержание буфера
       break;
   // -----------------------------------------
 
+			
+// -----------------------------------------
+		case 0x06:
+			sprintf (lcd_buf, LANG_DOSEMONTH); // Пишем в буфер значение счетчика
+			LcdString(1,4); // // Выводим обычным текстом содержание буфера
+		
+			if(flash_read_Doze_massive(doze_length_month)>0) // неделя
+			{
+				Doze_month_count=0;
+				for(i=doze_length_month;i>0;i--)Doze_month_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+
+				sprintf (lcd_buf, LANG_9UMKR, (Doze_month_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
+			} else {
+				sprintf (lcd_buf, LANG_DOSECALC); // Пишем в буфер значение счетчика
+			}
+
+			LcdString(1,5); // // Выводим обычным текстом содержание буфера
+      break;
+  // -----------------------------------------
+			
     default: 
 			break;
 	}
@@ -278,6 +304,14 @@ void stat_screen()
 #ifdef debug
 	case 2:
 
+  	sprintf (lcd_buf, "0 RAM %5i", flash_read_Doze_massive(0)); 	LcdString(1,1);
+  	sprintf (lcd_buf, "1 RAM %5i", flash_read_Doze_massive(1)); 	LcdString(1,2);
+  	sprintf (lcd_buf, "0 FL1 %5i", flash_read_Doze_massive(32));	LcdString(1,3);
+  	sprintf (lcd_buf, "1 FL1 %5i", flash_read_Doze_massive(33));	LcdString(1,4);
+  	sprintf (lcd_buf, "0 FL2 %5i", flash_read_Doze_massive(64));	LcdString(1,5);
+  	sprintf (lcd_buf, "1 FL2 %5i", flash_read_Doze_massive(65));	LcdString(1,6);
+
+/*	
 		sprintf (lcd_buf, LANG_DALL,    Wakeup.total_wakeup); 	 	LcdString(1,1);
 		sprintf (lcd_buf, "RTC    %5i", Wakeup.rtc_wakeup);   		LcdString(1,2);
 		sprintf (lcd_buf, "tim9   %5i", Wakeup.tim9_wakeup); 	 	  LcdString(1,3);
@@ -285,6 +319,7 @@ void stat_screen()
 		sprintf (lcd_buf, "COMP2  %5i", Wakeup.comp_wakeup); 			LcdString(1,5);
 		sprintf (lcd_buf, LANG_DTIME,   debug_wutr/2); 	        	LcdString(1,7);
 		sprintf (lcd_buf, LANG_DSENS,   Wakeup.sensor_wakeup);  		LcdString(1,8);
+*/
 		break;
 #endif
 	

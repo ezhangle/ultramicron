@@ -49,7 +49,7 @@ void full_erase_flash(void) // Erase full dataflash
 void page_erase_flash(uint32_t page) // Erase 32 elements
 {
 uint32_t Address = 0;	
-if(((FLASH_END_ADDR-FLASH_START_ADDR)/FLASH_PAGE_SIZE) > page) // если не за границами диапазона
+if(FLASH_MAX_PAGE >= page) // если не за границами диапазона
 {
 	
   /* Unlock the FLASH Program memory */ 
@@ -59,8 +59,7 @@ if(((FLASH_END_ADDR-FLASH_START_ADDR)/FLASH_PAGE_SIZE) > page) // если не за гра
   FLASH_ClearFlag(FLASH_FLAG_EOP|FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR
                   | FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | FLASH_FLAG_OPTVERRUSR);
 
-  Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE * 4);
-  
+  Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE);
   /* Erase the FLASH Program memory pages */
   FLASHStatus_eeprom = FLASH_ErasePage(Address);
 
@@ -83,14 +82,15 @@ void flash_write_page(uint32_t page) // Write 32 element of massive ram_Doze_mas
 {  
 uint32_t Address = 0;
 
-if(((((FLASH_END_ADDR-FLASH_START_ADDR)+1)/FLASH_PAGE_SIZE)) > page) // если не за границами диапазона
+if(page <= FLASH_MAX_PAGE) // если не за границами диапазона
 {	
 
 	Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE);
 	
-	// Если в страницу уже что-то записано, ее надо стереть
-	if(((*(__IO uint32_t*)Address) != 0xFFFFFFFF) && ((*(__IO uint32_t*)Address) != 0x00000000))
-		page_erase_flash(page);
+	///// Если в страницу уже что-то записано, ее надо стереть
+	/////if(((*(__IO uint32_t*)Address) != 0xFFFFFFFF) && ((*(__IO uint32_t*)Address) != 0x00000000))
+
+	page_erase_flash(page); // Стереть страницу перед записью
 	
 	/* Unlock the FLASH Program memory */ 
   FLASH_Unlock();
@@ -128,3 +128,95 @@ if(((((FLASH_END_ADDR-FLASH_START_ADDR)+1)/FLASH_PAGE_SIZE)) > page) // если не 
 }
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////
+uint32_t flash_read_Doze_massive(uint32_t virt_element)
+{  
+	uint32_t Address=0, page=0, index=0;
+	
+	if(virt_element<doze_length) // 0-31
+	{
+		return ram_Doze_massive[virt_element];
+	} else // >31
+	{
+		index=virt_element-doze_length;
+		page=DataUpdate.current_flash_page;
+		if(page==0) //если достигли начала, взад!
+		{
+			page=FLASH_MAX_PAGE;
+		} else
+		{
+			page--; // преведущая страничка
+		}
+
+//////////////////////////////////////////////////
+		while(1)
+		{
+			if(index<doze_length) // Нашли нужную страничку
+			{
+				Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE); // вычисляем адрес начала страницы
+				Address = Address + (index*4); // Вычисляем адрес элемента на странице
+				return 	(*(__IO uint32_t*)Address); // Читаем данные из флеша
+			}
+			else // Если индекс не в этой странице памяти
+			{
+				index=index-doze_length;
+				if(page==0) //если достигли начала, взад!
+				{
+					page=FLASH_MAX_PAGE;
+				} else
+				{
+					page--; // преведущая страничка
+				}
+			}
+		}
+//////////////////////////////////////////////////		
+	}
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+uint32_t flash_read_max_fon_massive(uint32_t virt_element)
+{  
+	uint32_t Address=0, page=0, index=0;
+	
+	if(virt_element<doze_length) // 0-31
+	{
+		return ram_max_fon_massive[virt_element];
+	} else // >31
+	{
+		index=virt_element-doze_length;
+		page=DataUpdate.current_flash_page;
+		if(page==0) //если достигли начала, взад!
+		{
+			page=FLASH_MAX_PAGE;
+		} else
+		{
+			page--; // преведущая страничка
+		}
+
+//////////////////////////////////////////////////
+		while(1)
+		{
+			if(index<doze_length) // Нашли нужную страничку
+			{
+				Address = FLASH_START_ADDR + (page * FLASH_PAGE_SIZE); // вычисляем адрес начала страницы
+				Address = Address + (index*4) + (FLASH_PAGE_SIZE/2); // Вычисляем адрес элемента на странице
+				return 	(*(__IO uint32_t*)Address); // Читаем данные из флеша
+			}
+			else // Если индекс не в этой странице памяти
+			{
+				index=index-doze_length;
+				if(page==0) //если достигли начала, взад!
+				{
+					page=FLASH_MAX_PAGE;
+				} else
+				{
+					page--; // преведущая страничка
+				}
+			}
+		}
+//////////////////////////////////////////////////		
+	}
+}

@@ -10,11 +10,6 @@
 #define U_ID_2 (*(uint32_t*) 0x1FF80064)
 
 
-#define FLASH_PAGE_SIZE                 0x100
-#define FLASH_START_ADDR                0x08010000
-#define FLASH_END_ADDR                  0x0801FFFF
-
-
 #ifdef service
 	#define debug // отладка
 #endif
@@ -138,8 +133,20 @@ extern uint32_t ix_update;
 //#define count_seconds 75 // 
 extern uint16_t Detector_massive[120+1];
 
-//#define doze_length_day 144 // 1 день интервалами по 10 минут
-#define doze_length 32 // 7 дней интервалами по 10 минут  (6*24*7)=1008 (7 дней)
+#define FLASH_PAGE_SIZE                 0x100
+#define FLASH_START_ADDR                0x08010000
+#define FLASH_END_ADDR                  0x0801FFFF
+#define FLASH_MAX_ELEMENT               (FLASH_END_ADDR - FLASH_START_ADDR) / 4
+#define FLASH_MAX_PAGE                  (FLASH_END_ADDR - FLASH_START_ADDR)/FLASH_PAGE_SIZE
+
+#define doze_length_10m      1 // 10 минут
+#define doze_length_hour     6 // 1 час    интервалами по 10 минут 60/10
+#define doze_length_day    144 // 1 день   интервалами по 10 минут (60/10)*24
+#define doze_length_week  1008 // 1 неделя интервалами по 10 минут (60/10)*24*7
+#define doze_length_month 4320 // 1 месяц  интервалами по 10 минут (60/10)*24*30
+
+#define doze_length 32 // длинна массива в памяти
+
 extern uint32_t ram_Doze_massive[doze_length]; // 1 ячейка = 10 минут
 extern uint32_t ram_max_fon_massive[doze_length]; // 1 ячейка = 10 минут
 extern uint16_t USB_maxfon_massive_pointer;
@@ -149,6 +156,7 @@ extern uint16_t Doze_sec_count;
 extern uint32_t Doze_day_count;
 extern uint32_t Doze_hour_count;
 extern uint32_t Doze_week_count;
+extern uint32_t Doze_month_count;
 extern uint32_t Max_fon;
 extern uint8_t  main_menu_stat;
 extern uint32_t menu_select;
