@@ -111,8 +111,12 @@ void main_screen()
 			
 			if(flash_read_Doze_massive(doze_length_day)>0) // День
 			{
-				Doze_day_count=0;
-				for(i=doze_length_day;i>0;i--)Doze_day_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+				if(DataUpdate.Need_update_mainscreen_counters==ENABLE)
+				{
+					DataUpdate.Need_update_mainscreen_counters=DISABLE;
+					Doze_day_count=0;
+					for(i=doze_length_day;i>0;i--)Doze_day_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+				}
 
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_day_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
@@ -128,8 +132,12 @@ void main_screen()
 		
 			if(flash_read_Doze_massive(doze_length_week)>0) // неделя
 			{
-				Doze_week_count=0;
-				for(i=doze_length_week;i>0;i--)Doze_week_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+				if(DataUpdate.Need_update_mainscreen_counters==ENABLE)
+				{
+					DataUpdate.Need_update_mainscreen_counters=DISABLE;
+					Doze_week_count=0;
+					for(i=doze_length_week;i>0;i--)Doze_week_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+				}
 
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_week_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
@@ -148,8 +156,12 @@ void main_screen()
 		
 			if(flash_read_Doze_massive(doze_length_month)>0) // неделя
 			{
-				Doze_month_count=0;
-				for(i=doze_length_month;i>0;i--)Doze_month_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+				if(DataUpdate.Need_update_mainscreen_counters==ENABLE)
+				{
+					DataUpdate.Need_update_mainscreen_counters=DISABLE;
+					Doze_month_count=0;
+					for(i=doze_length_month;i>0;i--)Doze_month_count+=flash_read_Doze_massive(i);    // расчет недельной дозы
+				}
 
 				sprintf (lcd_buf, LANG_9UMKR, (Doze_month_count*(Settings.Second_count>>2))/900); // Пишем в буфер значение счетчика
 			} else {
