@@ -159,6 +159,8 @@ int main(void)
   set_bor();
 	Power.sleep_now=DISABLE;
 	
+	DataUpdate.Need_erase_flash=ENABLE;
+	
   Settings.Geiger_voltage=360; // Напряжение на датчике 360 вольт
   Settings.Pump_Energy=350;    // энергия накачки 350 мТл
 	DataUpdate.current_flash_page=0;
@@ -211,8 +213,6 @@ int main(void)
 	if(!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6))hidden_menu=ENABLE; // Открытие сервисных пунктов меню
 	
 	delay_ms(500); // подождать установки напряжения
-	
-	full_erase_flash();
 		
   while(1) 
 /////////////////////////////////

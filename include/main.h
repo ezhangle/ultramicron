@@ -28,6 +28,7 @@ typedef struct
 	uint16_t  doze_count;                    // Служебный счетчик для отметки окончания массива дозы
 	uint32_t  current_flash_page;                    // Служебный счетчик для отметки окончания массива дозы
 	FunctionalState Need_update_mainscreen_counters;
+	FunctionalState Need_erase_flash;
 //  uint8_t second_pump_counter;
 //  uint8_t pump_pulse_by_impulse_counter;
   
