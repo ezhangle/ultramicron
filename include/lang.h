@@ -109,8 +109,8 @@
 #define LANG_DOSE24H  "Day dose"
 #define LANG_DOSEWEEK "Week dose"
 #define LANG_DOSEMONTH "Month dose"
-#define LANG_DOSECALC " *CALC*   uRh"
-#define LANG_9UMKR    "%9u uRh"
+#define LANG_DOSECALC " *CALC*   uR"
+#define LANG_9UMKR    "%9u uR"
 ///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////

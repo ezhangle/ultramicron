@@ -454,7 +454,7 @@ void RTC_Alarm_IRQHandler(void) { // Тик каждые 4 секунды
 					DataUpdate.doze_count=0;
 					flash_write_page(DataUpdate.current_flash_page);
 					DataUpdate.current_flash_page++;
-					if(DataUpdate.current_flash_page > ((FLASH_END_ADDR-FLASH_START_ADDR)/FLASH_PAGE_SIZE)) // если за границами диапазона
+					if(DataUpdate.current_flash_page > (FLASH_MAX_PAGE)) // если за границами диапазона
 						DataUpdate.current_flash_page=0;
 				}
 				// -----------------------------------------------------
